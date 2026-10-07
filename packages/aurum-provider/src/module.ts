@@ -1,7 +1,8 @@
 /**
  * aurum-provider module manifest. Dependency declaration mirrors
- * architecture-policy.yaml; the only public surface is contract.ts
- * (re-exported through index.ts).
+ * architecture-policy.yaml. The public entrypoint is index.ts, which
+ * composes contract.ts (types/ports/pure logic) with the deterministic
+ * seam doubles from adapters/.
  */
 export const aurumproviderModule = {
   id: "aurum-provider",

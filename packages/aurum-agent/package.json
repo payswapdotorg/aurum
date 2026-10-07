@@ -2,7 +2,7 @@
   "name": "@aurum/agent",
   "version": "0.1.0",
   "private": true,
-  "description": "Aurum managed module aurum-agent (owner: W-C) — implementation lands with its assigned work items per spec/WORK-ITEM-CATALOG.md",
+  "description": "Aurum managed module aurum-agent (owner: W-C) — persistent model-agnostic Agent Body fabric",
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -16,6 +16,9 @@
     "test": "vitest run",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
+  },
+  "dependencies": {
+    "@aurum/provider": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

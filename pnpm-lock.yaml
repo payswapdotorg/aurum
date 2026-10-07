@@ -607,6 +607,10 @@ importers:
   apps/zcode-cli/tools/typescript: {}
 
   packages/aurum-agent:
+    dependencies:
+      '@aurum/provider':
+        specifier: workspace:*
+        version: link:../aurum-provider
     devDependencies:
       typescript:
         specifier: ^5.9.3
