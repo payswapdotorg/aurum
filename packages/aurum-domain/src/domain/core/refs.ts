@@ -23,6 +23,10 @@ export const SUBJECT_KINDS = [
   "memory",
   "action",
   "topic",
+  "process",
+  "capability",
+  "workforce",
+  "candidate",
 ] as const;
 
 export type SubjectKind = (typeof SUBJECT_KINDS)[number];

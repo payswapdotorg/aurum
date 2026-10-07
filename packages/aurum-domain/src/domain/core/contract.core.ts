@@ -3,9 +3,15 @@
  */
 export type {
   ActionId,
+  AlternativeExplanationId,
   AuditId,
   BeliefId,
   Brand,
+  CapabilityGapId,
+  CapabilityId,
+  CapabilityRequirementId,
+  CapabilitySupplyId,
+  CapacityDeclarationId,
   ClaimId,
   ContradictionId,
   DomainTimestamp,
@@ -15,18 +21,30 @@ export type {
   MembershipId,
   MemoryId,
   ObservationId,
+  OrganizationCandidateId,
   OrganizationId,
   PersonId,
+  ProcessId,
   RecordId,
   SiteId,
   TenantId,
   UnknownId,
   UnitId,
+  WorkAssignmentId,
+  WorkOutcomeId,
+  WorkforceRecommendationId,
+  WorkforceRoleId,
 } from "./branding.js";
 export {
   actionId,
+  alternativeExplanationId,
   auditId,
   beliefId,
+  capabilityGapId,
+  capabilityId,
+  capabilityRequirementId,
+  capabilitySupplyId,
+  capacityDeclarationId,
   claimId,
   contradictionId,
   eventId,
@@ -35,11 +53,17 @@ export {
   membershipId,
   memoryId,
   observationId,
+  organizationCandidateId,
   organizationId,
   personId,
+  processId,
   siteId,
   unknownId,
   unitId,
+  workAssignmentId,
+  workOutcomeId,
+  workforceRecommendationId,
+  workforceRoleId,
 } from "./ids.js";
 export {
   DomainError,
@@ -67,6 +91,8 @@ export {
   systemActor,
 } from "./refs.js";
 export type { ActorKind, ActorReference, SubjectKind, SubjectReference } from "./refs.js";
+export { SUPPLIER_KINDS, isKnownSupplierKind, supplierIssues } from "./suppliers.js";
+export type { SupplierKind, SupplierReference } from "./suppliers.js";
 export { tenantScope } from "./scope.js";
 export type { TenantScope, TenantScopedRecord } from "./scope.js";
 export { deepFreeze } from "./freeze.js";
