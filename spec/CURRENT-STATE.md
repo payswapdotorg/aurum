@@ -81,3 +81,23 @@ record. Logs: replay deployment scripts/worker-prompts/logs/ (TL station).
    per WORK-ITEM-DAG.
 
 The status above is derived from source, tests, integrated SHAs and evidence.
+
+## Wave 2 (W005) — MERGED (2026-10-07 20:22Z)
+
+- W005 "Process/capability/workforce + organization contracts" DELIVERED on
+  work/w005-process-workforce @ 6489b5b (2 commits, 41 files, +6415/-8:
+  process/capability/workforce semantics + the shared OrganizationCandidate/
+  ActorAssignment/CapabilityAllocation vocabulary extending the W002 kernel;
+  4 test suites — process, workforce, workforce-recommendations, w005-acceptance).
+- TL verification (never trusting the worker summary): scope clean (all within
+  packages/aurum-domain/**), freshness/fmt/lint/architecture PASS, package
+  suites aurum-domain 111/111, aurum-provider 57/57, aurum-agent 27/27.
+- MERGED: main -> a345707 (ff-only integration/W005). CI green expected on push.
+- Delivery context (platform honesty): delivered through three GLM-5.3 capacity
+  sieges — a mid-flight stream kill cured in-place (§8 stop/continue, zero
+  narrative loss), a 3.7h queued-turn freeze, and a stalled final push that
+  self-resumed during a capacity flicker.
+- Wave 3 W008 (Organizational Lab core) dispatched at base a345707.
+
+Current integration lineage: W000 -> 3477e3c -> 20abfba -> b1dab63 -> 20db9ec
+-> 8024c15 -> a345707 (W005).
