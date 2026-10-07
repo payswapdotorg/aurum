@@ -7,9 +7,15 @@ import { ok, err, type Result } from "./result.js";
 import { validationError } from "./errors.js";
 import type {
   ActionId,
+  AlternativeExplanationId,
   AuditId,
   BeliefId,
   Brand,
+  CapabilityGapId,
+  CapabilityId,
+  CapabilityRequirementId,
+  CapabilitySupplyId,
+  CapacityDeclarationId,
   ClaimId,
   ContradictionId,
   EventId,
@@ -18,11 +24,17 @@ import type {
   MembershipId,
   MemoryId,
   ObservationId,
+  OrganizationCandidateId,
   OrganizationId,
   PersonId,
+  ProcessId,
   SiteId,
   UnknownId,
   UnitId,
+  WorkAssignmentId,
+  WorkOutcomeId,
+  WorkforceRecommendationId,
+  WorkforceRoleId,
 } from "./branding.js";
 
 function toId<B extends string>(field: string, value: string): Result<Brand<string, B>> {
@@ -59,3 +71,24 @@ export const goalId = (value: string): Result<GoalId> => toId("goalId", value);
 export const memoryId = (value: string): Result<MemoryId> => toId("memoryId", value);
 export const actionId = (value: string): Result<ActionId> => toId("actionId", value);
 export const auditId = (value: string): Result<AuditId> => toId("auditId", value);
+export const processId = (value: string): Result<ProcessId> => toId("processId", value);
+export const capabilityId = (value: string): Result<CapabilityId> => toId("capabilityId", value);
+export const capabilitySupplyId = (value: string): Result<CapabilitySupplyId> =>
+  toId("capabilitySupplyId", value);
+export const capabilityRequirementId = (value: string): Result<CapabilityRequirementId> =>
+  toId("capabilityRequirementId", value);
+export const capabilityGapId = (value: string): Result<CapabilityGapId> =>
+  toId("capabilityGapId", value);
+export const workforceRoleId = (value: string): Result<WorkforceRoleId> =>
+  toId("workforceRoleId", value);
+export const capacityDeclarationId = (value: string): Result<CapacityDeclarationId> =>
+  toId("capacityDeclarationId", value);
+export const workAssignmentId = (value: string): Result<WorkAssignmentId> =>
+  toId("workAssignmentId", value);
+export const workOutcomeId = (value: string): Result<WorkOutcomeId> => toId("workOutcomeId", value);
+export const alternativeExplanationId = (value: string): Result<AlternativeExplanationId> =>
+  toId("alternativeExplanationId", value);
+export const workforceRecommendationId = (value: string): Result<WorkforceRecommendationId> =>
+  toId("workforceRecommendationId", value);
+export const organizationCandidateId = (value: string): Result<OrganizationCandidateId> =>
+  toId("organizationCandidateId", value);

@@ -31,6 +31,23 @@ export const AUDIT_ACTIONS = [
   "action.authorized",
   "action.rejected",
   "action.executed",
+  "process.registered",
+  "process.revised",
+  "process.metrics-recorded",
+  "capability.registered",
+  "capability.supply-registered",
+  "capability.requirement-registered",
+  "capability.gap-recomputed",
+  "workforce.role-registered",
+  "workforce.capacity-declared",
+  "workforce.assignment-recorded",
+  "workforce.assignment-ended",
+  "workforce.workload-observed",
+  "workforce.outcome-recorded",
+  "workforce.explanation-recorded",
+  "workforce.recommendation-proposed",
+  "workforce.recommendation-decided",
+  "candidate.registered",
 ] as const;
 
 export type AuditActionKind = (typeof AUDIT_ACTIONS)[number];

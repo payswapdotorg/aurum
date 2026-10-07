@@ -29,6 +29,20 @@ import { createOrganizationalMemory } from "../memory/memoryStore.js";
 import type { OrganizationalMemory } from "../memory/ports.js";
 import { createActionAuthority } from "../action/actionStore.js";
 import type { ActionAuthority } from "../action/ports.js";
+import { createProcessDirectory } from "../process/processStore.js";
+import type { ProcessDirectory } from "../process/ports.js";
+import { createCapabilityGraph } from "../capability/capabilityStore.js";
+import type { CapabilityGraph } from "../capability/ports.js";
+import { createWorkforceDirectory } from "../workforce/workforceStore.js";
+import { createWorkforceInsights } from "../workforce/insightsStore.js";
+import { createWorkforceRecommendations } from "../workforce/recommendationStore.js";
+import type {
+  WorkforceDirectory,
+  WorkforceInsights,
+  WorkforceRecommendations,
+} from "../workforce/ports.js";
+import { createCandidateRegistry } from "../candidate/candidateStore.js";
+import type { OrganizationCandidateRegistry } from "../candidate/ports.js";
 
 /** The composed public kernel surface. */
 export interface AurumDomainKernel {
@@ -42,6 +56,12 @@ export interface AurumDomainKernel {
   readonly memory: OrganizationalMemory;
   readonly actions: ActionAuthority;
   readonly audit: AuditTrail;
+  readonly processes: ProcessDirectory;
+  readonly capabilities: CapabilityGraph;
+  readonly workforce: WorkforceDirectory;
+  readonly workforceInsights: WorkforceInsights;
+  readonly workforceRecommendations: WorkforceRecommendations;
+  readonly candidates: OrganizationCandidateRegistry;
 }
 
 export function createDomainKernel(): AurumDomainKernel {
@@ -78,5 +98,11 @@ export function createDomainKernel(): AurumDomainKernel {
           : [],
     }),
     audit: auditTrail,
+    processes: createProcessDirectory(auditTrail),
+    capabilities: createCapabilityGraph(auditTrail),
+    workforce: createWorkforceDirectory(auditTrail),
+    workforceInsights: createWorkforceInsights(auditTrail),
+    workforceRecommendations: createWorkforceRecommendations(auditTrail),
+    candidates: createCandidateRegistry(auditTrail),
   };
 }

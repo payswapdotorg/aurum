@@ -43,6 +43,30 @@ export type MemoryId = Brand<string, "MemoryId">;
 export type ActionId = Brand<string, "ActionId">;
 /** Audit entry id. */
 export type AuditId = Brand<string, "AuditId">;
+/** Process (reconstructed operating-model process) id. W005. */
+export type ProcessId = Brand<string, "ProcessId">;
+/** Capability id. W005. */
+export type CapabilityId = Brand<string, "CapabilityId">;
+/** Capability supply record id (one supplier's offer of a capability). W005. */
+export type CapabilitySupplyId = Brand<string, "CapabilitySupplyId">;
+/** Capability requirement record id. W005. */
+export type CapabilityRequirementId = Brand<string, "CapabilityRequirementId">;
+/** Computed capability gap record id. W005. */
+export type CapabilityGapId = Brand<string, "CapabilityGapId">;
+/** Workforce role definition id. W005. */
+export type WorkforceRoleId = Brand<string, "WorkforceRoleId">;
+/** Capacity declaration (human capacity bounds) id. W005. */
+export type CapacityDeclarationId = Brand<string, "CapacityDeclarationId">;
+/** Work assignment id. W005. */
+export type WorkAssignmentId = Brand<string, "WorkAssignmentId">;
+/** Work outcome record id. W005. */
+export type WorkOutcomeId = Brand<string, "WorkOutcomeId">;
+/** Alternative explanation record id. W005. */
+export type AlternativeExplanationId = Brand<string, "AlternativeExplanationId">;
+/** Workforce recommendation id. W005. */
+export type WorkforceRecommendationId = Brand<string, "WorkforceRecommendationId">;
+/** OrganizationCandidate (shared organizational vocabulary) id. W005. */
+export type OrganizationCandidateId = Brand<string, "OrganizationCandidateId">;
 
 /** Epoch milliseconds. The domain never reads a wall clock; callers pass `now`. */
 export type DomainTimestamp = Brand<number, "DomainTimestamp">;
@@ -64,4 +88,16 @@ export type RecordId =
   | GoalId
   | MemoryId
   | ActionId
-  | AuditId;
+  | AuditId
+  | ProcessId
+  | CapabilityId
+  | CapabilitySupplyId
+  | CapabilityRequirementId
+  | CapabilityGapId
+  | WorkforceRoleId
+  | CapacityDeclarationId
+  | WorkAssignmentId
+  | WorkOutcomeId
+  | AlternativeExplanationId
+  | WorkforceRecommendationId
+  | OrganizationCandidateId;

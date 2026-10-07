@@ -23,4 +23,8 @@ export * from "./domain/epistemics/contract.epistemics.js";
 export * from "./domain/goals/contract.goals.js";
 export * from "./domain/memory/contract.memory.js";
 export * from "./domain/action/contract.action.js";
+export * from "./domain/process/contract.process.js";
+export * from "./domain/capability/contract.capability.js";
+export * from "./domain/workforce/contract.workforce.js";
+export * from "./domain/candidate/contract.candidate.js";
 export * from "./domain/kernel/contract.kernel.js";
