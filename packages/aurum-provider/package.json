@@ -1,0 +1,24 @@
+{
+  "name": "@aurum/provider",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aurum managed module aurum-provider (owner: W-C) — implementation lands with its assigned work items per spec/WORK-ITEM-CATALOG.md",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest run",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix --fix-suggestions"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

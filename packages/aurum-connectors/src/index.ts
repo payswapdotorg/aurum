@@ -1,2 +1,2 @@
-// Public entrypoint reserved for the managed Aurum package; implementation is owned by its assigned work items.
-export {};
+// Public entrypoint: re-exports the contract surface only.
+export * from "./contract.js";
