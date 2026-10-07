@@ -1,6 +1,6 @@
 version: 1
 
-# 存量模块先标记为 legacy；新模块或完成迁移的模块设置 managed: true。
+# Existing ZCode modules are legacy platform substrate unless explicitly migrated.
 modules:
   - id: rpc
     roots: [packages/rpc/src]
@@ -22,7 +22,7 @@ modules:
     managed: false
     requires: [shared]
     publicEntrypoints: [packages/services/src/session/contract.ts]
-    owner: conversation
+    owner: zcode-platform
   - id: storage
     roots: [packages/services/src/storage]
     managed: true
@@ -30,7 +30,7 @@ modules:
     publicEntrypoints: [packages/services/src/storage/contract.ts]
     layers: { domain: domain, app: app, adapters: adapters }
     layerOrder: [domain, app, adapters]
-    owner: desktop-settings
+    owner: zcode-platform
   - id: client
     roots: [packages/client/src]
     managed: false
@@ -55,6 +55,70 @@ modules:
   - id: zcode-cli
     roots: [apps/zcode-cli]
     managed: false
+  - id: aurum-domain
+    roots: [packages/aurum-domain/src]
+    managed: true
+    requires: [shared]
+    publicEntrypoints: [packages/aurum-domain/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-B
+  - id: aurum-provider
+    roots: [packages/aurum-provider/src]
+    managed: true
+    requires: [shared]
+    publicEntrypoints: [packages/aurum-provider/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-C
+  - id: aurum-agent
+    roots: [packages/aurum-agent/src]
+    managed: true
+    requires: [shared, aurum-provider]
+    publicEntrypoints: [packages/aurum-agent/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-C
+  - id: aurum-execution
+    roots: [packages/aurum-execution/src]
+    managed: true
+    requires: [shared]
+    publicEntrypoints: [packages/aurum-execution/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-C
+  - id: aurum-application
+    roots: [packages/aurum-application/src]
+    managed: true
+    requires: [shared, aurum-domain, aurum-provider, aurum-agent, aurum-execution]
+    publicEntrypoints: [packages/aurum-application/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-A
+  - id: aurum-marketplace
+    roots: [packages/aurum-marketplace/src]
+    managed: true
+    requires: [shared, aurum-domain, aurum-agent]
+    publicEntrypoints: [packages/aurum-marketplace/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-B
+  - id: aurum-connectors
+    roots: [packages/aurum-connectors/src]
+    managed: true
+    requires: [shared, aurum-domain]
+    publicEntrypoints: [packages/aurum-connectors/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: W-A
+  - id: aurum-infra
+    roots: [packages/aurum-infra/src]
+    managed: true
+    requires: [shared, aurum-domain]
+    publicEntrypoints: [packages/aurum-infra/src/index.ts]
+    layers: { domain: domain, app: app, adapters: adapters }
+    layerOrder: [domain, app, adapters]
+    owner: TL
 
 global:
   maxFileLines: 400
