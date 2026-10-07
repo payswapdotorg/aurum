@@ -1,0 +1,22 @@
+version: 1
+repository: payswapdotorg/aurum
+canonicalBranch: main
+upstream:
+  repository: zai-org/ZCode
+  baselineSha: 29628c9acdb81b703bbd4080c207a0e7ce5e276e
+  version: 3.14.3
+nonCanonicalBranches:
+  - feat/ui-plugin
+workers:
+  - id: W-A
+    focus: platform-cognition-product-learning
+  - id: W-B
+    focus: domain-workforce-lab-marketplace
+  - id: W-C
+    focus: provider-agent-execution-cross-platform
+authority:
+  semanticTruth: postgresql
+  runtimeTruth: zcode-runtime
+  uiTruth: projection-only
+  llmRole: bounded-reasoning
+firstDispatch: [W001, W002, W003]
