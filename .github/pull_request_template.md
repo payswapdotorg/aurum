@@ -10,6 +10,7 @@ Dependencies:
 Shared-file changes:
 
 ## Verification
+
 - [ ] workspace freshness
 - [ ] format
 - [ ] lint
@@ -19,12 +20,14 @@ Shared-file changes:
 - [ ] E2E/browser journey where applicable
 
 ## Evidence
+
 Exact SHA:
 Live or fixture:
 Evidence paths:
 Known limitations:
 
 ## Drift check
+
 - [ ] no new semantic authority
 - [ ] no provider SDK leakage
 - [ ] no duplicate router/policy/database

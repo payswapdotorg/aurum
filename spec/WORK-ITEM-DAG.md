@@ -2,7 +2,7 @@
 
 Status: FROZEN FOR EXECUTION
 
-~~~text
+```text
 W000
  |
  +--> W001 ZCode substrate hardening
@@ -25,7 +25,7 @@ W000
  +--> W014 Emergent roles/packages [W011,W013]
  |
  +--> W015 End-to-end certification [W012,W013,W014]
-~~~
+```
 
 ## Concurrency rule
 

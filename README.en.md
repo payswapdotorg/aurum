@@ -5,6 +5,7 @@ Aurum is an organizational intelligence employee rebuilt on the ZCode execution/
 The repository is the sole implementation source of truth. A fresh Tech Lead must not require chat history.
 
 Start with:
+
 - spec/REBUILD-CONSTITUTION.md
 - spec/ARCHITECTURE.md
 - spec/ZCODE-SUBSTRATE-MAP.md

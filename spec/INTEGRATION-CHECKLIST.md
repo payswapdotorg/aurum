@@ -15,27 +15,27 @@ Status: FROZEN
 
 ## Required verification
 
-~~~bash
+```bash
 node scripts/check-workspace-freshness.mjs
 pnpm fmt:check
 pnpm lint
 pnpm typecheck
 pnpm architecture:check -- --changed
-~~~
+```
 
 Run all actual target-package tests.
 
 ## Merge sequence
 
 worker branch
- -> changed-file inspection
- -> contract inspection
- -> tests
- -> architecture gate
- -> merge
- -> root verification
- -> record exact integration SHA
- -> update CURRENT-STATE
+-> changed-file inspection
+-> contract inspection
+-> tests
+-> architecture gate
+-> merge
+-> root verification
+-> record exact integration SHA
+-> update CURRENT-STATE
 
 ## Evidence
 

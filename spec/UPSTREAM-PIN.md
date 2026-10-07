@@ -7,6 +7,7 @@ Version: 3.14.3
 Future upstream updates are not routine dependency bumps. Treat each as a dedicated compatibility work item.
 
 Required record:
+
 - old SHA;
 - new SHA;
 - affected packages;

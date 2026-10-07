@@ -7,19 +7,19 @@ Date: 2026-10-07
 ## Authority hierarchy
 
 PostgreSQL-owned Aurum semantic state
-  -> authoritative company/business truth
+-> authoritative company/business truth
 
 Aurum domain/application contracts
-  -> authoritative semantic rules
+-> authoritative semantic rules
 
 ZCode runtime/platform
-  -> authoritative only for retained execution substrate
+-> authoritative only for retained execution substrate
 
 UI
-  -> projection only
+-> projection only
 
 LLM/model output
-  -> bounded reasoning content only
+-> bounded reasoning content only
 
 ## Planes
 
@@ -88,13 +88,13 @@ Workforce optimization is distinct from employee performance assessment.
 
 Pipeline:
 management goal
- -> capability demand
- -> current workforce state
- -> alternative organizations
- -> human/agent/software allocation
- -> simulation/evaluation
- -> recommendation
- -> human authorization where consequential.
+-> capability demand
+-> current workforce state
+-> alternative organizations
+-> human/agent/software allocation
+-> simulation/evaluation
+-> recommendation
+-> human authorization where consequential.
 
 ## Information strategy
 
@@ -107,17 +107,17 @@ required knowledge, source/owner, recipients, freshness requirement, minimal con
 
 Canonical loop:
 observe
- -> evidence/memory
- -> world update
- -> epistemic evaluation
- -> goal evaluation
- -> unknown/mission evaluation
- -> knowledge acquisition
- -> model update
- -> risk/opportunity/capability analysis
- -> recommendation/ask/proposal/action
- -> outcome
- -> learning.
+-> evidence/memory
+-> world update
+-> epistemic evaluation
+-> goal evaluation
+-> unknown/mission evaluation
+-> knowledge acquisition
+-> model update
+-> risk/opportunity/capability analysis
+-> recommendation/ask/proposal/action
+-> outcome
+-> learning.
 
 LLM calls cannot reorder stages, authorize actions or directly persist semantic state.
 
@@ -139,7 +139,7 @@ ZCode local/session stores = runtime projections/caches.
 
 ## Package dependency direction
 
-~~~text
+```text
 shared / rpc substrate
         |
         +--> aurum-domain
@@ -163,7 +163,7 @@ application / marketplace / connectors
         +--> Web / Desktop / CLI
         |
         +--> ZCode substrate
-~~~
+```
 
 The domain package must not depend on provider, agent, execution, marketplace, connector or application packages.
 Application orchestration is the semantic integration point.

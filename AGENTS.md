@@ -30,13 +30,15 @@ Secrets are opaque references.
 The Agent Body is persistent and model-agnostic.
 
 Verification:
-~~~bash
+
+```bash
 node scripts/check-workspace-freshness.mjs
 pnpm fmt:check
 pnpm lint
 pnpm typecheck
 pnpm architecture:check -- --changed
-~~~
+```
+
 Run actual target tests and browser/E2E journeys where applicable.
 
 For stateful/remote work record owner, command, persistence, idempotency, stale-result rule, replay/resume and authorization.

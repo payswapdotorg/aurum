@@ -13,6 +13,7 @@ Current foundation SHA:
 344a828ec6c1b32c6db8181191c35f092f62297a
 
 Foundation status:
+
 - rebuild constitution: prepared
 - architecture: prepared and dependency direction verified
 - ZCode substrate map: prepared

@@ -16,6 +16,7 @@ architecture-policy.yaml
 Maintain exactly three worker slots: W-A, W-B, W-C.
 
 Before dispatch:
+
 - verify current integration SHA;
 - inspect active branches;
 - detect duplicate work;
