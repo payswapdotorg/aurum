@@ -2,7 +2,7 @@
   "name": "@aurum/domain",
   "version": "0.1.0",
   "private": true,
-  "description": "Aurum managed module aurum-domain (owner: W-B) — implementation lands with its assigned work items per spec/WORK-ITEM-CATALOG.md",
+  "description": "Aurum domain kernel: tenant-scoped contracts and pure domain logic (owner: W-B, work item W002 per spec/WORK-ITEM-CATALOG.md)",
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
+    "test:types": "tsc -p tsconfig.test.json",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
