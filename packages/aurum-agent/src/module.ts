@@ -1,7 +1,7 @@
 /**
  * aurum-agent module manifest. Dependency declaration mirrors
- * architecture-policy.yaml; the only public surface is contract.ts
- * (re-exported through index.ts).
+ * architecture-policy.yaml (requires shared + aurum-provider; the provider
+ * import is confined to the public entrypoint @aurum/provider).
  */
 export const aurumagentModule = {
   id: "aurum-agent",
