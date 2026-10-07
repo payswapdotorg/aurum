@@ -57,8 +57,11 @@ function validateSteps(
     if (seen.has(step?.stepId))
       v.add(`steps.${index}.stepId`, `duplicate step id: ${step?.stepId}`);
     if (step?.stepId) seen.add(step.stepId);
-    for (const issue of supplierIssues(step?.performer, `steps.${index}.performer`)) {
-      v.add(issue.field, issue.problem);
+    // Performers are optional on steps; validate only when present.
+    if (step?.performer !== undefined) {
+      for (const issue of supplierIssues(step.performer, `steps.${index}.performer`)) {
+        v.add(issue.field, issue.problem);
+      }
     }
   });
 }
@@ -82,11 +85,19 @@ function validateHandoffs(
         v.add(`handoffs.${index}`, "must be between two different steps");
       }
     }
-    for (const issue of supplierIssues(handoff?.fromPerformer, `handoffs.${index}.fromPerformer`)) {
-      v.add(issue.field, issue.problem);
+    // Performers are optional on handoffs; validate only when present.
+    if (handoff?.fromPerformer !== undefined) {
+      for (const issue of supplierIssues(
+        handoff.fromPerformer,
+        `handoffs.${index}.fromPerformer`,
+      )) {
+        v.add(issue.field, issue.problem);
+      }
     }
-    for (const issue of supplierIssues(handoff?.toPerformer, `handoffs.${index}.toPerformer`)) {
-      v.add(issue.field, issue.problem);
+    if (handoff?.toPerformer !== undefined) {
+      for (const issue of supplierIssues(handoff.toPerformer, `handoffs.${index}.toPerformer`)) {
+        v.add(issue.field, issue.problem);
+      }
     }
     if (handoff?.medium !== undefined)
       v.requireText(`handoffs.${index}.medium`, handoff.medium, { max: 120 });
