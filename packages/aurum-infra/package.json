@@ -17,7 +17,12 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
+  "dependencies": {
+    "postgres": "^3.4.9"
+  },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }
