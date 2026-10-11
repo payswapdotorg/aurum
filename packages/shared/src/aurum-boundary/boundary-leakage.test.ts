@@ -43,7 +43,8 @@ function importSpecifiersOf(source: string): string[] {
 /** Exported identifier names declared in a source text. */
 function exportedIdentifiersOf(source: string): string[] {
   const names: string[] = [];
-  const declaration = /export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g;
+  const declaration =
+    /export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g;
   for (const match of source.matchAll(declaration)) {
     const name = match[1];
     if (name !== undefined) names.push(name);

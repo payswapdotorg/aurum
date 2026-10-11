@@ -119,6 +119,15 @@ const controlOutcome: AurumTransportControlOutcome = {
   state: "cancelled",
 };
 
+const capabilityClassFixture: AurumTransportCapabilityClass = descriptor.capabilityClass;
+// Guard-based narrowing: a lifecycle state narrows to a terminal state only
+// through the type guard (direct assignment must not compile).
+const terminalStateFixture: AurumTransportTerminalState = isAurumTransportTerminalState(
+  envelope.status,
+)
+  ? envelope.status
+  : terminalState;
+
 const snapshot: AurumTransportProgressSnapshot = {
   ticket,
   state: lifecycleState,
@@ -142,10 +151,11 @@ const lookupResult: AurumSeamLookupResult = resolved;
 const describeResult: AurumSeamDescribeResult = { ok: true, descriptor };
 
 // A minimal conforming transport port implementation proves the interface
-// is implementable exactly as declared.
+// is implementable exactly as declared (nominal types enforced: the handle
+// cannot stand in for a ticket, so the ack mints from the ticket fixture).
 const transportPort: AurumExecutionTransportPort = {
-  async submit(spec: AurumTransportSubmissionSpec) {
-    return { ticket: spec.capability, state: "pending", replay: false };
+  async submit(spec: AurumTransportSubmissionSpec): Promise<AurumTransportSubmissionAck> {
+    return { ticket, state: "pending", replay: spec.submissionKey !== undefined };
   },
   async poll(activeTicket: AurumSubmissionTicket) {
     return { ticket: activeTicket, state: lifecycleState };
@@ -153,16 +163,16 @@ const transportPort: AurumExecutionTransportPort = {
   async awaitCompletion(activeTicket: AurumSubmissionTicket) {
     return { ...envelope, ticket: activeTicket };
   },
-  async cancel(activeTicket: AurumSubmissionTicket) {
+  async cancel(_ticket: AurumSubmissionTicket) {
     return { outcome: "already-terminal", state: terminalState } as const;
   },
 };
 
 const pausablePort: AurumPausableTransportPort = {
-  async pause(activeTicket: AurumSubmissionTicket) {
+  async pause(_ticket: AurumSubmissionTicket) {
     return { outcome: "applied", state: "paused" } as const;
   },
-  async resume(activeTicket: AurumSubmissionTicket) {
+  async resume(_ticket: AurumSubmissionTicket) {
     return { outcome: "applied", state: lifecycleState } as const;
   },
 };
@@ -182,11 +192,10 @@ void [
   errorCode,
   awaitOptions,
   controlOutcome,
+  capabilityClassFixture,
+  terminalStateFixture,
   snapshot,
   lookupResult,
-  transportPort,
-  pausablePort,
-  seamRegistry,
   describeResult,
 ];
 
@@ -284,8 +293,50 @@ describe("W001 boundary structural surface", () => {
     expect(
       isAurumTransportResultEnvelope({ ticket: "t", status: "settled", cost: [{ unit: "u" }] }),
     ).toBe(false);
-    expect(
-      isAurumTransportResultEnvelope({ ticket: "t", status: "settled", stale: "yes" }),
-    ).toBe(false);
+    expect(isAurumTransportResultEnvelope({ ticket: "t", status: "settled", stale: "yes" })).toBe(
+      false,
+    );
+  });
+
+  // End-to-end drive of the fixture port + registry: the canonical consumer
+  // sequence from the README (lookup -> submit -> poll -> await -> control),
+  // proving the fixtures are not just type-checked but actually runnable.
+  it("drives the canonical consumer sequence through conforming fixtures", async () => {
+    const lookup = seamRegistry.lookup(lookupQuery);
+    expect(lookup.ok).toBe(false); // registry offers "browser", query asks "local"
+    if (!lookup.ok) expect(lookup.error.code).toBe("aurum-seam/capability-unavailable");
+
+    const browserLookup = seamRegistry.lookup({ capabilityClass: "browser" });
+    expect(browserLookup.ok).toBe(true);
+
+    const ack = await transportPort.submit(submissionSpec);
+    expect(ack.ticket).toBe(ticket);
+    expect(ack.state).toBe("pending");
+    expect(ack.replay).toBe(true); // submissionKey present => deduplicated path
+
+    const progress = await transportPort.poll(ticket);
+    expect(progress.state).toBe("running");
+    expect(progress.envelope).toBeUndefined();
+
+    const settled = await transportPort.awaitCompletion(ticket, awaitOptions);
+    expect(settled.status).toBe("settled");
+    expect(settled.result).toBe("opaque");
+    expect(settled.cost?.[0]?.unit).toBe("input-tokens");
+
+    const cancelled = await transportPort.cancel(ticket);
+    expect(cancelled.outcome).toBe("already-terminal");
+
+    const paused = await pausablePort.pause(ticket);
+    expect(paused.outcome).toBe("applied");
+    expect(paused.state).toBe("paused");
+    const resumed = await pausablePort.resume(ticket);
+    expect(resumed.outcome).toBe("applied");
+    expect(resumed.state).toBe("running");
+
+    expect(seamRegistry.listCapabilities()).toHaveLength(1);
+    const described = seamRegistry.describe(handle);
+    expect(described.ok).toBe(true);
+    const foreign = seamRegistry.describe(mintAurumCapabilityHandle("forged"));
+    expect(foreign.ok).toBe(false);
   });
 });

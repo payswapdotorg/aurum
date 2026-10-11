@@ -8,16 +8,16 @@ Aurum domain types.
 
 ## What lives here
 
-| File         | Role                                                                 |
-| ------------ | -------------------------------------------------------------------- |
-| `lifecycle.ts` | Platform lifecycle vocabulary (`pending/running/paused/settled/cancelled/failed`) + type guards |
-| `capability.ts` | Capability classes (`local/browser/computer/workflow/remote/sandbox`, plain string unions) + descriptor shape + control surface |
-| `errors.ts`    | Typed error vocabulary: `AurumBoundaryErrorDetail` (plain data) and `AurumBoundaryError` (Error subclass); closed code union; `toAurumBoundaryErrorDetail` normalizer |
-| `identifiers.ts` | Opaque `AurumSubmissionTicket` / `AurumCapabilityHandle` branded strings + adapter-side mint functions |
-| `envelope.ts`  | The normalized result envelope (`status/result/error/cost/evidenceRef`) + structural guard |
-| `transport.ts` | `AurumExecutionTransportPort` (submit / poll / awaitCompletion / cancel) + optional `AurumPausableTransportPort` (pause/resume) |
-| `seam.ts`      | `AurumSeamRegistry`: how Aurum obtains a capability handle (lookup, describe) without importing ZCode internals |
-| `index.ts`     | The public surface (re-exported once by `packages/shared/src/index.ts`) |
+| File             | Role                                                                                                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lifecycle.ts`   | Platform lifecycle vocabulary (`pending/running/paused/settled/cancelled/failed`) + type guards                                                                       |
+| `capability.ts`  | Capability classes (`local/browser/computer/workflow/remote/sandbox`, plain string unions) + descriptor shape + control surface                                       |
+| `errors.ts`      | Typed error vocabulary: `AurumBoundaryErrorDetail` (plain data) and `AurumBoundaryError` (Error subclass); closed code union; `toAurumBoundaryErrorDetail` normalizer |
+| `identifiers.ts` | Opaque `AurumSubmissionTicket` / `AurumCapabilityHandle` branded strings + adapter-side mint functions                                                                |
+| `envelope.ts`    | The normalized result envelope (`status/result/error/cost/evidenceRef`) + structural guard                                                                            |
+| `transport.ts`   | `AurumExecutionTransportPort` (submit / poll / awaitCompletion / cancel) + optional `AurumPausableTransportPort` (pause/resume)                                       |
+| `seam.ts`        | `AurumSeamRegistry`: how Aurum obtains a capability handle (lookup, describe) without importing ZCode internals                                                       |
+| `index.ts`       | The public surface (re-exported once by `packages/shared/src/index.ts`)                                                                                               |
 
 Tests: `boundary-leakage.test.ts` (tripwires) and
 `boundary-surface.consumer.test.ts` (structural consumer). Run from repo
@@ -25,16 +25,16 @@ root: `pnpm --filter @zcode/shared test`.
 
 ## Which substrate capabilities each port adapts
 
-| Boundary concept | ZCode substrate being adapted (RETAIN/ADAPT per spec/ZCODE-SUBSTRATE-MAP.md) |
-| --- | --- |
-| `capabilityClass: "local"` | local workspace process execution (apps/zcode-cli runtime/tools substrate) |
-| `capabilityClass: "browser"` | browser-use substrate (`packages/shared/src/browser-use`, browser tooling) |
-| `capabilityClass: "computer"` | computer-use substrate (`packages/zcode-cua` desktop/GUI driving) |
-| `capabilityClass: "workflow"` | dynamic workflow backend (execution substrate for Aurum ExecutionPlans, W009) |
-| `capabilityClass: "remote"` | remote workspace attachment (ssh / wsl / docker remotes in `packages/server/src/remote`) |
-| `capabilityClass: "sandbox"` | isolated/sandboxed environments |
-| `AurumExecutionTransportPort` | the RPC channel substrate (`packages/rpc`: ChannelServer/ChannelClient/IPC layers 0–6) as the transport carrying submissions and envelopes |
-| `AurumSeamRegistry` | the substrate-side adapter that owns the real environments and issues opaque handles; keeps environment configuration, addresses and credentials entirely behind the seam |
+| Boundary concept              | ZCode substrate being adapted (RETAIN/ADAPT per spec/ZCODE-SUBSTRATE-MAP.md)                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `capabilityClass: "local"`    | local workspace process execution (apps/zcode-cli runtime/tools substrate)                                                                                                |
+| `capabilityClass: "browser"`  | browser-use substrate (`packages/shared/src/browser-use`, browser tooling)                                                                                                |
+| `capabilityClass: "computer"` | computer-use substrate (`packages/zcode-cua` desktop/GUI driving)                                                                                                         |
+| `capabilityClass: "workflow"` | dynamic workflow backend (execution substrate for Aurum ExecutionPlans, W009)                                                                                             |
+| `capabilityClass: "remote"`   | remote workspace attachment (ssh / wsl / docker remotes in `packages/server/src/remote`)                                                                                  |
+| `capabilityClass: "sandbox"`  | isolated/sandboxed environments                                                                                                                                           |
+| `AurumExecutionTransportPort` | the RPC channel substrate (`packages/rpc`: ChannelServer/ChannelClient/IPC layers 0–6) as the transport carrying submissions and envelopes                                |
+| `AurumSeamRegistry`           | the substrate-side adapter that owns the real environments and issues opaque handles; keeps environment configuration, addresses and credentials entirely behind the seam |
 
 ## Canonical flow (from spec/ZCODE-SUBSTRATE-MAP.md)
 
@@ -69,7 +69,7 @@ Usage for Aurum packages (W004/W006 consumers):
   Execution/Mission Run, etc.).
 - **No Aurum domain imports**, ever — locked by tripwire test
   (no `@aurum/domain|provider|agent|execution|application|marketplace|
-  connectors|infra` import anywhere under this directory).
+connectors|infra` import anywhere under this directory).
 - **No ZCode semantic-state export names** — locked by tripwire test (no
   exported identifier contains `task`, `session`, `workspace`,
   `agentruntime`, `workflowjournal`, `pluginregistry`, `providerconfig`,
