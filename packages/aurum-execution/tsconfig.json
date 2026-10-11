@@ -17,5 +17,11 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  // CR-W001 precedent (rpc -> shared, client -> rpc): without an explicit
+  // project reference, typecheck follows the workspace package entrypoint and
+  // drags @zcode/shared source into this compile context (rootDir violation /
+  // node-type errors). With the reference, tsc -b builds shared first and this
+  // package consumes the boundary's declaration output instead.
+  "references": [{ "path": "../shared" }]
 }
