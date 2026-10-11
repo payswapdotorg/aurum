@@ -306,3 +306,9 @@ export * from "./clientConfig.js";
 export * from "./pluginStoreOrdering.js";
 export * from "./session-debug.js";
 export { redactFeedbackText } from "./feedbackPrivacy.js";
+
+// W001: Aurum-facing platform boundary — the single declared surface of
+// Aurum-facing platform capabilities. Pure TypeScript over stdlib only;
+// never imports substrate or Aurum domain types. See
+// src/aurum-boundary/README.md for the adapter-seam doctrine.
+export * from "./aurum-boundary/index.js";
