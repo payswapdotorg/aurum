@@ -4,7 +4,7 @@
 - **Requester:** W-A
 - **Owner of requested change:** TL (root pnpm-lock.yaml + dependency wiring; rpc
   path itself is W-A-owned but cannot be wired without the lockfile)
-- **Status:** open
+- **Status:** executed (2026-10-11, TL) — PR #2 merged 4e8b35d: workspace link + lockfile entry + type-only re-export + rpc tsconfig project-reference (the reference was required: without it typecheck dragged shared source into rpc's context). W-A's follow-up commit is unnecessary — the TL landed the re-export module in the same change.
 
 ## Requested change
 
