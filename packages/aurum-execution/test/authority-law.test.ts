@@ -14,7 +14,7 @@
  * flow: "normalized result -> Aurum outcome/evidence" happens on the Aurum
  * side only).
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -228,7 +228,6 @@ describe("W006 authority-law tripwires (source hygiene)", () => {
   const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
 
   function sourceFiles(): string[] {
-    const { readdirSync } = require("node:fs") as typeof import("node:fs");
     const collected: string[] = [];
     const walk = (dir: string): void => {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
