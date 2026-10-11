@@ -2,7 +2,7 @@
   "name": "@aurum/application",
   "version": "0.1.0",
   "private": true,
-  "description": "Aurum managed module aurum-application (owner: W-A) — implementation lands with its assigned work items per spec/WORK-ITEM-CATALOG.md",
+  "description": "Aurum application orchestration and use cases (owner: W-A) — Organizational Lab core (W008)",
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -16,6 +16,9 @@
     "test": "vitest run",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
+  },
+  "dependencies": {
+    "@aurum/domain": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
