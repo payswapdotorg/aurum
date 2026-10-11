@@ -42,3 +42,15 @@ Wave 5: W-A/W013, W-B/W014, W-C integration support.
 Wave 6: TL/W015.
 
 A dependency is satisfied only by a TL-integrated SHA or explicit TL contract freeze.
+
+## P-series (persistence lane — TL-added 2026-10-11)
+
+PostgreSQL semantic authority is constitution-primary; the persistence lane runs parallel to the W-series waves, not after them. A P-item is dispatchable the moment its W-dependencies are TL-integrated.
+
+```text
+P001 Domain kernel storage       [W002,W005]
+P002 Fabric storage              [W003,P001]
+P003 Lab/application storage     [W008,W013,P001,P002]
+```
+
+P-series rule: P-workers reuse the P001 machinery (WriteJournal, migration runner, PGlite harness) — extend, never duplicate. CR-W003's canonical TenantId lands in the domain package via W-B work and MUST be present at the P002/P003 storage boundaries.

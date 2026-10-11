@@ -254,3 +254,57 @@ Deliver:
 exact-SHA certification of mandatory golden journeys with live-vs-fixture disclosure.
 
 Certification cannot be inherited by a later commit.
+
+## P001 — Domain kernel PostgreSQL persistence
+
+Owner: W-B (persistence lane).
+Paths:
+packages/aurum-infra/src/domain-storage/\*\* + packages/aurum-infra/migrations/domain/\*\*; type-level port extraction in packages/aurum-domain/\*\* (zero behavior change; no IO enters the domain package).
+Depends: W002, W005.
+
+Deliver:
+PostgreSQL storage adapters implementing the aurum-domain kernel's storage ports (goals, evidence, epistemics, identity/organization, memory, action, process/capability/workforce/candidate stores): tenant-scoped schema, ordered content-hashed migrations, append-only/immutability enforced by the database, and a PGlite-backed test harness proving round-trip equivalence with the in-memory semantics.
+
+Acceptance:
+
+- every kernel record kind round-trips through storage with semantics identical to the in-memory reference;
+- tenant isolation is uniform at the storage layer (foreign-tenant reads are indistinguishable from missing);
+- append-only/versioned records are enforced by database constraints/triggers, not just runtime discipline;
+- the domain package itself is unchanged semantically;
+- migrations are ordered, content-hashed and idempotent to apply.
+
+## P002 — Provider/Agent fabric PostgreSQL persistence
+
+Owner: persistence lane.
+Paths:
+packages/aurum-infra/src/fabric-storage/\*\* + packages/aurum-infra/migrations/fabric/\*\*.
+Depends: W003, P001.
+
+Deliver:
+PostgreSQL storage for provider definitions, model catalog, health states, agent bodies and the append-only model-binding ledger, preserving byte-for-byte body-identity-across-swap semantics and the canonical TenantId at the storage boundary; PGlite-backed round-trip proofs.
+
+Acceptance:
+
+- provider/agent suites pass against the PG-backed stores;
+- the binding ledger stays append-only at the database level;
+- body identity across model swaps survives storage round-trips;
+- credential material never enters storage (secret references stay opaque).
+
+## P003 — Lab/application PostgreSQL persistence
+
+Owner: persistence lane.
+Paths:
+packages/aurum-infra/src/application-storage/\*\* + packages/aurum-infra/migrations/application/\*\* + lab storage ports in packages/aurum-application/src/lab/storage/\*\*.
+Depends: W008, W013, P001, P002.
+
+Deliver:
+Storage ports for lab search records and candidate evaluations (append-only evidence carrying the outcome-learning join keys), PostgreSQL adapters, and the retrieval paths the outcome-learning loop consumes.
+
+Acceptance:
+
+- lab suites pass against the PG-backed stores;
+- evaluations are append-only and per-tenant;
+- join keys (fingerprintDigest, constraint set, weights, ranking rule) survive round-trips verbatim;
+- the in-memory mode remains available (deterministic tests, no DB required) behind the same ports.
+
+Persistence-lane rule (P-series): PostgreSQL semantic authority is constitution-primary; the P-series must not trail the in-memory semantics it persists by more than one integrated wave. P-workers reuse the P001 machinery (WriteJournal, migration runner, PGlite harness) — extend, never duplicate.
