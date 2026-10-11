@@ -90,7 +90,7 @@ The status above is derived from source, tests, integrated SHAs and evidence.
   ActorAssignment/CapabilityAllocation vocabulary extending the W002 kernel;
   4 test suites — process, workforce, workforce-recommendations, w005-acceptance).
 - TL verification (never trusting the worker summary): scope clean (all within
-  packages/aurum-domain/**), freshness/fmt/lint/architecture PASS, package
+  packages/aurum-domain/\*\*), freshness/fmt/lint/architecture PASS, package
   suites aurum-domain 111/111, aurum-provider 57/57, aurum-agent 27/27.
 - MERGED: main -> a345707 (ff-only integration/W005). CI green expected on push.
 - Delivery context (platform honesty): delivered through three GLM-5.3 capacity
