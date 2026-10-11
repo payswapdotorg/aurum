@@ -52,7 +52,7 @@ export interface CandidateScore {
   readonly weightedScore: number;
 }
 
-const NON_HUMAN = new Set(["agent", "agent-team", "software", "automation"]);
+const IN_HOUSE_HUMAN = new Set(["human", "team"]);
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0;
@@ -65,8 +65,12 @@ function round4(value: number): number {
 
 /**
  * Effective allocation level after context modifiers. Discounts apply only
- * when EVERY actor behind the allocation is non-human (a human in the loop
- * removes the discount — human oversight de-risks automation).
+ * when NO actor behind the allocation is in-house human capacity (human or
+ * team): a human in the loop removes the discount — human oversight
+ * de-risks the allocation. External humans (supplier/partner/
+ * external-service) and automated actors (agent/software/automation) do
+ * NOT remove it: contracted and automated capacity are equally brittle
+ * against open interpretive questions and stale capability evidence.
  */
 export function effectiveLevelOf(
   allocation: CapabilityAllocation,
@@ -75,7 +79,7 @@ export function effectiveLevelOf(
 ): number {
   const actors = allocation.actorIds.map((actorId) => actorKinds.get(actorId));
   const allNonHuman =
-    actors.length > 0 && actors.every((kind) => kind !== undefined && NON_HUMAN.has(kind));
+    actors.length > 0 && actors.every((kind) => kind !== undefined && !IN_HOUSE_HUMAN.has(kind));
   const discount = allNonHuman ? modifiers.interpretiveDiscount + modifiers.driftDiscount : 0;
   return Math.max(0, allocation.level - discount);
 }
@@ -148,7 +152,6 @@ export function occupancyRealismOf(
   const agentActors = actors.filter(
     (actor) => actor.kind === "agent" || actor.kind === "agent-team",
   );
-  if (agentActors.length === 0) return 1;
   const valid = occupancy.filter(
     (entry) =>
       typeof entry?.modelBindingRef === "string" &&

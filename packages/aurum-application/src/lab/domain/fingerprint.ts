@@ -123,8 +123,11 @@ function uncertaintyOf(unknowns: number, contradictions: number): UncertaintyCla
 }
 
 function worstFreshness(signals: readonly string[]): FreshnessSignal {
-  let worst: FreshnessSignal = "unknown";
-  let worstRank = FRESHNESS_SIGNAL_RANK.unknown;
+  // Minimum rank among the VALID signals (stale < unknown < aging < current);
+  // an invalid/empty signal list keeps the conservative "unknown" default —
+  // absence of evidence is never silently treated as fresh.
+  let worst: FreshnessSignal | undefined;
+  let worstRank = Number.POSITIVE_INFINITY;
   for (const signal of signals) {
     const rank = FRESHNESS_SIGNAL_RANK[signal as FreshnessSignal];
     if (typeof rank === "number" && rank < worstRank) {
@@ -132,7 +135,7 @@ function worstFreshness(signals: readonly string[]): FreshnessSignal {
       worstRank = rank;
     }
   }
-  return worst;
+  return worst ?? "unknown";
 }
 
 /** FNV-1a 32-bit lane; the digest runs two independent lanes (64 bits total). */

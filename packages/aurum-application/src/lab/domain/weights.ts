@@ -17,11 +17,12 @@
  * - urgency premium: goal pressure "urgent" triples the human/team unit cost
  *   in the cost proxy (expedite/overtime proxy).
  * - interpretive discount: uncertainty "open" reduces the effective
- *   allocation level of agent/software/automation-only allocations by 1
- *   (brittle outside their trained scope; humans in the loop remove it).
+ *   allocation level of non-human-only allocations by 1 (no in-house
+ *   human/team actor in the loop: automated and externally contracted
+ *   capacity is brittle against open interpretive questions).
  * - drift discount: freshness signal "stale" reduces the effective level of
- *   agent/software/automation-only allocations by 1 (claims about automated
- *   capability age fast; re-verify before relying on them).
+ *   non-human-only allocations by 1 (capability claims about automated and
+ *   contracted capacity age fast; re-verify before relying on them).
  */
 import type { ContextFingerprint } from "./fingerprint.js";
 

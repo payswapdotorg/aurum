@@ -175,20 +175,22 @@ export function runSearch(
       requirementIds,
     };
     const { candidate, bindings } = assembleCandidate(pool, ctx);
+    // Root-cause first: an empty pool for this strategy is reported as "no
+    // eligible supplies", not as a cascade of deep-validation noise.
+    if (candidate.actors.length === 0) {
+      excluded.push({
+        strategy,
+        reason: "no eligible supplies in the mixed pool for this strategy",
+        issues: [],
+      });
+      continue;
+    }
     const issues = organizationCandidateIssues(candidate);
     if (issues.length > 0) {
       excluded.push({
         strategy,
         reason: "blueprint failed the W005 deep candidate validation",
         issues: Object.freeze(issues.map((issue) => ({ ...issue }))),
-      });
-      continue;
-    }
-    if (candidate.actors.length === 0) {
-      excluded.push({
-        strategy,
-        reason: "no eligible supplies in the mixed pool for this strategy",
-        issues: [],
       });
       continue;
     }
