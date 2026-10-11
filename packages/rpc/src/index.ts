@@ -130,3 +130,4 @@ export {
   RemoteAgentConnection,
   type RemoteConnectionState,
 } from "./remote.js";
+export * from "./aurum-boundary-envelope.js";
