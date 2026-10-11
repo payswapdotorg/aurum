@@ -18,5 +18,10 @@
     "skipLibCheck": true,
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  // CR-W001: rpc 现在类型引用 @zcode/shared（aurum-boundary envelope re-export）。
+  // 不显式 reference shared project，typecheck 会顺着 workspace 包入口把 shared 源码
+  // 拖进 rpc 的编译上下文重查（rpc 无 node types、lib ES2022 → process/findLastIndex 报错）。
+  // 补 references 后优先消费 shared 的声明产物（与 client→rpc 同一模式）。
+  "references": [{ "path": "../shared" }]
 }

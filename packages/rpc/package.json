@@ -19,6 +19,9 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix"
   },
+  "dependencies": {
+    "@zcode/shared": "workspace:*"
+  },
   "devDependencies": {
     "ts-node": "^10.9.0",
     "typescript": "^5.9.3"
