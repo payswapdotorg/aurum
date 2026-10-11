@@ -97,9 +97,10 @@ function terminalOf(
 }
 
 /** Builds the local environment bundle (environment + test controller). */
-export function createLocalEnvironment(
-  config: LocalEnvironmentConfig,
-): { environment: ExecutionEnvironment; controller: LocalEnvironmentController } {
+export function createLocalEnvironment(config: LocalEnvironmentConfig): {
+  environment: ExecutionEnvironment;
+  controller: LocalEnvironmentController;
+} {
   const environmentId = config.environmentId ?? "local-env-1";
   const variant = config.variant ?? "default";
   const mode = config.mode ?? "auto";
@@ -124,9 +125,11 @@ export function createLocalEnvironment(
     );
   }
 
-  function parsePayload(
-    payload: string,
-  ): { name: string; input: unknown; steps: readonly LocalWorkloadStep[] } {
+  function parsePayload(payload: string): {
+    name: string;
+    input: unknown;
+    steps: readonly LocalWorkloadStep[];
+  } {
     let parsed: unknown;
     try {
       parsed = JSON.parse(payload);
@@ -285,10 +288,7 @@ export function createLocalEnvironment(
       for (;;) {
         if (TERMINAL.has(record.state)) return envelopeOf(record);
         if (options?.signal?.aborted) {
-          throw new AurumBoundaryError(
-            "aurum-transport/await-aborted",
-            "await aborted by signal",
-          );
+          throw new AurumBoundaryError("aurum-transport/await-aborted", "await aborted by signal");
         }
         if (record.deadlineEpochMs !== undefined && now() >= record.deadlineEpochMs) {
           throw new AurumBoundaryError(

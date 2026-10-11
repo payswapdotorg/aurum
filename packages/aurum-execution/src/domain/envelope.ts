@@ -131,8 +131,7 @@ export function isExecutionSettlement(value: unknown): value is ExecutionSettlem
     return false;
   if (typeof record["settledAt"] !== "number" || !Number.isFinite(record["settledAt"]))
     return false;
-  if (record["authority"] === undefined || typeof record["authority"] !== "object")
-    return false;
+  if (record["authority"] === undefined || typeof record["authority"] !== "object") return false;
   const environment = record["environment"];
   if (environment === undefined || typeof environment !== "object") return false;
   const env = environment as Record<string, unknown>;
@@ -166,7 +165,7 @@ export function isExecutionSettlement(value: unknown): value is ExecutionSettlem
         typeof line !== "object" ||
         line === null ||
         typeof (line as Record<string, unknown>)["unit"] !== "string" ||
-        typeof (line as Record<string, unknown>)["quantity"] !== "number"
+        !Number.isFinite((line as Record<string, unknown>)["quantity"])
       ) {
         return false;
       }

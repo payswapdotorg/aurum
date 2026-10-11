@@ -83,9 +83,7 @@ export async function submitExecutionOperation(
     return ok({
       session: existing.value,
       replay: true,
-      ...(existing.value.settlement === undefined
-        ? {}
-        : { settlement: existing.value.settlement }),
+      ...(existing.value.settlement === undefined ? {} : { settlement: existing.value.settlement }),
     });
   }
   const resolved = resolveEnvironment(deps, {
@@ -111,6 +109,7 @@ export async function submitExecutionOperation(
     {
       environmentId: resolved.value.environment.descriptor.environmentId,
       capabilityId: resolved.value.capabilityId,
+      environmentVariant: resolved.value.environment.descriptor.variant,
     },
     deps.clock.now(),
   );
@@ -148,11 +147,7 @@ export async function submitExecutionOperation(
     return submitFailure(deps, stored.value, mapBoundaryRejection(error));
   }
   const acknowledged = deps.sessions.putSession(
-    withAcknowledgement(
-      stored.value,
-      { ticket: ack.ticket, replay: ack.replay },
-      deps.clock.now(),
-    ),
+    withAcknowledgement(stored.value, { ticket: ack.ticket, replay: ack.replay }, deps.clock.now()),
   );
   if (!acknowledged.ok) return acknowledged;
   const journaled = appendEvent(

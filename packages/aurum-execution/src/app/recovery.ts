@@ -158,11 +158,7 @@ async function recoverOne(
       });
     }
     const acknowledged = deps.sessions.putSession(
-      withAcknowledgement(
-        current,
-        { ticket: ack.ticket, replay: ack.replay },
-        deps.clock.now(),
-      ),
+      withAcknowledgement(current, { ticket: ack.ticket, replay: ack.replay }, deps.clock.now()),
     );
     if (!acknowledged.ok) return acknowledged;
     current = acknowledged.value;

@@ -185,9 +185,7 @@ export function applySettlement(
       session.tenantId,
       session.requestId,
       terminalEventOf(settlement.status),
-      settlement.status === "failed"
-        ? `kind=${settlement.failure?.kind ?? "unknown"}`
-        : undefined,
+      settlement.status === "failed" ? `kind=${settlement.failure?.kind ?? "unknown"}` : undefined,
     );
     if (!event.ok) return event;
   } else {
@@ -280,13 +278,10 @@ export function submitFailure(
     `submission transport failure: ${mapped.message}`,
   );
   if (!event.ok) return event;
-  const applied = failSession(
-    deps,
-    session,
-    submissionFailureKindOf(mapped),
-    mapped.message,
-    { code: mapped.code, retryable: mapped.code === "execution/transport-failed" },
-  );
+  const applied = failSession(deps, session, submissionFailureKindOf(mapped), mapped.message, {
+    code: mapped.code,
+    retryable: mapped.code === "execution/transport-failed",
+  });
   if (!applied.ok) return applied;
   return { ok: false, error: mapped };
 }

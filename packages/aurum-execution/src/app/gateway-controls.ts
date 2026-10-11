@@ -145,7 +145,9 @@ export async function controlRequest(
   if (!found.ok) return found;
   const session = found.value;
   if (session.settlement !== undefined) {
-    return err(executionLifecycleIllegal(session.state, controlName === "pause" ? "paused" : "running"));
+    return err(
+      executionLifecycleIllegal(session.state, controlName === "pause" ? "paused" : "running"),
+    );
   }
   if (controlName === "resume" && session.state !== "paused") {
     return err(executionLifecycleIllegal(session.state, "running"));

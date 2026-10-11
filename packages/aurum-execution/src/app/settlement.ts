@@ -66,8 +66,7 @@ export function settlementInputOf(
 ): SettlementInput {
   const status = platformStatusToSemantic(envelope.status);
   const cost = costLinesOf(envelope);
-  const failure =
-    status === "failed" ? { failure: failureFromPlatform(envelope.error) } : {};
+  const failure = status === "failed" ? { failure: failureFromPlatform(envelope.error) } : {};
   return {
     status,
     settledAt: at,
@@ -126,7 +125,7 @@ export function settlementContextOf(session: ExecutionSession): SettlementContex
     environment: {
       environmentId: session.environmentId,
       environmentClass: session.environmentClass,
-      variant: session.variant ?? "",
+      variant: session.environmentVariant ?? session.variant ?? "",
       capabilityId: session.capabilityId,
     },
   };

@@ -73,7 +73,10 @@ export interface ExecutionJournalEntry {
 /** The append-only execution journal port. */
 export interface ExecutionJournal {
   append(entry: ExecutionJournalEntry): Result<ExecutionJournalEntry, ExecutionError>;
-  listEntries(tenantId: ExecutionTenantId, requestId?: ExecutionRequestId): readonly ExecutionJournalEntry[];
+  listEntries(
+    tenantId: ExecutionTenantId,
+    requestId?: ExecutionRequestId,
+  ): readonly ExecutionJournalEntry[];
 }
 
 /** Session listing filter. */

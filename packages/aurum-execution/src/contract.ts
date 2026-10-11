@@ -95,17 +95,11 @@ export type {
 } from "./domain/lifecycle.js";
 
 // --- domain authority citations (opaque; kernel-aligned) ---
-export {
-  authorityCitationIssues,
-  modelOccupancyIssues,
-} from "./domain/authority.js";
+export { authorityCitationIssues, modelOccupancyIssues } from "./domain/authority.js";
 export type { AuthorityCitation, ModelOccupancy } from "./domain/authority.js";
 
 // --- normalized settlement envelope (domain) ---
-export {
-  buildExecutionSettlement,
-  isExecutionSettlement,
-} from "./domain/envelope.js";
+export { buildExecutionSettlement, isExecutionSettlement } from "./domain/envelope.js";
 export type {
   ExecutionCostLine,
   ExecutionEnvironmentProvenance,
@@ -171,11 +165,7 @@ export type {
 
 // --- recovery service (app) ---
 export { runRecovery } from "./app/recovery.js";
-export type {
-  RecoveryOutcome,
-  RecoveryOutcomeKind,
-  RecoveryReport,
-} from "./app/recovery.js";
+export type { RecoveryOutcome, RecoveryOutcomeKind, RecoveryReport } from "./app/recovery.js";
 
 // --- reference adapters (adapters) ---
 export {
@@ -187,10 +177,7 @@ export {
   createInMemorySessionStore,
   InMemoryExecutionSessionStore,
 } from "./adapters/in-memory-session-store.js";
-export {
-  createInMemoryJournal,
-  InMemoryExecutionJournal,
-} from "./adapters/in-memory-journal.js";
+export { createInMemoryJournal, InMemoryExecutionJournal } from "./adapters/in-memory-journal.js";
 export { createInProcessEnvironmentRegistry } from "./adapters/seam-registry.js";
 export type { InProcessEnvironmentRegistry } from "./adapters/seam-registry.js";
 export { createLocalEnvironment } from "./adapters/local-environment.js";

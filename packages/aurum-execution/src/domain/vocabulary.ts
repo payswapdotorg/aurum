@@ -30,9 +30,7 @@ export const EXECUTION_ENVIRONMENT_CLASSES = [
 export type ExecutionEnvironmentClass = (typeof EXECUTION_ENVIRONMENT_CLASSES)[number];
 
 /** Type guard for an environment class value (e.g. off the wire). */
-export function isExecutionEnvironmentClass(
-  value: unknown,
-): value is ExecutionEnvironmentClass {
+export function isExecutionEnvironmentClass(value: unknown): value is ExecutionEnvironmentClass {
   return (
     typeof value === "string" &&
     (EXECUTION_ENVIRONMENT_CLASSES as readonly string[]).includes(value)
@@ -133,8 +131,7 @@ export type ExecutionJournalKind = (typeof EXECUTION_JOURNAL_KINDS)[number];
 /** Type guard for a journal kind value. */
 export function isExecutionJournalKind(value: unknown): value is ExecutionJournalKind {
   return (
-    typeof value === "string" &&
-    (EXECUTION_JOURNAL_KINDS as readonly string[]).includes(value)
+    typeof value === "string" && (EXECUTION_JOURNAL_KINDS as readonly string[]).includes(value)
   );
 }
 
@@ -163,7 +160,6 @@ export type ExecutionFailureKind = (typeof EXECUTION_FAILURE_KINDS)[number];
 /** Type guard for a failure kind value. */
 export function isExecutionFailureKind(value: unknown): value is ExecutionFailureKind {
   return (
-    typeof value === "string" &&
-    (EXECUTION_FAILURE_KINDS as readonly string[]).includes(value)
+    typeof value === "string" && (EXECUTION_FAILURE_KINDS as readonly string[]).includes(value)
   );
 }

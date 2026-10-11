@@ -9,13 +9,7 @@
  * journal is execution-local runtime projection state — it is not the domain
  * audit trail and carries no semantic authority (the caller records that).
  */
-import {
-  err,
-  executionInvariant,
-  ok,
-  type ExecutionError,
-  type Result,
-} from "../domain/errors.js";
+import { err, executionInvariant, ok, type ExecutionError, type Result } from "../domain/errors.js";
 import type { ExecutionRequestId, ExecutionTenantId } from "../domain/ids.js";
 import type { ExecutionJournal, ExecutionJournalEntry } from "../domain/ports.js";
 import { isExecutionJournalKind } from "../domain/vocabulary.js";

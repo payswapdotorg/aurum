@@ -24,7 +24,10 @@ export class FixedEpochClock implements ExecutionClock {
 export class SteppingEpochClock implements ExecutionClock {
   private currentMs: number;
 
-  constructor(startMs: number, private readonly stepMs = 1000) {
+  constructor(
+    startMs: number,
+    private readonly stepMs = 1000,
+  ) {
     this.currentMs = startMs;
   }
 

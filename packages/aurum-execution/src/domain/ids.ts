@@ -68,9 +68,7 @@ export function executionScope(tenantId: string): Result<ExecutionScope> {
 }
 
 /** Validates and brands an execution request id. */
-export function asExecutionRequestId(
-  value: string,
-): Result<ExecutionRequestId> {
+export function asExecutionRequestId(value: string): Result<ExecutionRequestId> {
   const trimmed = typeof value === "string" ? value.trim() : "";
   if (trimmed.length === 0 || trimmed.length > 200) {
     return err(

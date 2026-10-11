@@ -138,9 +138,10 @@ function parsePayload(
 }
 
 /** Builds the sandbox environment bundle (environment + test controller). */
-export function createSandboxEnvironment(
-  config: SandboxEnvironmentConfig,
-): { environment: ExecutionEnvironment; controller: SandboxEnvironmentController } {
+export function createSandboxEnvironment(config: SandboxEnvironmentConfig): {
+  environment: ExecutionEnvironment;
+  controller: SandboxEnvironmentController;
+} {
   const environmentId = config.environmentId ?? "sandbox-env-1";
   const variant = config.variant ?? "default";
   const startupLatencyMs = config.startupLatencyMs ?? 1;
@@ -208,15 +209,17 @@ export function createSandboxEnvironment(
       if (record.deadlineEpochMs !== undefined && now() >= record.deadlineEpochMs) {
         return; // awaitCompletion enforces the deadline rejection
       }
-      if (
-        config.hangAfterSteps !== undefined &&
-        record.completedSteps >= config.hangAfterSteps
-      ) {
+      if (config.hangAfterSteps !== undefined && record.completedSteps >= config.hangAfterSteps) {
         return; // injected hang: no further progress
       }
       const step = record.steps[record.nextStep] as LocalWorkloadStep;
       await delay(stepLatencyMs);
       if (record.state !== "running") return; // paused/cancelled during latency
+      if (step.failWith !== undefined) {
+        record.state = "failed";
+        record.failureMessage = step.failWith.message;
+        return;
+      }
       if (config.failAtStep !== undefined && record.nextStep + 1 === config.failAtStep) {
         record.state = "failed";
         record.failureMessage = `injected sandbox failure at step ${config.failAtStep} (${step.label})`;
@@ -294,10 +297,7 @@ export function createSandboxEnvironment(
       for (;;) {
         if (TERMINAL.has(record.state)) return envelopeOf(record);
         if (options?.signal?.aborted) {
-          throw new AurumBoundaryError(
-            "aurum-transport/await-aborted",
-            "await aborted by signal",
-          );
+          throw new AurumBoundaryError("aurum-transport/await-aborted", "await aborted by signal");
         }
         if (record.deadlineEpochMs !== undefined && now() >= record.deadlineEpochMs) {
           throw new AurumBoundaryError(

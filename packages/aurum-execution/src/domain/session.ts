@@ -20,11 +20,7 @@ import type { ExecutionRequestId, ExecutionTenantId } from "./ids.js";
 import type { ExecutionSessionState, ExecutionTerminalState } from "./lifecycle.js";
 import { executionTransitionLegal } from "./lifecycle.js";
 import { err, ok, type Result } from "./errors.js";
-import {
-  executionInvariant,
-  executionLifecycleIllegal,
-  executionValidationError,
-} from "./errors.js";
+import { executionInvariant, executionLifecycleIllegal } from "./errors.js";
 import type { ValidationIssue } from "./issues.js";
 import { isExecutionEnvironmentClass } from "./vocabulary.js";
 import type { ExecutionEnvironmentClass } from "./vocabulary.js";
@@ -114,6 +110,8 @@ export interface ExecutionSession {
   readonly variant?: string;
   /** Set when an environment was selected. */
   readonly environmentId?: string;
+  /** The selected environment's own variant label (provenance echo). */
+  readonly environmentVariant?: string;
   /** Boundary capability id (persist this, never the seam handle). */
   readonly capabilityId?: string;
   /** Opaque platform ticket, set once the submission is acknowledged. */
@@ -162,13 +160,20 @@ export function createPendingSession(
 /** Records environment selection (still pending). */
 export function withEnvironmentSelected(
   session: ExecutionSession,
-  selection: { environmentId: string; capabilityId: string },
+  selection: {
+    environmentId: string;
+    capabilityId: string;
+    environmentVariant?: string;
+  },
   now: number,
 ): ExecutionSession {
   return {
     ...session,
     environmentId: selection.environmentId,
     capabilityId: selection.capabilityId,
+    ...(selection.environmentVariant === undefined
+      ? {}
+      : { environmentVariant: selection.environmentVariant }),
     updatedAt: now,
   };
 }

@@ -23,7 +23,10 @@ import type { ExecutionSession } from "./session.js";
  * Derives the platform idempotency key for one tenant + request. Stable and
  * collision-free across tenants; the platform dedups on exactly this string.
  */
-export function submissionKeyOf(tenantId: ExecutionTenantId, requestId: ExecutionRequestId): string {
+export function submissionKeyOf(
+  tenantId: ExecutionTenantId,
+  requestId: ExecutionRequestId,
+): string {
   return `exec:${tenantId as string}:${requestId as string}`;
 }
 
@@ -66,7 +69,9 @@ export function recoveryRouteOf(session: ExecutionSession): RecoveryRouteDecisio
 }
 
 /** Sessions from a list that need recovery, in request order. */
-export function interruptedSessionsOf(sessions: readonly ExecutionSession[]): readonly ExecutionSession[] {
+export function interruptedSessionsOf(
+  sessions: readonly ExecutionSession[],
+): readonly ExecutionSession[] {
   return sessions
     .filter((session) => isRecoverableSession(session))
     .sort((a, b) => (a.requestId as string).localeCompare(b.requestId as string));

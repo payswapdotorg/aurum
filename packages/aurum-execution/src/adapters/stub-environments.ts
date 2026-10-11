@@ -57,9 +57,7 @@ function stubTransport(environmentClass: string): AurumExecutionTransportPort {
 }
 
 /** Builds one fail-closed stub environment. */
-export function createStubEnvironment(
-  config: StubEnvironmentConfig,
-): ExecutionEnvironment {
+export function createStubEnvironment(config: StubEnvironmentConfig): ExecutionEnvironment {
   const environmentId = config.environmentId ?? `stub-${config.environmentClass}`;
   const variant = config.variant ?? "not-wired";
   return {

@@ -53,8 +53,7 @@ export type ExecutionSettlementStatus = ExecutionTerminalState;
 /** Type guard for a session state value (e.g. off the wire). */
 export function isExecutionSessionState(value: unknown): value is ExecutionSessionState {
   return (
-    typeof value === "string" &&
-    (EXECUTION_SESSION_STATES as readonly string[]).includes(value)
+    typeof value === "string" && (EXECUTION_SESSION_STATES as readonly string[]).includes(value)
   );
 }
 
