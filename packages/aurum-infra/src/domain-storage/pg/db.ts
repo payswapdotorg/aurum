@@ -10,7 +10,7 @@
  *   driver errors through the Result discipline.
  */
 import postgres from "postgres";
-import { DomainError, conflictError } from "@aurum/domain";
+import { DomainError, conflictError, isDomainJsonValue } from "@aurum/domain";
 
 /** postgres.js pool handle (or the standalone client the harness creates). */
 export type Db = postgres.Sql;
@@ -52,4 +52,19 @@ export function isUniqueViolation(error: unknown): boolean {
 /** Type-only helper: asserts a DomainError-shaped value for narrow scopes. */
 export function asDomainError(error: unknown): DomainError | null {
   return error instanceof DomainError ? error : null;
+}
+
+/**
+ * Bridges a domain JSON value (record, actor, payload) into a postgres.js
+ * jsonb parameter. Domain records are plain JSON by construction (the kernel
+ * accepts only plain data and deep-freezes it); the runtime guard keeps this
+ * bridge honest — a non-JSON value fails loudly instead of corrupting
+ * storage. `undefined` maps to SQL NULL (absent optional field).
+ */
+export function jsonbParam(sql: Db | Tx, value: unknown): postgres.Parameter | null {
+  if (value === undefined) return null;
+  if (!isDomainJsonValue(value)) {
+    throw new TypeError("jsonb parameter is not a domain JSON value");
+  }
+  return sql.json(value);
 }

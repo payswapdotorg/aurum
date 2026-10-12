@@ -15,7 +15,7 @@
  * in-memory single-image semantics. The `append` method on the store runs
  * its own transaction for standalone use.
  */
-import { createAuditRecord, deepFreeze, notFound, ok } from "@aurum/domain";
+import { createAuditRecord, deepFreeze, notFound } from "@aurum/domain";
 import type {
   AuditActionKind,
   AuditInput,
@@ -26,6 +26,7 @@ import type {
   TenantScope,
 } from "@aurum/domain";
 import { recordWrite } from "../journal/write-journal.js";
+import { jsonbParam } from "../pg/db.js";
 import type { Db, Tx } from "../pg/db.js";
 
 /** Query surface for audit entries. */
@@ -72,8 +73,8 @@ export async function appendAuditEntry(
       (tenant_id, audit_id, subject_kind, subject_id, action, actor, acted_at, reason, details, record)
     values
       (${scope.tenantId}, ${auditId}, ${subject.kind}, ${subject.id}, ${action},
-       ${input.actor}, ${input.at}, ${input.reason.trim()},
-       ${details === undefined ? null : details}, ${record})
+       ${jsonbParam(tx, input.actor)}, ${input.at}, ${input.reason.trim()},
+       ${jsonbParam(tx, details)}, ${jsonbParam(tx, record)})
   `;
   await recordWrite(tx, {
     tenantId: scope.tenantId,

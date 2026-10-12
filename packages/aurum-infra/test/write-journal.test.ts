@@ -138,7 +138,10 @@ describe("journalOnce", () => {
 
 describe("write journal database enforcement", () => {
   it("rejects UPDATE and DELETE on the journal table (append-only)", async () => {
-    const tenant = scope("journal-tenant");
+    // Fresh tenant: the append-only guard must be proven against a journal
+    // containing exactly this test's row (one harness per file, deterministic
+    // scope names — a shared name would leak rows from earlier tests).
+    const tenant = scope("journal-append-guard");
     await recordWrite(harness.sql, {
       tenantId: tenant.tenantId,
       journalKey: "audit:append:guard",
@@ -146,9 +149,9 @@ describe("write journal database enforcement", () => {
       operation: "append",
       recordId: "audit-1",
     });
-    await expect(
-      harness.sql`update domain_write_journal set area = 'tampered'`,
-    ).rejects.toThrow(/append-only/);
+    await expect(harness.sql`update domain_write_journal set area = 'tampered'`).rejects.toThrow(
+      /append-only/,
+    );
     await expect(
       harness.sql`delete from domain_write_journal where tenant_id = ${tenant.tenantId}`,
     ).rejects.toThrow(/append-only/);

@@ -44,13 +44,13 @@ describe("migration runner", () => {
     // The write journal table exists and enforces append-only.
     await harness.sql`insert into domain_write_journal (tenant_id, journal_key, area, operation, record_id)
       values ('t', 'k', 'area', 'op', 'r')`;
-    await expect(
-      harness.sql`update domain_write_journal set area = 'x'`,
-    ).rejects.toThrow(/append-only/);
-    await expect(harness.sql`delete from domain_write_journal`).rejects.toThrow(/append-only/);
-    await expect(harness.sql`select count(*)::int as n from domain_write_journal`).resolves.toMatchObject(
-      [{ n: 1 }],
+    await expect(harness.sql`update domain_write_journal set area = 'x'`).rejects.toThrow(
+      /append-only/,
     );
+    await expect(harness.sql`delete from domain_write_journal`).rejects.toThrow(/append-only/);
+    await expect(
+      harness.sql`select count(*)::int as n from domain_write_journal`,
+    ).resolves.toMatchObject([{ n: 1 }]);
   });
 
   it("is idempotent: a second run applies nothing and skips everything", async () => {
@@ -79,16 +79,13 @@ describe("migration runner history discipline (custom directories)", () => {
     try {
       const dir = await tempDir();
       await writeMigration(dir, "0001-a.sql", "create table drift_t (id int)");
-      const first = await runDomainMigrations(
-        local.sql,
-        await loadDomainMigrations(dir),
-      );
+      const first = await runDomainMigrations(local.sql, await loadDomainMigrations(dir));
       expect(first.applied).toEqual(["0001-a.sql"]);
       // Content of an applied migration changes on disk.
       await writeMigration(dir, "0001-a.sql", "create table drift_t (id int, v text)");
-      await expect(
-        runDomainMigrations(local.sql, await loadDomainMigrations(dir)),
-      ).rejects.toThrow(/content drift/);
+      await expect(runDomainMigrations(local.sql, await loadDomainMigrations(dir))).rejects.toThrow(
+        /content drift/,
+      );
     } finally {
       await local.close();
     }
@@ -102,9 +99,9 @@ describe("migration runner history discipline (custom directories)", () => {
       await writeMigration(dir, "0002-b.sql", "create table mid_b (id int)");
       await runDomainMigrations(local.sql, await loadDomainMigrations(dir));
       await rm(path.join(dir, "0002-b.sql"));
-      await expect(
-        runDomainMigrations(local.sql, await loadDomainMigrations(dir)),
-      ).rejects.toThrow(/ordering violated|no longer exists/);
+      await expect(runDomainMigrations(local.sql, await loadDomainMigrations(dir))).rejects.toThrow(
+        /ordering violated|no longer exists/,
+      );
     } finally {
       await local.close();
     }
@@ -118,9 +115,9 @@ describe("migration runner history discipline (custom directories)", () => {
       await writeMigration(dir, "0002-b.sql", "create table ins_b (id int)");
       await runDomainMigrations(local.sql, await loadDomainMigrations(dir));
       await writeMigration(dir, "0000-early.sql", "create table ins_early (id int)");
-      await expect(
-        runDomainMigrations(local.sql, await loadDomainMigrations(dir)),
-      ).rejects.toThrow(/ordering violated/);
+      await expect(runDomainMigrations(local.sql, await loadDomainMigrations(dir))).rejects.toThrow(
+        /ordering violated/,
+      );
     } finally {
       await local.close();
     }

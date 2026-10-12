@@ -18,8 +18,9 @@
  * identities; command-level idempotency is opt-in via `journalOnce`.
  * The journal table itself is append-only (DB-enforced by trigger).
  */
-import postgres from "postgres";
 import type { DomainJsonValue } from "@aurum/domain";
+import { jsonbParam } from "../pg/db.js";
+import type { Db, Tx } from "../pg/db.js";
 
 /** A journaled write: the mutation identity plus optional outcome snapshot. */
 export interface WriteJournalEntry {
@@ -43,7 +44,8 @@ export interface WriteRecordResult {
   readonly replayed: boolean;
 }
 
-export type JournalSql = postgres.Sql | postgres.TransactionSql;
+/** postgres.js pool or transaction handle (both accept journal writes). */
+export type JournalSql = Db | Tx;
 
 function hasKey(entry: WriteJournalEntry): void {
   if (
@@ -58,7 +60,9 @@ function hasKey(entry: WriteJournalEntry): void {
     typeof entry.recordId !== "string" ||
     entry.recordId.length === 0
   ) {
-    throw new TypeError("WriteJournalEntry requires tenantId, journalKey, area, operation, recordId");
+    throw new TypeError(
+      "WriteJournalEntry requires tenantId, journalKey, area, operation, recordId",
+    );
   }
 }
 
@@ -67,14 +71,18 @@ function hasKey(entry: WriteJournalEntry): void {
  * `(tenant_id, journal_key)` is reported as `replayed` and changes nothing.
  * Call this inside the same transaction as the mutation it describes.
  */
-export async function recordWrite(sql: JournalSql, entry: WriteJournalEntry): Promise<WriteRecordResult> {
+export async function recordWrite(
+  sql: JournalSql,
+  entry: WriteJournalEntry,
+): Promise<WriteRecordResult> {
   hasKey(entry);
   const rows = await sql`
     insert into domain_write_journal
       (tenant_id, journal_key, area, operation, record_id, version, outcome, written_at)
     values
       (${entry.tenantId}, ${entry.journalKey}, ${entry.area}, ${entry.operation},
-       ${entry.recordId}, ${entry.version ?? null}, ${entry.outcome ?? null}, now())
+       ${entry.recordId}, ${entry.version ?? null},
+       ${jsonbParam(sql, entry.outcome)}, now())
     on conflict (tenant_id, journal_key) do nothing
     returning journal_key
   `;
@@ -94,7 +102,10 @@ export interface WriteJournalRow {
 }
 
 /** Lists journal rows of one tenant in insertion order. */
-export async function listJournal(sql: JournalSql, tenantId: string): Promise<readonly WriteJournalRow[]> {
+export async function listJournal(
+  sql: JournalSql,
+  tenantId: string,
+): Promise<readonly WriteJournalRow[]> {
   const rows = await sql`
     select tenant_id, journal_key, area, operation, record_id, version, outcome, written_at
     from domain_write_journal

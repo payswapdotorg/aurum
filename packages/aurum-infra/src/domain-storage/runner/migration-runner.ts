@@ -45,7 +45,8 @@ export async function loadDomainMigrations(
 ): Promise<readonly DomainMigration[]> {
   const entries = await readdir(directory);
   const names = entries.filter((name: string) => name.endsWith(".sql")).sort();
-  const base = directory instanceof URL ? directory : new URL(`file://${path.resolve(String(directory))}/`);
+  const base =
+    directory instanceof URL ? directory : new URL(`file://${path.resolve(String(directory))}/`);
   const migrations: DomainMigration[] = [];
   for (const name of names) {
     const content = await readFile(new URL(name, base), "utf8");
