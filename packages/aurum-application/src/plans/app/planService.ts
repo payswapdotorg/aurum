@@ -13,28 +13,17 @@
  * (human-only), activate, get/list plans per tenant, readiness queries,
  * handoff issuance + delivery (the relay), escalation listing".
  */
-import {
-  err,
-  ok,
-  type ActorReference,
-  type DomainTimestamp,
-  type PersonId,
-  type Result,
-  type TenantScope,
-} from "@aurum/domain";
+import { err, ok, type Result, type OrganizationCandidateId } from "@aurum/domain";
 import {
   planNotFound,
   planValidationError,
   planLifecycleIllegal,
   type PlanError,
 } from "../domain/errors.js";
-import { buildTaskDag, readyTasks } from "../domain/dag.js";
+import { readyTasks } from "../domain/dag.js";
 import { buildHandoffPayload, deliverHandoffIdempotent } from "../domain/relay.js";
 import { buildTaskFailedEscalation } from "../domain/escalation.js";
-import type { HandoffPayload, TaskCompletionRecord } from "../domain/records.js";
-import type { ExecutionPlan } from "../domain/records.js";
-import type { EscalationRecord } from "../domain/records.js";
-import type { OrganizationCandidateId } from "@aurum/domain";
+import type { TaskCompletionRecord, ExecutionPlan } from "../domain/records.js";
 import type {
   EscalationStore,
   ExecutionSubstratePort,
@@ -47,14 +36,7 @@ import type {
   PlanStore,
   TaskCompletionStore,
 } from "../domain/ports.js";
-import type {
-  CreatePlanInput,
-  DispatchTaskInput,
-  IssueHandoffInput,
-  PlanApprovalInput,
-  PlanLifecycleInput,
-  PlanService,
-} from "./inputs.js";
+import type { PlanService } from "./inputs.js";
 import {
   transitionApproval,
   transitionLifecycle,

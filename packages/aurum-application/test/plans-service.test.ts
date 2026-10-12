@@ -5,14 +5,13 @@
  * CR-W009 will wire it; the port shape is structurally compatible).
  */
 import { describe, expect, it } from "vitest";
-import { createInMemoryPlanStore, type ExecutionPlan, type PlanTask } from "../src/index.js";
+import { createInMemoryPlanStore, type ExecutionPlan } from "../src/index.js";
 import {
   errOf,
   okOf,
   planServiceFixture,
   planTask,
   personActor,
-  provenance,
   scope,
   seedCandidate,
   seedGoal,

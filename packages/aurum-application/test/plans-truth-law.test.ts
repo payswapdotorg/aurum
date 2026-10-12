@@ -73,10 +73,6 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
     // The ExecutionPlan interface block.
     const planIfaceStart = recordsSource.indexOf("export interface ExecutionPlan");
     expect(planIfaceStart).toBeGreaterThan(-1);
-    const planIfaceEnd = recordsSource.indexOf(
-      "}",
-      planIfaceStart + "export interface ExecutionPlan".length,
-    );
     // Find the matching closing brace by counting braces.
     let depth = 0;
     let endIdx = -1;

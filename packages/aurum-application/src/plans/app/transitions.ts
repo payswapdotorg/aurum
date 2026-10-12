@@ -10,7 +10,6 @@ import {
   ok,
   organizationCandidateIssues,
   provenanceIssues,
-  type ActorReference,
   type GoalRecord,
   type OrganizationCandidate,
   type ProvenanceRecord,
@@ -36,7 +35,7 @@ import {
 } from "../domain/vocabulary.js";
 import { buildTaskDag } from "../domain/dag.js";
 import { executorAuthorityIssues, handoffDescriptorIssues } from "../domain/relay.js";
-import type { ExecutionPlan, PlanTask } from "../domain/records.js";
+import type { ExecutionPlan } from "../domain/records.js";
 import type {
   PlanApprovalAuthority,
   PlanAuditPort,
