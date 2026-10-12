@@ -105,8 +105,13 @@ export function missionInvariant(message: string): MissionError {
  * Translates a kernel `DomainError` into the cognition error namespace.
  * Closed-failure semantics are preserved: domain `not-found` maps to the
  * uniform mission not-found (foreign-tenant and missing stay identical).
+ * A seam that already returns a `MissionError` passes through unchanged
+ * (no double-wrap). The switch is EXHAUSTIVE over the frozen W002
+ * `DomainErrorCode` union with no default: if the kernel ever grows a new
+ * code, this switch fails to compile rather than silently mis-mapping.
  */
-export function mapDomainError(error: DomainError): MissionError {
+export function mapDomainError(error: DomainError | MissionError): MissionError {
+  if (isMissionError(error)) return error;
   switch (error.code) {
     case "validation":
       return missionValidationError(error.issues);

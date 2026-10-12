@@ -24,14 +24,14 @@
 import type { FreshnessClass, SubjectReference } from "@aurum/domain";
 
 /** The fixed mission stage sequence. Index = journal position. */
-export const MISSION_STAGES = [
+export const MISSION_STAGES = Object.freeze([
   "orient",
   "reason",
   "evaluate",
   "propose",
   "gate",
   "record",
-] as const;
+] as const);
 
 export type MissionStage = (typeof MISSION_STAGES)[number];
 

@@ -135,6 +135,8 @@ export function evaluateMission(
       ),
     ),
     ...(goalAddressed !== undefined ? { goalAddressed } : {}),
-    disposition: gaps.length > 0 ? "knowledge-gap-remains" : "satisfied",
+    // Honest disposition: a gap remains when gaps exist OR nothing was
+    // admitted — a mission that asserted nothing did not satisfy its charter.
+    disposition: gaps.length > 0 || admittedFindings === 0 ? "knowledge-gap-remains" : "satisfied",
   });
 }

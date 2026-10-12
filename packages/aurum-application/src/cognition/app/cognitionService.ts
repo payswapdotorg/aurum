@@ -76,7 +76,11 @@ export interface CognitionService {
     missionId: string,
     input: { now: DomainTimestamp },
   ): Promise<Result<MissionRecord, MissionError>>;
-  /** Drives `advance` until the mission reaches a terminal status. */
+  /**
+   * Drives `advance` until the mission reaches a terminal status. Idempotent:
+   * a mission that is already terminal (complete or cancelled) is returned
+   * as-is — a re-driven run after an interruption never errors or re-writes.
+   */
   runToCompletion(
     scope: TenantScope,
     missionId: string,
@@ -315,6 +319,12 @@ export function createCognitionService(deps: CognitionServiceDeps): CognitionSer
     },
 
     async runToCompletion(scope, missionId, input) {
+      const loaded = loadMission(scope, missionId);
+      if (!loaded.ok) return err(loaded.error);
+      // Idempotent driver: a mission that already reached a terminal status
+      // (complete or cancelled — e.g. the caller crashed after the last
+      // advance) is returned as-is, never re-driven.
+      if (isTerminalMissionStatus(loaded.value.status)) return loaded;
       let current = await service.advance(scope, missionId, input);
       if (!current.ok) return current;
       for (let guard = 0; guard < MISSION_STAGES.length; guard += 1) {
