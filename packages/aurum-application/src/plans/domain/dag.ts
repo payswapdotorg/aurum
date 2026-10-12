@@ -216,10 +216,7 @@ function adjacency(tasks: readonly PlanTask[]): {
   const upstream = new Map<string, readonly string[]>();
   const downstream = new Map<string, readonly string[]>();
   for (const task of tasks) {
-    upstream.set(
-      task.taskId,
-      Object.freeze([...task.dependsOn].sort()) as readonly string[],
-    );
+    upstream.set(task.taskId, Object.freeze([...task.dependsOn].sort()) as readonly string[]);
     downstream.set(task.taskId, []);
   }
   for (const task of tasks) {

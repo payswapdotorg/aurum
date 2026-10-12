@@ -54,10 +54,7 @@ export interface PlanGoalViews {
  * - the referenced assignment / allocation ids exist within that candidate.
  */
 export interface PlanCandidateViews {
-  getCandidate(
-    scope: TenantScope,
-    candidateId: string,
-  ): Result<OrganizationCandidate, PlanError>;
+  getCandidate(scope: TenantScope, candidateId: string): Result<OrganizationCandidate, PlanError>;
 }
 
 /**
@@ -271,10 +268,7 @@ export interface HandoffRelayStore {
     payload: import("./records.js").HandoffPayload,
   ): Result<import("./records.js").HandoffDeliveryResult, PlanError>;
   /** Lists delivered handoffs for a (planId, taskId) correlation. */
-  deliveredFor(
-    planId: string,
-    taskId: string,
-  ): readonly import("./records.js").HandoffPayload[];
+  deliveredFor(planId: string, taskId: string): readonly import("./records.js").HandoffPayload[];
   /** Lists all delivered handoffs for a plan (used by readiness queries). */
   deliveredForPlan(planId: string): readonly import("./records.js").HandoffPayload[];
 }

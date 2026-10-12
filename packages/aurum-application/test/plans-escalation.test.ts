@@ -31,9 +31,7 @@ const escalationSource = readFileSync(
 
 describe("escalation proposes / disposes (catalog clause 4)", () => {
   it("the escalation module has NO ExecutionPlan import (never mutates plans)", () => {
-    const offenders = escalationSource
-      .split("\n")
-      .filter((line) => /\bExecutionPlan\b/.test(line));
+    const offenders = escalationSource.split("\n").filter((line) => /\bExecutionPlan\b/.test(line));
     expect(offenders).toEqual([]);
   });
 

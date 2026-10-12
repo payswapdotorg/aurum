@@ -211,7 +211,11 @@ export interface ExecutionPlan extends TenantScopedRecord {
     /** Present iff `state === "approved"`. */
     readonly citation?: PlanApprovalCitation;
     /** Present iff `state === "rejected"`. */
-    readonly rejection?: { readonly reason: string; readonly rejectedBy: ActorReference; readonly rejectedAt: DomainTimestamp };
+    readonly rejection?: {
+      readonly reason: string;
+      readonly rejectedBy: ActorReference;
+      readonly rejectedAt: DomainTimestamp;
+    };
   };
   readonly lifecycleState: PlanLifecycleState;
   readonly lifecycleHistory: readonly PlanLifecycleTransition[];

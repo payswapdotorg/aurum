@@ -16,11 +16,7 @@
  */
 import { err, ok, type Result } from "@aurum/domain";
 import type { ValidationIssue } from "@aurum/domain";
-import {
-  planValidationError,
-  planHandoffDivergent,
-  type PlanError,
-} from "./errors.js";
+import { planValidationError, planHandoffDivergent, type PlanError } from "./errors.js";
 import type { HandoffDescriptor, HandoffPayload, HandoffDeliveryResult } from "./records.js";
 import type { PlanTask } from "./records.js";
 import type { TaskSettlementEcho } from "./ports.js";

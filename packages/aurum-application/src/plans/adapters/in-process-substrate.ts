@@ -118,10 +118,7 @@ export class InProcessExecutionSubstrate implements ExecutionSubstratePort {
       readonly attempt: number;
     },
   ): Promise<
-    Result<
-      { readonly requestId: string; readonly settlement: TaskSettlementEcho },
-      PlanError
-    >
+    Result<{ readonly requestId: string; readonly settlement: TaskSettlementEcho }, PlanError>
   > {
     if (!request?.planId || !request?.taskId) {
       return {
@@ -131,11 +128,7 @@ export class InProcessExecutionSubstrate implements ExecutionSubstratePort {
         ]),
       };
     }
-    const submissionKey = this.submissionKeyOf(
-      request.planId,
-      request.taskId,
-      request.attempt,
-    );
+    const submissionKey = this.submissionKeyOf(request.planId, request.taskId, request.attempt);
     const existing = this.submissions.get(submissionKey);
     if (existing !== undefined) {
       // Idempotent duplicate: same submission key returns the same settlement
@@ -180,11 +173,7 @@ export class InProcessExecutionSubstrate implements ExecutionSubstratePort {
       readonly attempt: number;
     },
   ): Promise<Result<TaskSettlementEcho, PlanError>> {
-    const submissionKey = this.submissionKeyOf(
-      request.planId,
-      request.taskId,
-      request.attempt,
-    );
+    const submissionKey = this.submissionKeyOf(request.planId, request.taskId, request.attempt);
     const existing = this.submissions.get(submissionKey);
     if (!existing) {
       return { ok: false, error: planNotFound("task submission") };
@@ -200,11 +189,7 @@ export class InProcessExecutionSubstrate implements ExecutionSubstratePort {
       readonly attempt: number;
     },
   ): Promise<Result<TaskSettlementEcho, PlanError>> {
-    const submissionKey = this.submissionKeyOf(
-      request.planId,
-      request.taskId,
-      request.attempt,
-    );
+    const submissionKey = this.submissionKeyOf(request.planId, request.taskId, request.attempt);
     const existing = this.submissions.get(submissionKey);
     if (!existing) {
       return { ok: false, error: planNotFound("task submission") };
@@ -249,9 +234,12 @@ export function settledScript(result: string): SubstrateScript {
 }
 
 /** Helper for tests: a script that produces a failed settlement. */
-export function failedScript(
-  failure: { readonly kind: string; readonly code: string; readonly message: string; readonly retryable: boolean },
-): SubstrateScript {
+export function failedScript(failure: {
+  readonly kind: string;
+  readonly code: string;
+  readonly message: string;
+  readonly retryable: boolean;
+}): SubstrateScript {
   return (input) => ({
     requestId: `req-${input.planId}-${input.taskId}-${input.attempt}`,
     status: "failed",

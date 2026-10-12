@@ -139,7 +139,7 @@ export type {
   PlanApprovalInput,
   PlanLifecycleInput,
   PlanService,
-} from "./app/planService.js";
+} from "./app/inputs.js";
 
 // --- reference adapters (adapters) ---
 export { createInMemoryPlanStore, InMemoryPlanStore } from "./adapters/in-memory-plan-store.js";
@@ -162,7 +162,4 @@ export {
   InProcessExecutionSubstrate,
   settledScript,
 } from "./adapters/in-process-substrate.js";
-export type {
-  InProcessSubstrateConfig,
-  SubstrateScript,
-} from "./adapters/in-process-substrate.js";
+export type { InProcessSubstrateConfig, SubstrateScript } from "./adapters/in-process-substrate.js";

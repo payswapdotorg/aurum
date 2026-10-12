@@ -36,11 +36,7 @@ import {
   type Result,
   type TenantScope,
 } from "@aurum/domain";
-import {
-  planNotFound,
-  planUnauthorized,
-  type PlanError,
-} from "../src/index.js";
+import { planNotFound, planUnauthorized, type PlanError } from "../src/index.js";
 import {
   cancelledScript,
   createInMemoryEscalationStore,
@@ -104,7 +100,8 @@ export function provenance(actor: ActorReference, atSeconds = 0): ProvenanceReco
     source: "human-entered",
     recordedAt: now(atSeconds),
   });
-  if (issues.length > 0) throw new Error(`test setup: invalid provenance: ${JSON.stringify(issues)}`);
+  if (issues.length > 0)
+    throw new Error(`test setup: invalid provenance: ${JSON.stringify(issues)}`);
   return { actor, source: "human-entered", recordedAt: now(atSeconds) };
 }
 
@@ -115,14 +112,24 @@ export function provenance(actor: ActorReference, atSeconds = 0): ProvenanceReco
  * port is structurally compatible.
  */
 export class FakeApprovalAuthority implements PlanApprovalAuthority {
-  readonly citations: { actionId?: string; auditRef?: string; approvedBy: ActorReference; approvedAt: DomainTimestamp }[] = [];
+  readonly citations: {
+    actionId?: string;
+    auditRef?: string;
+    approvedBy: ActorReference;
+    approvedAt: DomainTimestamp;
+  }[] = [];
   readonly executorProofs: { actionId?: string; auditRef?: string }[] = [];
   /** Set to true to refuse the next approval (for unauthorized tests). */
   refuseNext = false;
 
   assertApprovalCitation(
     _scope: TenantScope,
-    citation: { actionId?: string; auditRef?: string; approvedBy: ActorReference; approvedAt: DomainTimestamp },
+    citation: {
+      actionId?: string;
+      auditRef?: string;
+      approvedBy: ActorReference;
+      approvedAt: DomainTimestamp;
+    },
   ): Result<{ actionId?: string; auditRef?: string }, PlanError> {
     if (this.refuseNext) {
       return err(planUnauthorized("fake approval refusal"));
@@ -200,10 +207,7 @@ export function planViewsFromKernel(kernel: ReturnType<typeof createDomainKernel
             PlanError
           >;
         }
-        return result as unknown as Result<
-          import("@aurum/domain").GoalRecord,
-          PlanError
-        >;
+        return result as unknown as Result<import("@aurum/domain").GoalRecord, PlanError>;
       },
     },
     candidates: {
@@ -241,7 +245,10 @@ export interface PlanServiceFixture {
 
 /** Wires a complete W009 fixture: kernel + plans service + in-process substrate. */
 export function planServiceFixture(options?: {
-  substrateScript?: ReturnType<typeof settledScript> | ReturnType<typeof failedScript> | ReturnType<typeof cancelledScript>;
+  substrateScript?:
+    | ReturnType<typeof settledScript>
+    | ReturnType<typeof failedScript>
+    | ReturnType<typeof cancelledScript>;
 }): PlanServiceFixture {
   const kernel = createDomainKernel();
   const { goals, candidates } = planViewsFromKernel(kernel);
@@ -313,9 +320,7 @@ export function seedCandidate(
     ],
     topology: {
       execution: {
-        steps: [
-          { stepId: "s1", name: "Do work", automated: false },
-        ],
+        steps: [{ stepId: "s1", name: "Do work", automated: false }],
         edges: [],
       },
       information: {
@@ -371,7 +376,9 @@ export function planTask(
     consumes: Object.freeze(options.consumes ?? []),
     produces: Object.freeze(options.produces ?? []),
     resourceAllocations: Object.freeze(
-      (options.resourceCandidateId ?? options.resourceAssignmentIds ?? options.resourceAllocationIds)
+      (options.resourceCandidateId ??
+        options.resourceAssignmentIds ??
+        options.resourceAllocationIds)
         ? [
             {
               candidateId: options.resourceCandidateId ?? "cand-1",

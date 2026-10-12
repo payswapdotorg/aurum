@@ -25,10 +25,7 @@ import { planValidationError, type PlanError } from "./errors.js";
 import type { EscalationRecord } from "./records.js";
 import type { PlanTask } from "./records.js";
 import type { EscalationDecision, EscalationTrigger } from "./vocabulary.js";
-import {
-  isKnownEscalationDecision,
-  isKnownEscalationTrigger,
-} from "./vocabulary.js";
+import { isKnownEscalationDecision, isKnownEscalationTrigger } from "./vocabulary.js";
 import type { TaskSettlementEcho } from "./ports.js";
 
 /**
@@ -60,7 +57,9 @@ export function escalationInputIssues(input: {
   if (!isKnownEscalationTrigger(input?.trigger)) {
     issues.push({
       field: "trigger",
-      problem: "must be one of " + ["task-failed", "task-deadline-exceeded", "dependency-failed"].join("/"),
+      problem:
+        "must be one of " +
+        ["task-failed", "task-deadline-exceeded", "dependency-failed"].join("/"),
     });
   }
   if (!isKnownEscalationDecision(input?.requestedDecision)) {

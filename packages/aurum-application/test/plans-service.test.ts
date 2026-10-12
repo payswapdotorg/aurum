@@ -5,11 +5,7 @@
  * CR-W009 will wire it; the port shape is structurally compatible).
  */
 import { describe, expect, it } from "vitest";
-import {
-  createInMemoryPlanStore,
-  type ExecutionPlan,
-  type PlanTask,
-} from "../src/index.js";
+import { createInMemoryPlanStore, type ExecutionPlan, type PlanTask } from "../src/index.js";
 import {
   errOf,
   okOf,
@@ -34,9 +30,7 @@ describe("plan service: create + lifecycle (catalog clause 1)", () => {
     const plan = okOf(
       fx.service.createPlan(
         s,
-        createPlanInput("cand-1", [
-          planTask("t1", { authorityActionId: "act-1" }),
-        ]),
+        createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })]),
       ),
     ) as ExecutionPlan;
     expect(plan.approval.state).toBe("draft");
@@ -52,9 +46,7 @@ describe("plan service: create + lifecycle (catalog clause 1)", () => {
     seedGoal(fx.kernel, s);
     const result = fx.service.createPlan(
       s,
-      createPlanInput("nonexistent", [
-        planTask("t1", { authorityActionId: "act-1" }),
-      ]),
+      createPlanInput("nonexistent", [planTask("t1", { authorityActionId: "act-1" })]),
     );
     expect(errOf(result).code).toBe("plan-not-found");
   });
@@ -374,14 +366,24 @@ describe("plan service: lifecycle (active / completed / cancelled)", () => {
         createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })]),
       ),
     ) as ExecutionPlan;
-    okOf(fx.service.submitForApproval(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ready", now: now(1),
-    }));
-    okOf(fx.service.approvePlan(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ok", now: now(2),
-      humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
-      citation: { actionId: "act-1" },
-    }));
+    okOf(
+      fx.service.submitForApproval(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ready",
+        now: now(1),
+      }),
+    );
+    okOf(
+      fx.service.approvePlan(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ok",
+        now: now(2),
+        humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
+        citation: { actionId: "act-1" },
+      }),
+    );
     const completed = okOf(
       fx.service.completePlan(s, {
         planId: plan.planId,
@@ -403,7 +405,10 @@ describe("plan service: tenant isolation (catalog: tenant isolation)", () => {
     seedGoal(fx.kernel, sA);
     seedCandidate(fx.kernel, sA);
     const plan = okOf(
-      fx.service.createPlan(sA, createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })])),
+      fx.service.createPlan(
+        sA,
+        createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })]),
+      ),
     ) as ExecutionPlan;
     // Tenant B cannot see it.
     const result = fx.service.getPlan(sB, plan.planId);
@@ -421,13 +426,17 @@ describe("plan service: tenant isolation (catalog: tenant isolation)", () => {
     okOf(
       fx.service.createPlan(
         sA,
-        createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })], { planId: "pA" }),
+        createPlanInput("cand-1", [planTask("t1", { authorityActionId: "act-1" })], {
+          planId: "pA",
+        }),
       ),
     );
     okOf(
       fx.service.createPlan(
         sB,
-        createPlanInput("cand-B", [planTask("t1", { authorityActionId: "act-1" })], { planId: "pB" }),
+        createPlanInput("cand-B", [planTask("t1", { authorityActionId: "act-1" })], {
+          planId: "pB",
+        }),
       ),
     );
     const aPlans = fx.service.listPlans(sA);
@@ -461,14 +470,24 @@ describe("plan service: readyTasks + dispatch + handoff (catalog clauses 2-5)", 
         ]),
       ),
     ) as ExecutionPlan;
-    okOf(fx.service.submitForApproval(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ready", now: now(1),
-    }));
-    okOf(fx.service.approvePlan(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ok", now: now(2),
-      humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
-      citation: { actionId: "act-1" },
-    }));
+    okOf(
+      fx.service.submitForApproval(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ready",
+        now: now(1),
+      }),
+    );
+    okOf(
+      fx.service.approvePlan(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ok",
+        now: now(2),
+        humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
+        citation: { actionId: "act-1" },
+      }),
+    );
 
     // Initially, only 'a' is ready.
     const ready0 = okOf(fx.service.readyTasks(s, plan.planId));
@@ -544,14 +563,24 @@ describe("plan service: readyTasks + dispatch + handoff (catalog clauses 2-5)", 
         createPlanInput("cand-1", [planTask("a", { authorityActionId: "act-1" })]),
       ),
     ) as ExecutionPlan;
-    okOf(fx.service.submitForApproval(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "r", now: now(1),
-    }));
-    okOf(fx.service.approvePlan(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ok", now: now(2),
-      humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
-      citation: { actionId: "act-1" },
-    }));
+    okOf(
+      fx.service.submitForApproval(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "r",
+        now: now(1),
+      }),
+    );
+    okOf(
+      fx.service.approvePlan(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ok",
+        now: now(2),
+        humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
+        citation: { actionId: "act-1" },
+      }),
+    );
     const completion = await okOf(
       await fx.service.dispatchTask(s, {
         planId: plan.planId,
@@ -583,14 +612,24 @@ describe("plan service: readyTasks + dispatch + handoff (catalog clauses 2-5)", 
         createPlanInput("cand-1", [planTask("a", { authorityActionId: "act-1" })]),
       ),
     ) as ExecutionPlan;
-    okOf(fx.service.submitForApproval(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "r", now: now(1),
-    }));
-    okOf(fx.service.approvePlan(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ok", now: now(2),
-      humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
-      citation: { actionId: "act-1" },
-    }));
+    okOf(
+      fx.service.submitForApproval(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "r",
+        now: now(1),
+      }),
+    );
+    okOf(
+      fx.service.approvePlan(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ok",
+        now: now(2),
+        humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
+        citation: { actionId: "act-1" },
+      }),
+    );
     const completion = await okOf(
       await fx.service.dispatchTask(s, {
         planId: plan.planId,
@@ -619,17 +658,30 @@ describe("plan service: idempotent dispatch (catalog clause 3)", () => {
         createPlanInput("cand-1", [planTask("a", { authorityActionId: "act-1" })]),
       ),
     ) as ExecutionPlan;
-    okOf(fx.service.submitForApproval(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "r", now: now(1),
-    }));
-    okOf(fx.service.approvePlan(s, {
-      planId: plan.planId, actor: personActor("p-1"), reason: "ok", now: now(2),
-      humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
-      citation: { actionId: "act-1" },
-    }));
+    okOf(
+      fx.service.submitForApproval(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "r",
+        now: now(1),
+      }),
+    );
+    okOf(
+      fx.service.approvePlan(s, {
+        planId: plan.planId,
+        actor: personActor("p-1"),
+        reason: "ok",
+        now: now(2),
+        humanDecision: { decidedBy: "p-1" as never, decidedAt: now(2) },
+        citation: { actionId: "act-1" },
+      }),
+    );
     const first = await okOf(
       await fx.service.dispatchTask(s, {
-        planId: plan.planId, taskId: "a", authority: { actionId: "act-1" }, now: now(3),
+        planId: plan.planId,
+        taskId: "a",
+        authority: { actionId: "act-1" },
+        now: now(3),
       }),
     );
     // The completion store is idempotent on identical re-completion: a
@@ -644,7 +696,14 @@ describe("plan service: in-memory plan store (catalog: tenant isolation)", () =>
     const store = createInMemoryPlanStore();
     const sA = scope("tA");
     const sB = scope("tB");
-    const plan: { scope: typeof sA; planId: string; version: number; approval: { state: string; history: readonly unknown[] }; lifecycleState: string; lifecycleHistory: readonly unknown[] } = {
+    const plan: {
+      scope: typeof sA;
+      planId: string;
+      version: number;
+      approval: { state: string; history: readonly unknown[] };
+      lifecycleState: string;
+      lifecycleHistory: readonly unknown[];
+    } = {
       scope: sA,
       planId: "p1",
       version: 1,

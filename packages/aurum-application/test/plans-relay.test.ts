@@ -262,20 +262,24 @@ describe("authorization-awareness (catalog clause 3)", () => {
 
 describe("handoff descriptor validation (catalog clause 2)", () => {
   it("rejects an empty handoffId", () => {
-    expect(handoffDescriptorIssues({ handoffId: "", knowledge: "k", mediaType: "m" }).length).toBeGreaterThan(0);
+    expect(
+      handoffDescriptorIssues({ handoffId: "", knowledge: "k", mediaType: "m" }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("rejects an empty knowledge", () => {
-    expect(handoffDescriptorIssues({ handoffId: "h", knowledge: "", mediaType: "m" }).length).toBeGreaterThan(0);
+    expect(
+      handoffDescriptorIssues({ handoffId: "h", knowledge: "", mediaType: "m" }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("rejects an empty mediaType", () => {
-    expect(handoffDescriptorIssues({ handoffId: "h", knowledge: "k", mediaType: "" }).length).toBeGreaterThan(0);
+    expect(
+      handoffDescriptorIssues({ handoffId: "h", knowledge: "k", mediaType: "" }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("accepts a valid descriptor", () => {
-    expect(
-      handoffDescriptorIssues({ handoffId: "h", knowledge: "k", mediaType: "m" }),
-    ).toEqual([]);
+    expect(handoffDescriptorIssues({ handoffId: "h", knowledge: "k", mediaType: "m" })).toEqual([]);
   });
 });

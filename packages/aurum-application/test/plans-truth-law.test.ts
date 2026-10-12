@@ -51,9 +51,7 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
   it("no plans/domain source file imports @aurum/execution or any execution seam", () => {
     for (const file of walkSources(plansDomainRoot)) {
       const source = readFileSync(file, "utf8");
-      const offenders = source
-        .split("\n")
-        .filter((line) => /["']@aurum\/execution/.test(line));
+      const offenders = source.split("\n").filter((line) => /["']@aurum\/execution/.test(line));
       expect(offenders, `${file}: ${offenders.join("; ")}`).toEqual([]);
       const seamOffenders = source
         .split("\n")
@@ -65,9 +63,7 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
   it("no plans/domain source file imports @zcode/shared (the W001 boundary)", () => {
     for (const file of walkSources(plansDomainRoot)) {
       const source = readFileSync(file, "utf8");
-      const offenders = source
-        .split("\n")
-        .filter((line) => /["']@zcode\/shared/.test(line));
+      const offenders = source.split("\n").filter((line) => /["']@zcode\/shared/.test(line));
       expect(offenders, `${file}: ${offenders.join("; ")}`).toEqual([]);
     }
   });
@@ -77,7 +73,10 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
     // The ExecutionPlan interface block.
     const planIfaceStart = recordsSource.indexOf("export interface ExecutionPlan");
     expect(planIfaceStart).toBeGreaterThan(-1);
-    const planIfaceEnd = recordsSource.indexOf("}", planIfaceStart + "export interface ExecutionPlan".length);
+    const planIfaceEnd = recordsSource.indexOf(
+      "}",
+      planIfaceStart + "export interface ExecutionPlan".length,
+    );
     // Find the matching closing brace by counting braces.
     let depth = 0;
     let endIdx = -1;
@@ -101,7 +100,10 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
         offenders.push(line.trim());
       }
     }
-    expect(offenders, `ExecutionPlan has execution-session-shaped fields:\n${offenders.join("\n")}`).toEqual([]);
+    expect(
+      offenders,
+      `ExecutionPlan has execution-session-shaped fields:\n${offenders.join("\n")}`,
+    ).toEqual([]);
   });
 
   it("the TaskDag, PlanTask, TaskResourceAllocation records contain no execution-session-shaped field", () => {
@@ -137,9 +139,7 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
   it("the plans domain layer is IO-free (no node: imports, no fetch/timers)", () => {
     for (const file of walkSources(plansDomainRoot)) {
       const source = readFileSync(file, "utf8");
-      const nodeImports = source
-        .split("\n")
-        .filter((line) => /from\s+["']node:/.test(line));
+      const nodeImports = source.split("\n").filter((line) => /from\s+["']node:/.test(line));
       expect(nodeImports, `${file}: ${nodeImports.join("; ")}`).toEqual([]);
       expect(/\b(fetch|setTimeout|setInterval)\s*\(/.test(source), file).toBe(false);
     }
@@ -158,9 +158,7 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
   it("no lint-disable comments anywhere in plans source", () => {
     for (const file of walkSources(plansRoot)) {
       const source = readFileSync(file, "utf8");
-      const offenders = source
-        .split("\n")
-        .filter((line) => /(?:oxlint|eslint)-disable/.test(line));
+      const offenders = source.split("\n").filter((line) => /(?:oxlint|eslint)-disable/.test(line));
       expect(offenders, `${file}: ${offenders.join("; ")}`).toEqual([]);
     }
   });
@@ -173,9 +171,7 @@ describe("plan-is-truth law (catalog: plan remains Aurum truth)", () => {
     // The real adapter is in a code comment (documented stub). The active
     // module must NOT import @aurum/execution (would fail to compile until
     // CR-W009 wires the dep). Active imports = `export {}` only.
-    const activeImports = adapterSource
-      .split("\n")
-      .filter((line) => /^import\s/.test(line));
+    const activeImports = adapterSource.split("\n").filter((line) => /^import\s/.test(line));
     expect(activeImports).toEqual([]);
   });
 

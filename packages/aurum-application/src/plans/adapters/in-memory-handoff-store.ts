@@ -57,16 +57,12 @@ export class InMemoryHandoffRelayStore implements HandoffRelayStore {
 
   deliveredFor(planId: string, taskId: string): readonly HandoffPayload[] {
     return Object.freeze(
-      [...this.deliveries.values()].filter(
-        (p) => p.planId === planId && p.taskId === taskId,
-      ),
+      [...this.deliveries.values()].filter((p) => p.planId === planId && p.taskId === taskId),
     );
   }
 
   deliveredForPlan(planId: string): readonly HandoffPayload[] {
-    return Object.freeze(
-      [...this.deliveries.values()].filter((p) => p.planId === planId),
-    );
+    return Object.freeze([...this.deliveries.values()].filter((p) => p.planId === planId));
   }
 }
 

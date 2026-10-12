@@ -91,12 +91,7 @@ export function planApprovalTransitionLegal(
 }
 
 /** Escalation decisions requested when a task settles failed / deadline passes. */
-export const ESCALATION_DECISIONS = [
-  "retry",
-  "replace",
-  "cancel-branch",
-  "cancel-plan",
-] as const;
+export const ESCALATION_DECISIONS = ["retry", "replace", "cancel-branch", "cancel-plan"] as const;
 
 export type EscalationDecision = (typeof ESCALATION_DECISIONS)[number];
 

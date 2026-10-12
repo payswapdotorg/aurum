@@ -12,9 +12,7 @@ import type { EscalationStore } from "../domain/ports.js";
 export class InMemoryEscalationStore implements EscalationStore {
   private readonly escalations = new Map<string, EscalationRecord[]>();
 
-  appendEscalation(
-    escalation: EscalationRecord,
-  ): Result<EscalationRecord, PlanError> {
+  appendEscalation(escalation: EscalationRecord): Result<EscalationRecord, PlanError> {
     if (!escalation || typeof escalation !== "object") {
       return {
         ok: false,
@@ -26,10 +24,7 @@ export class InMemoryEscalationStore implements EscalationStore {
     return { ok: true, value: escalation };
   }
 
-  listEscalations(
-    scope: TenantScope,
-    planId: string,
-  ): readonly EscalationRecord[] {
+  listEscalations(scope: TenantScope, planId: string): readonly EscalationRecord[] {
     // Tenant isolation: only escalations whose plan belongs to the requesting
     // tenant are visible. The plan service already verifies ownership before
     // calling this; the store additionally filters by the plan's scope (the

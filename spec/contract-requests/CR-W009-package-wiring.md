@@ -1,6 +1,6 @@
 # CR-W009 — wire `@aurum/execution` + `@zcode/shared` into `@aurum/application`
 
-- **Work item:** W009 (packages/aurum-application/src/plans/**)
+- **Work item:** W009 (packages/aurum-application/src/plans/\*\*)
 - **Requester:** W-C (W009 dispatch)
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency wiring; the
   application `package.json` itself is in-scope for the worker but the lockfile
@@ -15,9 +15,9 @@ Add two workspace dependencies to `packages/aurum-application/package.json`:
 {
   "dependencies": {
     "@aurum/domain": "workspace:*",
-    "@aurum/execution": "workspace:*",   // ← new
-    "@zcode/shared": "workspace:*"       // ← new
-  }
+    "@aurum/execution": "workspace:*", // ← new
+    "@zcode/shared": "workspace:*", // ← new
+  },
 }
 ```
 
@@ -28,8 +28,8 @@ then run one `pnpm install` so the lockfile records the new
 
 ## Reason
 
-W009's hard law states: *"the execution-substrate adapter lives in `adapters/`
-and goes through the W001/W006 public surfaces ONLY."* That adapter is
+W009's hard law states: _"the execution-substrate adapter lives in `adapters/`
+and goes through the W001/W006 public surfaces ONLY."_ That adapter is
 `packages/aurum-application/src/plans/adapters/w006-substrate-adapter.ts` —
 it submits approved+ready plan tasks to the W006 Agent Gateway
 (`@aurum/execution`'s public `createAgentGateway` / `AgentGateway` surface,
@@ -49,7 +49,7 @@ and `packages/aurum-application/src/module.ts` already declares the same
 `requires` list. So the architecture checker will NOT flag the imports —
 only the package resolution is missing.
 
-W009's hard law also says *"pnpm-lock.yaml: zero edits."* Adding the deps
+W009's hard law also says _"pnpm-lock.yaml: zero edits."_ Adding the deps
 without the lockfile entry breaks `pnpm install --frozen-lockfile` (CI red
 on TL verification). Manual symlinks would not survive a fresh
 `pnpm install --frozen-lockfile` either. So the wiring must be TL-owned,

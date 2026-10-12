@@ -71,25 +71,17 @@ describe("task DAG: validation (catalog clause 2)", () => {
   });
 
   it("rejects duplicate task ids", () => {
-    const issues = taskDagIssues([
-      planTask("a"),
-      planTask("a"),
-    ]);
+    const issues = taskDagIssues([planTask("a"), planTask("a")]);
     expect(issues.some((i) => i.field.includes("taskId"))).toBe(true);
   });
 
   it("rejects dangling dependency references", () => {
-    const issues = taskDagIssues([
-      planTask("a", { dependsOn: ["nonexistent"] }),
-    ]);
+    const issues = taskDagIssues([planTask("a", { dependsOn: ["nonexistent"] })]);
     expect(issues.some((i) => i.field.includes("dependsOn"))).toBe(true);
   });
 
   it("accepts a valid DAG", () => {
-    const issues = taskDagIssues([
-      planTask("a"),
-      planTask("b", { dependsOn: ["a"] }),
-    ]);
+    const issues = taskDagIssues([planTask("a"), planTask("b", { dependsOn: ["a"] })]);
     expect(issues).toEqual([]);
   });
 });
@@ -126,11 +118,7 @@ describe("task DAG: topological order (catalog clause 2)", () => {
   });
 
   it("is deterministic: same input → same output", () => {
-    const tasks = [
-      planTask("c", { dependsOn: ["a", "b"] }),
-      planTask("a"),
-      planTask("b"),
-    ];
+    const tasks = [planTask("c", { dependsOn: ["a", "b"] }), planTask("a"), planTask("b")];
     const o1 = [...topologicalOrder(tasks)];
     const o2 = [...topologicalOrder(tasks)];
     expect(o1).toEqual(o2);
@@ -174,10 +162,7 @@ describe("task DAG: readiness computation (catalog clause 2)", () => {
   });
 
   it("a task whose dependency is not yet settled is NOT ready", () => {
-    const tasks = [
-      planTask("a"),
-      planTask("b", { dependsOn: ["a"] }),
-    ];
+    const tasks = [planTask("a"), planTask("b", { dependsOn: ["a"] })];
     const dag = okOf(buildTaskDag(tasks));
     // 'a' not yet complete.
     const ready = readyTasks(dag, new Map(), new Map());
@@ -185,10 +170,7 @@ describe("task DAG: readiness computation (catalog clause 2)", () => {
   });
 
   it("a task whose dependency settled 'settled' IS ready", () => {
-    const tasks = [
-      planTask("a"),
-      planTask("b", { dependsOn: ["a"] }),
-    ];
+    const tasks = [planTask("a"), planTask("b", { dependsOn: ["a"] })];
     const dag = okOf(buildTaskDag(tasks));
     const completions = new Map([["a", { status: "settled" as const }]]);
     const ready = readyTasks(dag, completions, new Map());
@@ -196,10 +178,7 @@ describe("task DAG: readiness computation (catalog clause 2)", () => {
   });
 
   it("a task whose dependency settled 'failed' is NOT ready", () => {
-    const tasks = [
-      planTask("a"),
-      planTask("b", { dependsOn: ["a"] }),
-    ];
+    const tasks = [planTask("a"), planTask("b", { dependsOn: ["a"] })];
     const dag = okOf(buildTaskDag(tasks));
     const completions = new Map([["a", { status: "failed" as const }]]);
     const ready = readyTasks(dag, completions, new Map());
@@ -208,7 +187,9 @@ describe("task DAG: readiness computation (catalog clause 2)", () => {
 
   it("a task with un-delivered input handoffs is NOT ready", () => {
     const tasks = [
-      planTask("a", { produces: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }] }),
+      planTask("a", {
+        produces: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }],
+      }),
       planTask("b", {
         dependsOn: ["a"],
         consumes: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }],
@@ -223,7 +204,9 @@ describe("task DAG: readiness computation (catalog clause 2)", () => {
 
   it("a task whose consumed handoffs are all delivered IS ready", () => {
     const tasks = [
-      planTask("a", { produces: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }] }),
+      planTask("a", {
+        produces: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }],
+      }),
       planTask("b", {
         dependsOn: ["a"],
         consumes: [{ handoffId: "h1", knowledge: "k", mediaType: "application/json" }],
@@ -260,10 +243,7 @@ describe("task DAG: upstream / downstream (catalog clause 2)", () => {
   });
 
   it("downstreamOf of a leaf returns empty", () => {
-    const tasks = [
-      planTask("a"),
-      planTask("b", { dependsOn: ["a"] }),
-    ];
+    const tasks = [planTask("a"), planTask("b", { dependsOn: ["a"] })];
     const dag = okOf(buildTaskDag(tasks));
     expect([...downstreamOf(dag, "b")]).toEqual([]);
   });

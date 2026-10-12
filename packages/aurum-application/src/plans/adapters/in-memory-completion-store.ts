@@ -21,9 +21,7 @@ export class InMemoryTaskCompletionStore implements TaskCompletionStore {
     return `${planId}\0${taskId}`;
   }
 
-  recordCompletion(
-    completion: TaskCompletionRecord,
-  ): Result<TaskCompletionRecord, PlanError> {
+  recordCompletion(completion: TaskCompletionRecord): Result<TaskCompletionRecord, PlanError> {
     if (!completion || typeof completion !== "object") {
       return {
         ok: false,
@@ -41,28 +39,21 @@ export class InMemoryTaskCompletionStore implements TaskCompletionStore {
       // Divergent re-completion refused (never rewrite a completion).
       return {
         ok: false,
-        error: planInvariant(
-          `task ${completion.taskId} already has a divergent completion`,
-        ),
+        error: planInvariant(`task ${completion.taskId} already has a divergent completion`),
       };
     }
     this.completions.set(key, completion);
     return { ok: true, value: completion };
   }
 
-  getCompletion(
-    planId: string,
-    taskId: string,
-  ): Result<TaskCompletionRecord, PlanError> {
+  getCompletion(planId: string, taskId: string): Result<TaskCompletionRecord, PlanError> {
     const record = this.completions.get(this.keyOf(planId, taskId));
     if (!record) return { ok: false, error: planNotFound("task completion") };
     return { ok: true, value: record };
   }
 
   listCompletions(planId: string): readonly TaskCompletionRecord[] {
-    return Object.freeze(
-      [...this.completions.values()].filter((c) => c.planId === planId),
-    );
+    return Object.freeze([...this.completions.values()].filter((c) => c.planId === planId));
   }
 }
 
