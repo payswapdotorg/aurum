@@ -28,7 +28,6 @@ import type {
   MemoryVersion,
   ProvenanceRecord,
   RecordMemoryInput,
-  Result,
   ReviseMemoryInput,
   SubjectReference,
   TenantScope,
@@ -98,7 +97,11 @@ async function loadMemoryRows(
 }
 
 /** Assembles the MemoryRecord the read paths return (current = highest). */
-function assembleMemory(scope: TenantScope, memoryId: string, rows: readonly MemoryRow[]): MemoryRecord {
+function assembleMemory(
+  scope: TenantScope,
+  memoryId: string,
+  rows: readonly MemoryRow[],
+): MemoryRecord {
   const first = rows[0];
   const versions = Object.freeze(rows.map((row) => deepFreeze(row.record)));
   const last = versions[versions.length - 1];
@@ -117,27 +120,27 @@ function assembleMemory(scope: TenantScope, memoryId: string, rows: readonly Mem
 /** Creates the PostgreSQL organizational memory bound to a database handle. */
 export function createPgOrganizationalMemory(sql: Db): MemoryStorage {
   async function appendVersion(
+    tx: Tx,
     scope: TenantScope,
     memoryId: string,
-    subject: SubjectReference | undefined,
+    subjectKind: string,
+    subjectId: string,
     version: MemoryVersion,
   ): Promise<void> {
-    await sql.begin(async (tx) => {
-      await tx`
-        insert into domain_memory_versions
-          (tenant_id, memory_id, version, subject_kind, subject_id, record)
-        values
-          (${scope.tenantId}, ${memoryId}, ${version.version},
-           ${subject?.kind ?? "unknown"}, ${subject?.id ?? ""}, ${jsonbParam(tx, version)})
-      `;
-      await recordWrite(tx, {
-        tenantId: scope.tenantId,
-        journalKey: `memory:append-version:${memoryId}:${version.version}`,
-        area: "memory",
-        operation: "append-version",
-        recordId: memoryId,
-        version: version.version,
-      });
+    await tx`
+      insert into domain_memory_versions
+        (tenant_id, memory_id, version, subject_kind, subject_id, record)
+      values
+        (${scope.tenantId}, ${memoryId}, ${version.version},
+         ${subjectKind}, ${subjectId}, ${jsonbParam(tx, version)})
+    `;
+    await recordWrite(tx, {
+      tenantId: scope.tenantId,
+      journalKey: `memory:append-version:${memoryId}:${version.version}`,
+      area: "memory",
+      operation: "append-version",
+      recordId: memoryId,
+      version: version.version,
     });
   }
 
@@ -152,35 +155,42 @@ export function createPgOrganizationalMemory(sql: Db): MemoryStorage {
       for (const issue of auditInputIssues(input?.audit)) v.add(issue.field, issue.problem);
       if (v.issues.length > 0) return { ok: false, error: validationError(v.issues) };
 
-      const existing = await loadMemoryRows(sql, scope, memoryId);
-      if (existing) {
-        return { ok: false, error: conflictError("memory record already registered in tenant") };
-      }
-      const version = buildVersion(
-        1,
-        content,
-        input.provenance,
-        resolveFreshness(input.freshness, input.now),
-        input.now,
-      );
       try {
-        await appendVersion(scope, memoryId, input.subject, version);
+        return await sql.begin(async (tx) => {
+          const existing = await loadMemoryRows(tx, scope, memoryId);
+          if (existing) {
+            return {
+              ok: false,
+              error: conflictError("memory record already registered in tenant"),
+            };
+          }
+          const version = buildVersion(
+            1,
+            content,
+            input.provenance,
+            resolveFreshness(input.freshness, input.now),
+            input.now,
+          );
+          await appendVersion(tx, scope, memoryId, input.subject.kind, input.subject.id, version);
+          await appendAuditEntry(
+            tx,
+            scope,
+            { kind: "memory", id: memoryId },
+            "memory.revised",
+            input.audit,
+            Object.freeze({ version: 1 }),
+          );
+          const rows = await loadMemoryRows(tx, scope, memoryId);
+          return ok(assembleMemory(scope, memoryId, rows ?? []));
+        });
       } catch (error) {
+        // Concurrent create on real PostgreSQL: the unique violation resolves
+        // as the same conflict Result the in-memory reference produces.
         if (isUniqueViolation(error)) {
           return { ok: false, error: conflictError("memory record already registered in tenant") };
         }
         throw error;
       }
-      await appendAuditEntry(
-        sql,
-        scope,
-        { kind: "memory", id: memoryId },
-        "memory.revised",
-        input.audit,
-        Object.freeze({ version: 1 }),
-      );
-      const rows = await loadMemoryRows(sql, scope, memoryId);
-      return ok(assembleMemory(scope, memoryId, rows ?? []));
     },
     reviseMemory: async (scope, input: ReviseMemoryInput) => {
       const v = createValidator();
@@ -201,22 +211,14 @@ export function createPgOrganizationalMemory(sql: Db): MemoryStorage {
           resolveFreshness(input.freshness, input.now),
           input.now,
         );
-        await tx`
-          insert into domain_memory_versions
-            (tenant_id, memory_id, version, subject_kind, subject_id, record)
-          values
-            (${scope.tenantId}, ${memoryId}, ${version.version},
-             ${existing[0]?.subject_kind ?? "unknown"}, ${existing[0]?.subject_id ?? ""},
-             ${jsonbParam(tx, version)})
-        `;
-        await recordWrite(tx, {
-          tenantId: scope.tenantId,
-          journalKey: `memory:append-version:${memoryId}:${version.version}`,
-          area: "memory",
-          operation: "append-version",
-          recordId: memoryId,
-          version: version.version,
-        });
+        await appendVersion(
+          tx,
+          scope,
+          memoryId,
+          existing[0]?.subject_kind ?? "unknown",
+          existing[0]?.subject_id ?? "",
+          version,
+        );
         await appendAuditEntry(
           tx,
           scope,
@@ -236,11 +238,16 @@ export function createPgOrganizationalMemory(sql: Db): MemoryStorage {
         : { ok: false, error: notFound("memory record") };
     },
     listMemory: async (scope, subject) => {
+      // The in-memory reference compares by strict equality, so only string
+      // kind/id values can ever match; anything else is uniformly empty.
+      if (typeof subject?.kind !== "string" || typeof subject?.id !== "string") {
+        return Object.freeze([]);
+      }
       const rows: readonly { memory_id: string }[] = await sql`
         select memory_id from domain_memory_versions
         where tenant_id = ${scope.tenantId}
-          and subject_kind = ${String(subject.kind)}
-          and subject_id = ${String(subject.id)}
+          and subject_kind = ${subject.kind}
+          and subject_id = ${subject.id}
         order by seq
       `;
       const records: MemoryRecord[] = [];
@@ -255,6 +262,3 @@ export function createPgOrganizationalMemory(sql: Db): MemoryStorage {
     },
   };
 }
-
-/** Result anchor (keeps the async port type explicit at the module level). */
-export type MemoryAreaResult = Result<MemoryRecord>;
