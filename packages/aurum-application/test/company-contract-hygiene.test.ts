@@ -138,12 +138,16 @@ describe("company contract hygiene (queries cannot mutate; cannot execute)", () 
     }
   });
 
-  it("depends only on the @aurum/domain workspace link (no third-party additions)", () => {
+  it("workspace dependencies only (CR-W009 wiring: + @aurum/execution, @zcode/shared; no third-party)", () => {
     const pkg = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
-    expect(pkg.dependencies).toEqual({ "@aurum/domain": "workspace:*" });
+    expect(pkg.dependencies).toEqual({
+      "@aurum/domain": "workspace:*",
+      "@aurum/execution": "workspace:*",
+      "@zcode/shared": "workspace:*",
+    });
     expect(Object.keys(pkg.devDependencies ?? {}).sort()).toEqual(["typescript", "vitest"]);
   });
 
