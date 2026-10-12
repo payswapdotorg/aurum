@@ -83,3 +83,27 @@ export async function rejectionMessage(operation: () => Promise<unknown>): Promi
   }
   throw new Error("expected the operation to reject, but it resolved");
 }
+
+/**
+ * Equivalence assertion (the P001 oracle pattern): a storage Result must
+ * equal the in-memory reference Result — values deep-equal, errors identical
+ * in code, message and issues (stable projection; no Error-instance quirks).
+ */
+export function expectSameResult<T>(actual: Result<T>, expected: Result<T>): void {
+  if (expected.ok && actual.ok) {
+    expect(actual).toEqual(expected);
+    return;
+  }
+  expect(actual.ok, `ok-ness must match (expected ${JSON.stringify(expected)})`).toBe(expected.ok);
+  if (!expected.ok && !actual.ok) {
+    expect({
+      code: actual.error.code,
+      message: actual.error.message,
+      issues: actual.error.issues,
+    }).toEqual({
+      code: expected.error.code,
+      message: expected.error.message,
+      issues: expected.error.issues,
+    });
+  }
+}
