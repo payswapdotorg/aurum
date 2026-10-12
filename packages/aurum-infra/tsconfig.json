@@ -15,7 +15,11 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": ["node"],
+    "paths": {
+      "@aurum/domain": ["../aurum-domain/dist/index.d.ts"]
+    }
   },
   "include": ["src/**/*.ts"]
 }
