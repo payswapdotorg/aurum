@@ -27,4 +27,5 @@ export * from "./domain/process/contract.process.js";
 export * from "./domain/capability/contract.capability.js";
 export * from "./domain/workforce/contract.workforce.js";
 export * from "./domain/candidate/contract.candidate.js";
+export * from "./domain/storage/contract.storage.js";
 export * from "./domain/kernel/contract.kernel.js";
