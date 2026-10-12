@@ -608,6 +608,9 @@ importers:
 
   packages/aurum-agent:
     dependencies:
+      '@aurum/domain':
+        specifier: workspace:*
+        version: link:../aurum-domain
       '@aurum/provider':
         specifier: workspace:*
         version: link:../aurum-provider
