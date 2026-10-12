@@ -18,6 +18,7 @@
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {
+    "@aurum/domain": "workspace:*",
     "@aurum/provider": "workspace:*"
   },
   "devDependencies": {

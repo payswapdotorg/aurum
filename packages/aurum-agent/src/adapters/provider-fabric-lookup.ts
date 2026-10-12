@@ -8,12 +8,12 @@
  * Provider-fabric errors are mapped uniformly: a missing or foreign-tenant
  * binding (BINDING_NOT_FOUND) and an inactive binding both resolve to
  * `null` — no existence leakage across tenants.
+ *
+ * CR-W003 (canonical TenantId adoption): both packages now carry the SAME
+ * canonical TenantId from @aurum/domain, so the tenant id passes straight
+ * through to the provider fabric — no cast, no brand reconciliation.
  */
-import type {
-  ProviderFabric,
-  ProviderFabricError,
-  TenantId as ProviderTenantId,
-} from "@aurum/provider";
+import type { ProviderFabric, ProviderFabricError } from "@aurum/provider";
 import type { ModelBindingSnapshot, ProviderBindingLookupPort } from "../domain/provider-lookup.js";
 import type { TenantId } from "../domain/ids.js";
 
@@ -24,13 +24,9 @@ export class ProviderFabricBindingLookup implements ProviderBindingLookupPort {
     tenantId: TenantId,
     bindingId: string,
   ): Promise<ModelBindingSnapshot | null> {
-    // TenantId brands are identical in shape but distinct per package until
-    // the domain kernel unifies them (see CR-W003-agent-tenant-vocabulary);
-    // this bridge is the single, explicit reconciliation point.
-    const providerTenantId = tenantId as unknown as ProviderTenantId;
     let binding;
     try {
-      binding = await this.fabric.bindings.getBinding(providerTenantId, bindingId);
+      binding = await this.fabric.bindings.getBinding(tenantId, bindingId);
     } catch (error) {
       if (isProviderFabricNotFound(error)) return null;
       throw error;

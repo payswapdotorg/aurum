@@ -22,9 +22,9 @@ import {
   createProviderFabric,
 } from "@aurum/provider";
 
-// Same string values; separate branded constants keep each package's
-// types honest (brands vanish at runtime; see the TenantId reconciliation
-// note in adapters/provider-fabric-lookup.ts).
+// Same string values. Since CR-W003 both packages' TenantId IS the canonical
+// @aurum/domain brand, so these are the same type; the separate constants and
+// the provider-side alias only document which fabric each value feeds.
 const TENANT_A = asTenantId("tenant-a");
 const TENANT_B = asTenantId("tenant-b");
 const TENANT_A_PROVIDER = providerTenant("tenant-a");
