@@ -206,11 +206,14 @@ describe("the marketplace NEVER executes (surface + import tripwires)", () => {
     }
   });
 
-  it("no third-party dependencies — the @aurum workspace links land with CR-W011 (TL-owned lockfile)", () => {
+  it("workspace dependencies only (CR-W011 wiring: @aurum/domain + @aurum/agent links; no third-party)", () => {
     const pkg = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
     };
-    expect(pkg.dependencies).toBeUndefined();
+    expect(pkg.dependencies).toEqual({
+      "@aurum/domain": "workspace:*",
+      "@aurum/agent": "workspace:*",
+    });
   });
 
   it("module.ts requires mirrors architecture-policy.yaml exactly", () => {

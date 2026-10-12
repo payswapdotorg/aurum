@@ -17,6 +17,10 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
+  "dependencies": {
+    "@aurum/agent": "workspace:*",
+    "@aurum/domain": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"

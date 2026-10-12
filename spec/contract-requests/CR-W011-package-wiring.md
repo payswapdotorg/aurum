@@ -5,7 +5,7 @@
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency wiring; the
   marketplace `package.json` is worker-owned but the lockfile is TL-owned per the
   W011 hard laws — the exact CR-W009 situation)
-- **Status:** open (filed with the W011 delivery)
+- **Status:** RESOLVED 2026-10-12 by TL (deps + lockfile links + tripwire assertion updated; gates green — fmt, scoped tsc, arch 0 viol, marketplace 82/82 incl. updated dependency-surface tripwire; real kernel-registration adapter landing remains W011-followup)
 
 ## Requested change
 
