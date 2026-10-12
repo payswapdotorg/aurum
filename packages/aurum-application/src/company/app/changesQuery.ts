@@ -2,14 +2,19 @@
  * Company changes query (W004 app layer): "what changed since?" — the honest
  * change report. Sources, in merge order:
  * - the append-only audit trail (every consequential transition in the
- *   window, tenant-wide or subject-filtered) — this is the canonical change
- *   log, including every retraction;
+ *   window) — this is the canonical change log, including every retraction;
  * - newly recorded observations about the subject, when a subject filter is
  *   given (evidence recording is provenance-carried, not audited — the
  *   kernel has no tenant-wide evidence seam by design, so new-evidence
  *   enumeration is subject-scoped);
  * - revision enrichment: goal/belief/memory transitions carry the content
  *   of the appended revision, fetched through the versioned-record seams.
+ *
+ * Subject filtering is semantic, not syntactic: an audit entry about a
+ * record that is itself ABOUT the subject (its observation, the sources of
+ * its claim, its belief subject, its memory subject) is relevant to the
+ * subject — so retracting an observation about X shows up in "what changed
+ * about X" even though the audit entry's own subject is the observation.
  *
  * Entries are deduped by record id and sorted by `at` ascending. The window
  * is inclusive on both ends ([since, until]), matching the audit seam.
@@ -31,11 +36,60 @@ function isRetraction(action: AuditRecord["action"]): boolean {
   return action === "observation.retracted" || action === "claim.retracted";
 }
 
+/** True when the entry's subject IS the filter subject. */
+function directMatch(
+  subject: { readonly kind: string; readonly id: string },
+  filter: { readonly kind: string; readonly id: string },
+): boolean {
+  return subject.kind === filter.kind && subject.id === filter.id;
+}
+
+/**
+ * True when the entry's subject is a RECORD that is itself about the filter
+ * subject: the observation it retracted, the sources of the claim it
+ * retracted, the belief's subject, the memory's subject.
+ */
+function recordSubjectMatches(
+  views: CompanyDomainViews,
+  scope: TenantScope,
+  entrySubject: { readonly kind: string; readonly id: string },
+  filter: { readonly kind: string; readonly id: string },
+): boolean {
+  if (entrySubject.kind === "observation") {
+    const observation = views.evidence.getObservation(scope, entrySubject.id);
+    return observation.ok && directMatch(observation.value.subject, filter);
+  }
+  if (entrySubject.kind === "claim") {
+    const claim = views.epistemics.getClaim(scope, entrySubject.id);
+    if (!claim.ok) return false;
+    return claim.value.derivedFrom.some((observationId) => {
+      const observation = views.evidence.getObservation(scope, observationId);
+      return observation.ok && directMatch(observation.value.subject, filter);
+    });
+  }
+  if (entrySubject.kind === "belief") {
+    const belief = views.epistemics.getBelief(scope, entrySubject.id);
+    return belief.ok && directMatch(belief.value.subject, filter);
+  }
+  if (entrySubject.kind === "memory") {
+    const memory = views.memory.getMemory(scope, entrySubject.id);
+    return memory.ok && directMatch(memory.value.subject, filter);
+  }
+  return false;
+}
+
 function numberField(details: unknown, key: string): number | undefined {
   if (details === undefined || details === null) return undefined;
   if (typeof details !== "object") return undefined;
   const value = (details as Record<string, unknown>)[key];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function stringField(details: unknown, key: string): string | undefined {
+  if (details === undefined || details === null) return undefined;
+  if (typeof details !== "object") return undefined;
+  const value = (details as Record<string, unknown>)[key];
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
 /** Best-effort revision enrichment; a failed lookup degrades, never errors. */
@@ -87,6 +141,14 @@ function changeOfAudit(
 ): ChangeEntry {
   const entry = auditEntry(record);
   const enrichment = enrich(views, scope, record);
+  // Retractions carry why the evidence was removed (details.reason) on top
+  // of the audit transition reason — the honest "why" for removed evidence.
+  const retractionReason = isRetraction(entry.action)
+    ? stringField(record.details, "reason")
+    : undefined;
+  const summary =
+    `${entry.action} ${entry.subject.kind}/${entry.subject.id}: ${entry.reason}` +
+    (retractionReason !== undefined ? ` (${retractionReason})` : "");
   return {
     recordId: entry.recordId,
     at: entry.at,
@@ -94,7 +156,7 @@ function changeOfAudit(
     subject: entry.subject,
     actor: entry.actor,
     reason: entry.reason,
-    summary: `${entry.action} ${entry.subject.kind}/${entry.subject.id}: ${entry.reason}`,
+    summary,
     retraction: isRetraction(entry.action),
     ...(enrichment !== undefined ? { enrichment } : {}),
   };
@@ -107,12 +169,18 @@ export function whatChangedSince(
   input: WhatChangedSinceInput,
 ): ChangeReport {
   const entries = new Map<string, ChangeEntry>();
+  const filter = input.subject;
 
   for (const record of views.audit.queryAudit(scope, {
     since: input.since,
     until: input.until,
-    ...(input.subject !== undefined ? { subject: input.subject } : {}),
   })) {
+    if (filter !== undefined) {
+      const relevant =
+        directMatch(record.subject, filter) ||
+        recordSubjectMatches(views, scope, record.subject, filter);
+      if (!relevant) continue;
+    }
     entries.set(record.auditId, changeOfAudit(views, scope, record));
   }
 

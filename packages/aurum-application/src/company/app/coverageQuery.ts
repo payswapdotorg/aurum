@@ -169,6 +169,16 @@ export function buildCoverageReport(
       freshness: belief.freshness,
     });
   }
+  // Declared expectations read last: each expectation is one freshness
+  // reading — the best observation's class, or unknown when unevidenced.
+  expectedReadings.forEach((reading, index) => {
+    freshness.push({
+      recordId: `expected:${index + 1}:${reading.subject.kind}/${reading.subject.id}`,
+      kind: "expected-evidence",
+      description: reading.description,
+      freshness: reading.freshness,
+    });
+  });
   const unevidenced: CoverageEntry[] = expectedReadings
     .filter((reading) => reading.status === "unevidenced")
     .map((reading) =>
