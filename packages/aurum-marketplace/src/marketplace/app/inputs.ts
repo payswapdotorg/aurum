@@ -136,49 +136,134 @@ export interface ResolveRecruitmentInput {
 
 /** Machine 1 + 2 + 3 commands (publication/installation/activation). */
 export interface MarketplaceGovernance {
-  draftPackage(scope: MarketplaceTenantScope, input: DraftPackageInput): Result<PackageVersionRecord, MarketplaceError>;
-  submitPackageVersion(scope: MarketplaceTenantScope, input: PublicationTransitionInput): Result<PackageVersionRecord, MarketplaceError>;
-  reviewPublication(scope: MarketplaceTenantScope, input: PublicationTransitionInput): Result<PackageVersionRecord, MarketplaceError>;
-  installPackage(scope: MarketplaceTenantScope, input: InstallPackageInput): Result<PackageInstallation, MarketplaceError>;
-  reviseInstallationConfiguration(scope: MarketplaceTenantScope, input: ReviseConfigurationInput): Result<PackageInstallation, MarketplaceError>;
-  uninstallInstallation(scope: MarketplaceTenantScope, input: { installationId: string; actor: MarketplaceActorReference; reason: string; now: MarketplaceTimestamp }): Result<PackageInstallation, MarketplaceError>;
-  activatePackage(scope: MarketplaceTenantScope, input: ActivatePackageInput): Result<PackageActivation, MarketplaceError>;
-  deactivateActivation(scope: MarketplaceTenantScope, input: { activationId: string; actor: MarketplaceActorReference; reason: string; now: MarketplaceTimestamp }): Result<PackageActivation, MarketplaceError>;
+  draftPackage(
+    scope: MarketplaceTenantScope,
+    input: DraftPackageInput,
+  ): Result<PackageVersionRecord, MarketplaceError>;
+  submitPackageVersion(
+    scope: MarketplaceTenantScope,
+    input: PublicationTransitionInput,
+  ): Result<PackageVersionRecord, MarketplaceError>;
+  reviewPublication(
+    scope: MarketplaceTenantScope,
+    input: PublicationTransitionInput,
+  ): Result<PackageVersionRecord, MarketplaceError>;
+  installPackage(
+    scope: MarketplaceTenantScope,
+    input: InstallPackageInput,
+  ): Result<PackageInstallation, MarketplaceError>;
+  reviseInstallationConfiguration(
+    scope: MarketplaceTenantScope,
+    input: ReviseConfigurationInput,
+  ): Result<PackageInstallation, MarketplaceError>;
+  uninstallInstallation(
+    scope: MarketplaceTenantScope,
+    input: {
+      installationId: string;
+      actor: MarketplaceActorReference;
+      reason: string;
+      now: MarketplaceTimestamp;
+    },
+  ): Result<PackageInstallation, MarketplaceError>;
+  activatePackage(
+    scope: MarketplaceTenantScope,
+    input: ActivatePackageInput,
+  ): Result<PackageActivation, MarketplaceError>;
+  deactivateActivation(
+    scope: MarketplaceTenantScope,
+    input: {
+      activationId: string;
+      actor: MarketplaceActorReference;
+      reason: string;
+      now: MarketplaceTimestamp;
+    },
+  ): Result<PackageActivation, MarketplaceError>;
 }
 
 /** Machine 4 commands (execution approval — propose + record the dispose). */
 export interface MarketplaceExecutionApproval {
-  requestExecutionUse(scope: MarketplaceTenantScope, input: ExecutionRequestInput): Result<ExecutionApprovalRequest, MarketplaceError>;
-  citeExecutionApproval(scope: MarketplaceTenantScope, input: CiteExecutionInput): Result<ExecutionApprovalRequest, MarketplaceError>;
-  withdrawExecutionRequest(scope: MarketplaceTenantScope, input: { requestId: string; actor: MarketplaceActorReference; reason: string; now: MarketplaceTimestamp }): Result<ExecutionApprovalRequest, MarketplaceError>;
+  requestExecutionUse(
+    scope: MarketplaceTenantScope,
+    input: ExecutionRequestInput,
+  ): Result<ExecutionApprovalRequest, MarketplaceError>;
+  citeExecutionApproval(
+    scope: MarketplaceTenantScope,
+    input: CiteExecutionInput,
+  ): Result<ExecutionApprovalRequest, MarketplaceError>;
+  withdrawExecutionRequest(
+    scope: MarketplaceTenantScope,
+    input: {
+      requestId: string;
+      actor: MarketplaceActorReference;
+      reason: string;
+      now: MarketplaceTimestamp;
+    },
+  ): Result<ExecutionApprovalRequest, MarketplaceError>;
 }
 
 /** Recruitment commands. */
 export interface MarketplaceRecruitment {
-  openRecruitment(scope: MarketplaceTenantScope, input: OpenRecruitmentInput): Result<RecruitmentRequest, MarketplaceError>;
-  resolveRecruitment(scope: MarketplaceTenantScope, input: ResolveRecruitmentInput): Result<RecruitmentRequest, MarketplaceError>;
-  cancelRecruitment(scope: MarketplaceTenantScope, input: { requestId: string; actor: MarketplaceActorReference; reason: string; now: MarketplaceTimestamp }): Result<RecruitmentRequest, MarketplaceError>;
+  openRecruitment(
+    scope: MarketplaceTenantScope,
+    input: OpenRecruitmentInput,
+  ): Result<RecruitmentRequest, MarketplaceError>;
+  resolveRecruitment(
+    scope: MarketplaceTenantScope,
+    input: ResolveRecruitmentInput,
+  ): Result<RecruitmentRequest, MarketplaceError>;
+  cancelRecruitment(
+    scope: MarketplaceTenantScope,
+    input: {
+      requestId: string;
+      actor: MarketplaceActorReference;
+      reason: string;
+      now: MarketplaceTimestamp;
+    },
+  ): Result<RecruitmentRequest, MarketplaceError>;
 }
 
 /** Read views (catalog / installations / activations / requests / audit). */
 export interface MarketplaceViews {
   listCatalog(scope: MarketplaceTenantScope): readonly CatalogEntry[];
-  getPackageVersion(scope: MarketplaceTenantScope, packageId: string, version: number): Result<PackageVersionRecord, MarketplaceError>;
-  getPackage(scope: MarketplaceTenantScope, packageId: string): Result<MarketplacePackage, MarketplaceError>;
-  getInstallation(scope: MarketplaceTenantScope, installationId: string): Result<PackageInstallation, MarketplaceError>;
+  getPackageVersion(
+    scope: MarketplaceTenantScope,
+    packageId: string,
+    version: number,
+  ): Result<PackageVersionRecord, MarketplaceError>;
+  getPackage(
+    scope: MarketplaceTenantScope,
+    packageId: string,
+  ): Result<MarketplacePackage, MarketplaceError>;
+  getInstallation(
+    scope: MarketplaceTenantScope,
+    installationId: string,
+  ): Result<PackageInstallation, MarketplaceError>;
   listInstallations(scope: MarketplaceTenantScope): readonly PackageInstallation[];
-  getActivation(scope: MarketplaceTenantScope, activationId: string): Result<PackageActivation, MarketplaceError>;
+  getActivation(
+    scope: MarketplaceTenantScope,
+    activationId: string,
+  ): Result<PackageActivation, MarketplaceError>;
   listActivations(scope: MarketplaceTenantScope): readonly PackageActivation[];
-  getExecutionRequest(scope: MarketplaceTenantScope, requestId: string): Result<ExecutionApprovalRequest, MarketplaceError>;
-  getRecruitment(scope: MarketplaceTenantScope, requestId: string): Result<RecruitmentRequest, MarketplaceError>;
+  getExecutionRequest(
+    scope: MarketplaceTenantScope,
+    requestId: string,
+  ): Result<ExecutionApprovalRequest, MarketplaceError>;
+  getRecruitment(
+    scope: MarketplaceTenantScope,
+    requestId: string,
+  ): Result<RecruitmentRequest, MarketplaceError>;
   listRecruitments(scope: MarketplaceTenantScope): readonly RecruitmentRequest[];
-  rankedCandidates(scope: MarketplaceTenantScope, requestId: string): Result<readonly RankedCandidatePackage[], MarketplaceError>;
+  rankedCandidates(
+    scope: MarketplaceTenantScope,
+    requestId: string,
+  ): Result<readonly RankedCandidatePackage[], MarketplaceError>;
   listAudit(scope: MarketplaceTenantScope): readonly MarketplaceAuditRecord[];
 }
 
 /** The composed service surface (four interfaces, no fused primitives). */
 export interface MarketplaceService
-  extends MarketplaceGovernance,
+  extends
+    MarketplaceGovernance,
     MarketplaceExecutionApproval,
     MarketplaceRecruitment,
     MarketplaceViews {}

@@ -59,7 +59,9 @@ export function okOf<T>(result: Result<T, MarketplaceError>): T {
 }
 
 export function errOf(result: Result<unknown, MarketplaceError>): MarketplaceError {
-  expect(result.ok, `expected err, got value: ${result.ok ? String(result.value) : ""}`).toBe(false);
+  expect(result.ok, `expected err, got value: ${result.ok ? String(result.value) : ""}`).toBe(
+    false,
+  );
   if (result.ok) throw new Error("unreachable");
   return result.error;
 }
@@ -150,7 +152,10 @@ export function publishFixturePackage(
       changelog: `fixture release ${version}`,
       evidenceRefs: [
         { evidenceKind: "test-suite", ref: `evidence/${packageId}/suite-v${version}` },
-        { evidenceKind: "provenance-statement", ref: `evidence/${packageId}/provenance-v${version}` },
+        {
+          evidenceKind: "provenance-statement",
+          ref: `evidence/${packageId}/provenance-v${version}`,
+        },
       ],
       publisher: PUBLISHER,
       provenance: { actor: PUBLISHER, source: "system-captured", recordedAt: now },

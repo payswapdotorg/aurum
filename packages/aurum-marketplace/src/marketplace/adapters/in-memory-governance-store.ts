@@ -24,9 +24,7 @@ export class InMemoryMarketplaceGovernanceStore implements MarketplaceGovernance
     return `${scope.tenantId}::${id}`;
   }
 
-  putInstallation(
-    record: PackageInstallation,
-  ): Result<PackageInstallation, MarketplaceError> {
+  putInstallation(record: PackageInstallation): Result<PackageInstallation, MarketplaceError> {
     this.installations.set(
       InMemoryMarketplaceGovernanceStore.key(record.scope, record.installationId),
       record,
@@ -115,9 +113,7 @@ export class InMemoryMarketplaceGovernanceStore implements MarketplaceGovernance
     scope: MarketplaceTenantScope,
     requestId: string,
   ): Result<RecruitmentRequest, MarketplaceError> {
-    const record = this.recruitments.get(
-      InMemoryMarketplaceGovernanceStore.key(scope, requestId),
-    );
+    const record = this.recruitments.get(InMemoryMarketplaceGovernanceStore.key(scope, requestId));
     if (!record) return err(marketplaceNotFound("recruitment request"));
     return ok(record);
   }

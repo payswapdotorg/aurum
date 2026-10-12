@@ -13,12 +13,7 @@
  * valid W002 citation; nothing executes inside the marketplace ever.
  */
 import { describe, expect, it } from "vitest";
-import {
-  err,
-  ok,
-  type MarketplaceError,
-  type PackageVersionContents,
-} from "../src/index.js";
+import { err, ok, type MarketplaceError, type PackageVersionContents } from "../src/index.js";
 import {
   LAB_SYSTEM,
   PUBLISHER,
@@ -36,7 +31,11 @@ import {
 
 const TENANT = scopeOf("tenant-a");
 
-function draftOnly(fixture: MarketplaceFixture, packageId: string, contents: PackageVersionContents) {
+function draftOnly(
+  fixture: MarketplaceFixture,
+  packageId: string,
+  contents: PackageVersionContents,
+) {
   okOf(
     fixture.service.draftPackage(TENANT, {
       packageId,
@@ -163,7 +162,12 @@ describe("separation 1+2: publication is separate from installation", () => {
     const publicationActions = fixture.auditLedger
       .listAudit(TENANT)
       .map((entry) => entry.action)
-      .filter((action) => action.startsWith("marketplace.package-drafted") || action.startsWith("marketplace.package-submitted") || action.startsWith("marketplace.package-published"));
+      .filter(
+        (action) =>
+          action.startsWith("marketplace.package-drafted") ||
+          action.startsWith("marketplace.package-submitted") ||
+          action.startsWith("marketplace.package-published"),
+      );
     const installationActions = fixture.auditLedger
       .listAudit(TENANT)
       .filter((entry) => entry.action === "marketplace.package-installed");
@@ -240,9 +244,7 @@ describe("separation 2+3: installation is separate from activation", () => {
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst");
     const { activationId } = installAndActivate(fixture, TENANT, "pkg-agent-analyst");
     const activation = okOf(fixture.service.getActivation(TENANT, activationId));
-    expect(activation.grants).toEqual([
-      { grantKind: "capability", ref: "cap-analysis", level: 4 },
-    ]);
+    expect(activation.grants).toEqual([{ grantKind: "capability", ref: "cap-analysis", level: 4 }]);
     expect(activation.actorRefs).toEqual(["actor-ops-1"]);
     expect(activation.version).toBe(1);
     expect(activation.packageKind).toBe("agent");
@@ -405,9 +407,7 @@ describe("separation 3+4: activation grants nothing; approval is separate from e
       decision: "published",
     });
     expect(errOf(result).code).toBe("marketplace-unauthorized");
-    const stillSubmitted = okOf(
-      fixture.service.getPackageVersion(TENANT, "pkg-lab", 1),
-    );
+    const stillSubmitted = okOf(fixture.service.getPackageVersion(TENANT, "pkg-lab", 1));
     expect(stillSubmitted.publication.state).toBe("submitted");
   });
 
@@ -441,7 +441,11 @@ describe("execution NEVER happens inside the marketplace (runtime proof)", () =>
     const fixture = marketplaceFixture();
     teachCitation(fixture.authority, TENANT.tenantId, "action-77");
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst");
-    const { installationId, activationId } = installAndActivate(fixture, TENANT, "pkg-agent-analyst");
+    const { installationId, activationId } = installAndActivate(
+      fixture,
+      TENANT,
+      "pkg-agent-analyst",
+    );
     // Every marketplace operation that exists for this fixture:
     okOf(
       fixture.service.requestExecutionUse(TENANT, {

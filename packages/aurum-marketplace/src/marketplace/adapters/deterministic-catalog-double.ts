@@ -113,12 +113,11 @@ export function populateDeterministicCatalog(
     });
     if (submitted.ok) {
       store.putVersion(submitted.value);
-      const reviewed = reviewPublication(
-        submitted.value,
-        "published",
-        REVIEWER,
-        { actor: REVIEWER, at: now + 2, reason: `deterministic review of ${packageId}` },
-      );
+      const reviewed = reviewPublication(submitted.value, "published", REVIEWER, {
+        actor: REVIEWER,
+        at: now + 2,
+        reason: `deterministic review of ${packageId}`,
+      });
       if (reviewed.ok) store.putVersion(reviewed.value);
     }
   }

@@ -4,7 +4,14 @@
  * immutable-once-published records.
  */
 import { describe, expect, it } from "vitest";
-import { errOf, installAndActivate, marketplaceFixture, okOf, publishFixturePackage, scopeOf } from "./helpers.js";
+import {
+  errOf,
+  installAndActivate,
+  marketplaceFixture,
+  okOf,
+  publishFixturePackage,
+  scopeOf,
+} from "./helpers.js";
 
 const TENANT = scopeOf("tenant-a");
 
@@ -18,7 +25,11 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
         packageId: "pkg-agent-analyst",
         version: 1,
         installedBy: { kind: "person", personId: "person-1" },
-        provenance: { actor: { kind: "person", personId: "person-1" }, source: "system-captured", recordedAt: 10 },
+        provenance: {
+          actor: { kind: "person", personId: "person-1" },
+          source: "system-captured",
+          recordedAt: 10,
+        },
         now: 10,
       }),
     );
@@ -47,7 +58,11 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
         packageId: "pkg-agent-analyst",
         version: 1,
         installedBy: { kind: "person", personId: "person-1" },
-        provenance: { actor: { kind: "person", personId: "person-1" }, source: "system-captured", recordedAt: 110 },
+        provenance: {
+          actor: { kind: "person", personId: "person-1" },
+          source: "system-captured",
+          recordedAt: 110,
+        },
         now: 110,
       }),
     );
@@ -57,7 +72,11 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
         packageId: "pkg-agent-analyst",
         version: 2,
         installedBy: { kind: "person", personId: "person-1" },
-        provenance: { actor: { kind: "person", personId: "person-1" }, source: "system-captured", recordedAt: 120 },
+        provenance: {
+          actor: { kind: "person", personId: "person-1" },
+          source: "system-captured",
+          recordedAt: 120,
+        },
         now: 120,
       }),
     );
@@ -97,7 +116,9 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
     const fixture = marketplaceFixture();
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst", { version: 1 });
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst", { version: 2, now: 100 });
-    const { activationId } = installAndActivate(fixture, TENANT, "pkg-agent-analyst", { version: 1 });
+    const { activationId } = installAndActivate(fixture, TENANT, "pkg-agent-analyst", {
+      version: 1,
+    });
     const activation = okOf(fixture.service.getActivation(TENANT, activationId));
     expect(activation.version).toBe(1);
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst", { version: 3, now: 200 });
@@ -130,7 +151,11 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
         changelog: "draft v2",
         evidenceRefs: [{ evidenceKind: "test-suite", ref: "evidence/v2" }],
         publisher: { kind: "person", personId: "person-publisher-1" },
-        provenance: { actor: { kind: "person", personId: "person-publisher-1" }, source: "system-captured", recordedAt: 50 },
+        provenance: {
+          actor: { kind: "person", personId: "person-publisher-1" },
+          source: "system-captured",
+          recordedAt: 50,
+        },
         now: 50,
       }),
     );
@@ -139,7 +164,11 @@ describe("versioning: installed version pinned; publisher updates don't mutate i
       packageId: "pkg-agent-analyst",
       version: 2,
       installedBy: { kind: "person", personId: "person-1" },
-      provenance: { actor: { kind: "person", personId: "person-1" }, source: "system-captured", recordedAt: 60 },
+      provenance: {
+        actor: { kind: "person", personId: "person-1" },
+        source: "system-captured",
+        recordedAt: 60,
+      },
       now: 60,
     });
     expect(errOf(result).code).toBe("marketplace-unpublished");

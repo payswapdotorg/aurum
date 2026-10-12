@@ -16,10 +16,7 @@
  * versions).
  */
 import { err, ok, type Result } from "../domain/primitives.js";
-import type {
-  MarketplaceActorReference,
-  MarketplaceTenantScope,
-} from "../domain/primitives.js";
+import type { MarketplaceActorReference, MarketplaceTenantScope } from "../domain/primitives.js";
 import type { RecruitmentRequest } from "../domain/recruitment.js";
 import {
   marketplaceConflict,
@@ -46,10 +43,7 @@ import {
 import type { PackageVersionRecord } from "../domain/records.js";
 import { installPublishedVersion } from "../domain/installation.js";
 import { activateInstallation } from "../domain/activation.js";
-import type {
-  OpenRecruitmentInput,
-  ResolveRecruitmentInput,
-} from "./inputs.js";
+import type { OpenRecruitmentInput, ResolveRecruitmentInput } from "./inputs.js";
 
 export interface RecruitmentHandlers {
   readonly catalog: MarketplaceCatalogStore;
@@ -95,9 +89,7 @@ export function handleOpenRecruitment(
     scope,
     requestId: input.requestId,
     demand: input.demand,
-    ...(input.targetPackageKinds
-      ? { targetPackageKinds: input.targetPackageKinds }
-      : {}),
+    ...(input.targetPackageKinds ? { targetPackageKinds: input.targetPackageKinds } : {}),
     requiredEvidenceKinds: input.requiredEvidenceKinds,
     excludedPackageIds: input.excludedPackageIds ?? [],
     requestedBy: input.requestedBy,
@@ -199,13 +191,7 @@ export function handleResolveRecruitment(
   });
   if (!activated.ok) return activated;
   // W005 registration BY REFERENCE (the seam owns the registered record).
-  const registration = registerRecruit(
-    scope,
-    versionRecord.value,
-    installed.value,
-    input,
-    deps,
-  );
+  const registration = registerRecruit(scope, versionRecord.value, installed.value, input, deps);
   if (!registration.ok) return registration;
   // Writes happen only after every step validated.
   const putInstallation = deps.governance.putInstallation(installed.value);
@@ -309,8 +295,7 @@ function registerRecruit(
       now: input.now,
     });
   }
-  const actorKind =
-    versionRecord.contents.kind === "agent" ? "agent" : "software";
+  const actorKind = versionRecord.contents.kind === "agent" ? "agent" : "software";
   return deps.registration.registerRecruitedActor(scope, {
     packageRef: installation.packageId,
     installationRef: installation.installationId,

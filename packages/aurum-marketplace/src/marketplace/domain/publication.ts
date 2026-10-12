@@ -20,7 +20,11 @@ import type {
   MarketplaceAuditStamp,
   MarketplaceTimestamp,
 } from "./primitives.js";
-import { marketplaceLifecycleIllegal, marketplaceUnauthorized, type MarketplaceError } from "./errors.js";
+import {
+  marketplaceLifecycleIllegal,
+  marketplaceUnauthorized,
+  type MarketplaceError,
+} from "./errors.js";
 import { publicationTransitionLegal } from "./vocabulary.js";
 import type { PackageVersionRecord } from "./records.js";
 
@@ -57,9 +61,7 @@ export function submitForPublication(
   stamp: MarketplaceAuditStamp,
 ): Result<PackageVersionRecord, MarketplaceError> {
   if (!publicationTransitionLegal(record.publication.state, "submitted")) {
-    return err(
-      marketplaceLifecycleIllegal("publication", record.publication.state, "submitted"),
-    );
+    return err(marketplaceLifecycleIllegal("publication", record.publication.state, "submitted"));
   }
   return ok(applyPublicationTransition(record, "submitted", stamp));
 }
@@ -84,9 +86,7 @@ export function reviewPublication(
     );
   }
   if (!publicationTransitionLegal(record.publication.state, decision)) {
-    return err(
-      marketplaceLifecycleIllegal("publication", record.publication.state, decision),
-    );
+    return err(marketplaceLifecycleIllegal("publication", record.publication.state, decision));
   }
   return ok(applyPublicationTransition(record, decision, stamp));
 }

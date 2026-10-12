@@ -5,10 +5,7 @@
  * uninstall terminal, reinstall = new record) + validation typing.
  */
 import { describe, expect, it } from "vitest";
-import {
-  MARKETPLACE_PACKAGE_KINDS,
-  type PackageVersionContents,
-} from "../src/index.js";
+import { MARKETPLACE_PACKAGE_KINDS, type PackageVersionContents } from "../src/index.js";
 import {
   INSTALLER,
   PUBLISHER,
@@ -38,7 +35,11 @@ const MINIMAL_AGENT: PackageVersionContents = {
   requiredBindings: ["cognition"],
 };
 
-function draftAgent(fixture: MarketplaceFixture, packageId: string, overrides: Record<string, unknown> = {}) {
+function draftAgent(
+  fixture: MarketplaceFixture,
+  packageId: string,
+  overrides: Record<string, unknown> = {},
+) {
   return fixture.service.draftPackage(TENANT, {
     packageId,
     kind: "agent",
@@ -464,7 +465,9 @@ describe("typed errors + guards", () => {
         version: 1,
         contents: {
           kind: "capability",
-          supplies: [{ supplyKind: "tool", capabilityId: "cap-lab", level: 2, capacityPerPeriod: 4 }],
+          supplies: [
+            { supplyKind: "tool", capabilityId: "cap-lab", level: 2, capacityPerPeriod: 4 },
+          ],
         },
         changelog: "lab proposal v1",
         evidenceRefs: [{ evidenceKind: "provenance-statement", ref: "evidence/lab" }],

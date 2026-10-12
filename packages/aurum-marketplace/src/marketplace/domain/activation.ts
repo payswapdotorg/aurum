@@ -23,7 +23,11 @@ import type {
   MarketplaceTimestamp,
   MarketplaceValidationIssue,
 } from "./primitives.js";
-import { marketplaceConflict, marketplaceLifecycleIllegal, marketplaceNotInstalled } from "./errors.js";
+import {
+  marketplaceConflict,
+  marketplaceLifecycleIllegal,
+  marketplaceNotInstalled,
+} from "./errors.js";
 import type { MarketplaceError } from "./errors.js";
 import { activationTransitionLegal, isKnownActivationGrantKind } from "./vocabulary.js";
 import type { PackageInstallation } from "./installation.js";
@@ -100,7 +104,10 @@ export function activationIssues(input: {
         grant.level !== undefined &&
         (!Number.isInteger(grant.level) || grant.level < 0 || grant.level > 5)
       ) {
-        issues.push({ field: `${field}.level`, problem: "must be an integer in 0..5 when present" });
+        issues.push({
+          field: `${field}.level`,
+          problem: "must be an integer in 0..5 when present",
+        });
       }
     });
   }
@@ -183,7 +190,10 @@ export function activationTargetKey(
 ): string {
   const actors = [...actorRefs].sort().join("|");
   const grantKeys = grants
-    .map((grant) => `${grant.grantKind}:${grant.ref}${grant.level !== undefined ? `@${grant.level}` : ""}`)
+    .map(
+      (grant) =>
+        `${grant.grantKind}:${grant.ref}${grant.level !== undefined ? `@${grant.level}` : ""}`,
+    )
     .sort()
     .join("|");
   return `${actors};;${grantKeys}`;

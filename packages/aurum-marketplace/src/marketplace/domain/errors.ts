@@ -105,5 +105,8 @@ export function marketplaceUnauthorized(message: string): MarketplaceError {
 }
 
 export function marketplaceInvariant(message: string): MarketplaceError {
-  return new MarketplaceError("marketplace-invariant", `marketplace invariant violated: ${message}`);
+  return new MarketplaceError(
+    "marketplace-invariant",
+    `marketplace invariant violated: ${message}`,
+  );
 }

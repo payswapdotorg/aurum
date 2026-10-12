@@ -5,10 +5,7 @@
  * tenant-scoped). Persistence is the TL-tracked P-series debt.
  */
 import { err, ok, type Result } from "../domain/primitives.js";
-import type {
-  MarketplaceActorReference,
-  MarketplaceTenantScope,
-} from "../domain/primitives.js";
+import type { MarketplaceActorReference, MarketplaceTenantScope } from "../domain/primitives.js";
 import { marketplaceConflict } from "../domain/errors.js";
 import type { MarketplaceError } from "../domain/errors.js";
 import type { MarketplaceAuditPort, MarketplaceAuditRecord } from "../domain/ports.js";

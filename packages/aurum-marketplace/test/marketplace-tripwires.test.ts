@@ -158,7 +158,14 @@ describe("the marketplace NEVER executes (surface + import tripwires)", () => {
 
   it("the mirrored fabric vocabulary is EXACT against @aurum/agent's frozen sets", () => {
     const vocabularySource = readFileSync(join(domainRoot, "vocabulary.ts"), "utf8");
-    const agentVocabularyPath = join(packageRoot, "..", "aurum-agent", "src", "domain", "vocabulary.ts");
+    const agentVocabularyPath = join(
+      packageRoot,
+      "..",
+      "aurum-agent",
+      "src",
+      "domain",
+      "vocabulary.ts",
+    );
     const agentSource = readFileSync(agentVocabularyPath, "utf8");
     // Extract the closed-set members from both files and compare content.
     function extractMembers(source: string, constantName: string): string[] {
@@ -194,9 +201,7 @@ describe("the marketplace NEVER executes (surface + import tripwires)", () => {
   it("no lint-disable comments anywhere in the package source", () => {
     for (const file of walkSources(srcRoot)) {
       const source = readFileSync(file, "utf8");
-      const offenders = source
-        .split("\n")
-        .filter((line) => /(?:oxlint|eslint)-disable/.test(line));
+      const offenders = source.split("\n").filter((line) => /(?:oxlint|eslint)-disable/.test(line));
       expect(offenders, `${file}: ${offenders.join("; ")}`).toEqual([]);
     }
   });
@@ -215,7 +220,10 @@ describe("the marketplace NEVER executes (surface + import tripwires)", () => {
     const manifestRequires = [...(manifestMatch?.[1] ?? "").matchAll(/["']([^"']+)["']/g)].map(
       (match) => match[1] ?? "",
     );
-    const policySource = readFileSync(join(packageRoot, "..", "..", "architecture-policy.yaml"), "utf8");
+    const policySource = readFileSync(
+      join(packageRoot, "..", "..", "architecture-policy.yaml"),
+      "utf8",
+    );
     const policyBlock = policySource.slice(policySource.indexOf("- id: aurum-marketplace"));
     const policyMatch = policyBlock.match(/requires:\s*\[([^\]]*)\]/);
     expect(policyMatch).not.toBeNull();

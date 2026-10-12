@@ -25,10 +25,7 @@ import type {
   MarketplaceTenantScopedRecord,
   MarketplaceTimestamp,
 } from "./primitives.js";
-import {
-  marketplaceLifecycleIllegal,
-  marketplaceUnauthorized,
-} from "./errors.js";
+import { marketplaceLifecycleIllegal, marketplaceUnauthorized } from "./errors.js";
 import type { MarketplaceError } from "./errors.js";
 import { executionRequestTransitionLegal } from "./vocabulary.js";
 import type { PackageActivation } from "./activation.js";
@@ -151,7 +148,5 @@ function marketplacePersonRequired(): MarketplaceError {
 }
 
 function marketplaceCitationRequired(): MarketplaceError {
-  return marketplaceUnauthorized(
-    "an execution citation must carry an actionId and/or an auditRef",
-  );
+  return marketplaceUnauthorized("an execution citation must carry an actionId and/or an auditRef");
 }

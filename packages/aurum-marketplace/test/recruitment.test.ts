@@ -7,7 +7,12 @@
  * are terminal.
  */
 import { describe, expect, it } from "vitest";
-import { DEFAULT_RECRUITMENT_WEIGHTS, populateDeterministicCatalog, createInMemoryMarketplaceCatalogStore, type MarketplaceService } from "../src/index.js";
+import {
+  DEFAULT_RECRUITMENT_WEIGHTS,
+  populateDeterministicCatalog,
+  createInMemoryMarketplaceCatalogStore,
+  type MarketplaceService,
+} from "../src/index.js";
 import {
   INSTALLER,
   REQUESTER,
@@ -79,7 +84,9 @@ describe("recruitment ranking: determinism + inspectability", () => {
         candidate.criteria.evidenceStrength * DEFAULT_RECRUITMENT_WEIGHTS.evidenceStrength +
         candidate.criteria.versionMaturity * DEFAULT_RECRUITMENT_WEIGHTS.versionMaturity +
         candidate.criteria.scopeDiscipline * DEFAULT_RECRUITMENT_WEIGHTS.scopeDiscipline;
-      expect(Math.abs(candidate.weightedScore - Math.round(expected * 10000) / 10000)).toBeLessThan(1e-9);
+      expect(Math.abs(candidate.weightedScore - Math.round(expected * 10000) / 10000)).toBeLessThan(
+        1e-9,
+      );
     }
     // The weights themselves are recorded on the request (inspectable).
     const request = okOf(fixture.service.getRecruitment(TENANT, "rec-1"));
@@ -102,7 +109,8 @@ describe("recruitment ranking: determinism + inspectability", () => {
       const previous = proposal[index - 1]!;
       const current = proposal[index]!;
       const scoreOrder = previous.weightedScore > current.weightedScore;
-      const tiebreak = previous.weightedScore === current.weightedScore && previous.packageId < current.packageId;
+      const tiebreak =
+        previous.weightedScore === current.weightedScore && previous.packageId < current.packageId;
       expect(scoreOrder || tiebreak).toBe(true);
     }
   });
@@ -140,7 +148,9 @@ describe("recruitment ranking: determinism + inspectability", () => {
         excludedPackageIds: ["pkg-capability-search-connector"],
       }),
     ).proposal;
-    expect(proposal.some((candidate) => candidate.packageId === "pkg-capability-search-connector")).toBe(false);
+    expect(
+      proposal.some((candidate) => candidate.packageId === "pkg-capability-search-connector"),
+    ).toBe(false);
   });
 
   it("targetPackageKinds filters the candidate field (e.g. role packages only)", () => {
@@ -284,7 +294,11 @@ describe("recruitment resolution: propose/dispose + sequenced landing", () => {
       now: 2000,
     };
     okOf(fixture.service.resolveRecruitment(TENANT, resolution));
-    const second = fixture.service.resolveRecruitment(TENANT, { ...resolution, installationId: "inst-2", activationId: "act-2" });
+    const second = fixture.service.resolveRecruitment(TENANT, {
+      ...resolution,
+      installationId: "inst-2",
+      activationId: "act-2",
+    });
     expect(errOf(second).code).toBe("marketplace-conflict");
     const cancelled = fixture.service.cancelRecruitment(TENANT, {
       requestId: "rec-1",

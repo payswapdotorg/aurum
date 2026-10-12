@@ -49,8 +49,15 @@ export class InMemoryWorkforceRegistrationDouble implements WorkforceRegistratio
         readonly capacityPerPeriod: number;
       }[];
       readonly requestRef: string;
-      readonly proposedBy: { readonly kind: string; readonly personId?: string; readonly name?: string };
-      readonly provenance: { readonly actor: { readonly kind: string }; readonly recordedAt: number };
+      readonly proposedBy: {
+        readonly kind: string;
+        readonly personId?: string;
+        readonly name?: string;
+      };
+      readonly provenance: {
+        readonly actor: { readonly kind: string };
+        readonly recordedAt: number;
+      };
       readonly now: number;
     },
   ): Result<{ readonly registrationRef: string }, MarketplaceError> {
@@ -78,8 +85,15 @@ export class InMemoryWorkforceRegistrationDouble implements WorkforceRegistratio
       readonly description?: string;
       readonly requiredCapabilities: readonly string[];
       readonly requestRef: string;
-      readonly proposedBy: { readonly kind: string; readonly personId?: string; readonly name?: string };
-      readonly provenance: { readonly actor: { readonly kind: string }; readonly recordedAt: number };
+      readonly proposedBy: {
+        readonly kind: string;
+        readonly personId?: string;
+        readonly name?: string;
+      };
+      readonly provenance: {
+        readonly actor: { readonly kind: string };
+        readonly recordedAt: number;
+      };
       readonly now: number;
     },
   ): Result<{ readonly registrationRef: string }, MarketplaceError> {
@@ -97,9 +111,7 @@ export class InMemoryWorkforceRegistrationDouble implements WorkforceRegistratio
     return ok({ registrationRef });
   }
 
-  listRegistrations(
-    scope: MarketplaceTenantScope,
-  ): readonly {
+  listRegistrations(scope: MarketplaceTenantScope): readonly {
     readonly registrationRef: string;
     readonly packageRef: string;
     readonly installationRef: string;

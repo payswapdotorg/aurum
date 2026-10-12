@@ -243,8 +243,12 @@ export function packageContentsIssues(
   }
   const issues: MarketplaceValidationIssue[] = [];
   if (contents.kind === "agent") {
-    issues.push(...textIssues(contents.bodyTemplate.displayName, `${field}.bodyTemplate.displayName`, 128));
-    issues.push(...textIssues(contents.bodyTemplate.role.title, `${field}.bodyTemplate.role.title`, 128));
+    issues.push(
+      ...textIssues(contents.bodyTemplate.displayName, `${field}.bodyTemplate.displayName`, 128),
+    );
+    issues.push(
+      ...textIssues(contents.bodyTemplate.role.title, `${field}.bodyTemplate.role.title`, 128),
+    );
     contents.bodyTemplate.permittedCapabilities.forEach((capability, index) => {
       if (!isKnownMarketplaceAgentCapability(capability)) {
         issues.push({
@@ -268,36 +272,62 @@ export function packageContentsIssues(
       }
     });
     if (contents.requiredBindings.length === 0) {
-      issues.push({ field: `${field}.requiredBindings`, problem: "must declare at least one binding purpose" });
+      issues.push({
+        field: `${field}.requiredBindings`,
+        problem: "must declare at least one binding purpose",
+      });
     }
-    issues.push(...validateSupplies(contents.capabilityDeclarations, `${field}.capabilityDeclarations`));
+    issues.push(
+      ...validateSupplies(contents.capabilityDeclarations, `${field}.capabilityDeclarations`),
+    );
   } else if (contents.kind === "extension") {
     issues.push(
       ...validateCapabilityIds(contents.additionalCapabilities, `${field}.additionalCapabilities`),
     );
     if (contents.additionalCapabilities.length === 0) {
-      issues.push({ field: `${field}.additionalCapabilities`, problem: "must declare at least one capability" });
+      issues.push({
+        field: `${field}.additionalCapabilities`,
+        problem: "must declare at least one capability",
+      });
     }
     issues.push(...validateSupplies(contents.capabilitySupplies, `${field}.capabilitySupplies`));
     if (contents.requiresBodyCapabilities.length === 0) {
-      issues.push({ field: `${field}.requiresBodyCapabilities`, problem: "must declare a compatibility profile" });
+      issues.push({
+        field: `${field}.requiresBodyCapabilities`,
+        problem: "must declare a compatibility profile",
+      });
     }
   } else if (contents.kind === "role") {
     const def = contents.roleDefinition;
     issues.push(...textIssues(def.title, `${field}.roleDefinition.title`, 128));
     if (def.responsibilities.length === 0) {
-      issues.push({ field: `${field}.roleDefinition.responsibilities`, problem: "must be non-empty" });
+      issues.push({
+        field: `${field}.roleDefinition.responsibilities`,
+        problem: "must be non-empty",
+      });
     }
     if (def.skills.length === 0) {
       issues.push({ field: `${field}.roleDefinition.skills`, problem: "must be non-empty" });
     }
     if (def.authorityRequirements.length === 0) {
-      issues.push({ field: `${field}.roleDefinition.authorityRequirements`, problem: "must be non-empty" });
+      issues.push({
+        field: `${field}.roleDefinition.authorityRequirements`,
+        problem: "must be non-empty",
+      });
     }
-    issues.push(...validateCapabilityIds(def.responsibilities, `${field}.roleDefinition.responsibilities`));
+    issues.push(
+      ...validateCapabilityIds(def.responsibilities, `${field}.roleDefinition.responsibilities`),
+    );
     issues.push(...validateCapabilityIds(def.skills, `${field}.roleDefinition.skills`));
-    issues.push(...validateCapabilityIds(def.authorityRequirements, `${field}.roleDefinition.authorityRequirements`));
-    issues.push(...validateCapabilityIds(contents.requiredCapabilities, `${field}.requiredCapabilities`));
+    issues.push(
+      ...validateCapabilityIds(
+        def.authorityRequirements,
+        `${field}.roleDefinition.authorityRequirements`,
+      ),
+    );
+    issues.push(
+      ...validateCapabilityIds(contents.requiredCapabilities, `${field}.requiredCapabilities`),
+    );
   } else {
     issues.push(...validateSupplies(contents.supplies, `${field}.supplies`));
   }

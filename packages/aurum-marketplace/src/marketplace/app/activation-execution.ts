@@ -7,10 +7,7 @@
  * citation; it never executes anything.
  */
 import { err, ok, type Result } from "../domain/primitives.js";
-import type {
-  MarketplaceActorReference,
-  MarketplaceTenantScope,
-} from "../domain/primitives.js";
+import type { MarketplaceActorReference, MarketplaceTenantScope } from "../domain/primitives.js";
 import { marketplaceProvenanceIssues } from "../domain/primitives.js";
 import {
   marketplaceConflict,
@@ -123,7 +120,9 @@ export function handleRequestExecutionUse(
   if (provenanceIssues.length > 0) return err(marketplaceValidationError(provenanceIssues));
   const existingRequest = deps.governance.getExecutionRequest(scope, input.requestId);
   if (existingRequest.ok) {
-    return err(marketplaceConflict(`execution request ${input.requestId} already exists in tenant`));
+    return err(
+      marketplaceConflict(`execution request ${input.requestId} already exists in tenant`),
+    );
   }
   const fetchedActivation = deps.governance.getActivation(scope, input.activationId);
   if (!fetchedActivation.ok) return fetchedActivation;
@@ -167,18 +166,11 @@ export function handleCiteExecutionApproval(
 ): Result<ExecutionApprovalRequest, MarketplaceError> {
   const fetchedRequest = deps.governance.getExecutionRequest(scope, input.requestId);
   if (!fetchedRequest.ok) return fetchedRequest;
-  const fetchedActivation = deps.governance.getActivation(
-    scope,
-    fetchedRequest.value.activationId,
-  );
+  const fetchedActivation = deps.governance.getActivation(scope, fetchedRequest.value.activationId);
   if (!fetchedActivation.ok) return fetchedActivation;
   if (fetchedActivation.value.state !== "activated") {
     return err(
-      marketplaceLifecycleIllegal(
-        "execution-approval",
-        fetchedActivation.value.state,
-        "cited",
-      ),
+      marketplaceLifecycleIllegal("execution-approval", fetchedActivation.value.state, "cited"),
     );
   }
   const assertion = deps.authority.assertAuthorityCitation(scope, input.citation);

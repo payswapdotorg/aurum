@@ -5,7 +5,15 @@
  * existence leaks); configuration never leaks across tenants.
  */
 import { describe, expect, it } from "vitest";
-import { errOf, installAndActivate, marketplaceFixture, okOf, publishFixturePackage, scopeOf, teachCitation } from "./helpers.js";
+import {
+  errOf,
+  installAndActivate,
+  marketplaceFixture,
+  okOf,
+  publishFixturePackage,
+  scopeOf,
+  teachCitation,
+} from "./helpers.js";
 
 const TENANT_A = scopeOf("tenant-a");
 const TENANT_B = scopeOf("tenant-b");
@@ -40,7 +48,11 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
       packageId: "pkg-agent-analyst",
       version: 1,
       installedBy: { kind: "person", personId: "person-b" },
-      provenance: { actor: { kind: "person", personId: "person-b" }, source: "system-captured", recordedAt: 10 },
+      provenance: {
+        actor: { kind: "person", personId: "person-b" },
+        source: "system-captured",
+        recordedAt: 10,
+      },
       now: 10,
     });
     const neverExisting = fixture.service.installPackage(TENANT_B, {
@@ -48,7 +60,11 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
       packageId: "pkg-never-existed",
       version: 1,
       installedBy: { kind: "person", personId: "person-b" },
-      provenance: { actor: { kind: "person", personId: "person-b" }, source: "system-captured", recordedAt: 10 },
+      provenance: {
+        actor: { kind: "person", personId: "person-b" },
+        source: "system-captured",
+        recordedAt: 10,
+      },
       now: 10,
     });
     const foreignError = errOf(foreign);
@@ -68,7 +84,11 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
         version: 1,
         installedBy: { kind: "person", personId: "person-a" },
         configuration: { secretRef: "opaque-ref-a", mode: "prod" },
-        provenance: { actor: { kind: "person", personId: "person-a" }, source: "system-captured", recordedAt: 10 },
+        provenance: {
+          actor: { kind: "person", personId: "person-a" },
+          source: "system-captured",
+          recordedAt: 10,
+        },
         now: 10,
       }),
     );
@@ -95,15 +115,23 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
         consumerRef: "plan-a1",
         purpose: "tenant A analysis",
         requestedBy: { kind: "person", personId: "person-a" },
-        provenance: { actor: { kind: "person", personId: "person-a" }, source: "system-captured", recordedAt: 300 },
+        provenance: {
+          actor: { kind: "person", personId: "person-a" },
+          source: "system-captured",
+          recordedAt: 300,
+        },
         now: 300,
       }),
     );
     // Tenant B sees none of it:
     expect(fixture.service.listActivations(TENANT_B).length).toBe(0);
-    expect(errOf(fixture.service.getActivation(TENANT_B, activationId)).code).toBe("marketplace-not-found");
+    expect(errOf(fixture.service.getActivation(TENANT_B, activationId)).code).toBe(
+      "marketplace-not-found",
+    );
     expect(fixture.service.listRecruitments(TENANT_B).length).toBe(0);
-    expect(errOf(fixture.service.getExecutionRequest(TENANT_B, "exec-a1")).code).toBe("marketplace-not-found");
+    expect(errOf(fixture.service.getExecutionRequest(TENANT_B, "exec-a1")).code).toBe(
+      "marketplace-not-found",
+    );
   });
 
   it("audit entries are tenant-scoped (no cross-tenant audit reads)", () => {
@@ -132,13 +160,21 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
         consumerRef: "plan-a1",
         purpose: "cross-tenant citation attempt",
         requestedBy: { kind: "person", personId: "person-a" },
-        provenance: { actor: { kind: "person", personId: "person-a" }, source: "system-captured", recordedAt: 300 },
+        provenance: {
+          actor: { kind: "person", personId: "person-a" },
+          source: "system-captured",
+          recordedAt: 300,
+        },
         now: 300,
       }),
     );
     // Tenant B walks the same citation through ITS scope — refused.
     publishFixturePackage(fixture, TENANT_B, "pkg-agent-analyst");
-    const { activationId: activationB } = installAndActivate(fixture, TENANT_B, "pkg-agent-analyst");
+    const { activationId: activationB } = installAndActivate(
+      fixture,
+      TENANT_B,
+      "pkg-agent-analyst",
+    );
     okOf(
       fixture.service.requestExecutionUse(TENANT_B, {
         requestId: "exec-b1",
@@ -146,13 +182,21 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
         consumerRef: "plan-b1",
         purpose: "tenant B analysis",
         requestedBy: { kind: "person", personId: "person-b" },
-        provenance: { actor: { kind: "person", personId: "person-b" }, source: "system-captured", recordedAt: 400 },
+        provenance: {
+          actor: { kind: "person", personId: "person-b" },
+          source: "system-captured",
+          recordedAt: 400,
+        },
         now: 400,
       }),
     );
     const result = fixture.service.citeExecutionApproval(TENANT_B, {
       requestId: "exec-b1",
-      citation: { actionId: "action-77", approvedBy: { kind: "person", personId: "person-b" }, approvedAt: 401 },
+      citation: {
+        actionId: "action-77",
+        approvedBy: { kind: "person", personId: "person-b" },
+        approvedAt: 401,
+      },
       now: 401,
     });
     expect(errOf(result).code).toBe("marketplace-unauthorized");
@@ -171,7 +215,11 @@ describe("tenant scope: catalog visibility vs per-tenant installations", () => {
         packageId: "pkg-agent-analyst",
         version: 1,
         installedBy: { kind: "person", personId: "person-b" },
-        provenance: { actor: { kind: "person", personId: "person-b" }, source: "system-captured", recordedAt: 20 },
+        provenance: {
+          actor: { kind: "person", personId: "person-b" },
+          source: "system-captured",
+          recordedAt: 20,
+        },
         now: 20,
       }),
     );

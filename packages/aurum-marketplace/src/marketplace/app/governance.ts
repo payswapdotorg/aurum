@@ -7,23 +7,26 @@
  * (the structural separation tripwire).
  */
 import { err, ok, type Result } from "../domain/primitives.js";
-import type {
-  MarketplaceActorReference,
-  MarketplaceTenantScope,
-} from "../domain/primitives.js";
+import type { MarketplaceActorReference, MarketplaceTenantScope } from "../domain/primitives.js";
 import {
   marketplaceConflict,
   marketplaceValidationError,
   type MarketplaceError,
 } from "../domain/errors.js";
-import type { MarketplaceAuditPort, MarketplaceCatalogStore, MarketplaceGovernanceStore } from "../domain/ports.js";
+import type {
+  MarketplaceAuditPort,
+  MarketplaceCatalogStore,
+  MarketplaceGovernanceStore,
+} from "../domain/ports.js";
 import type { MarketplaceAuthorityPort } from "../domain/ports.js";
-import {
-  buildDraftPackageVersion,
-  packageVersionIssues,
-} from "../domain/records.js";
+import { buildDraftPackageVersion, packageVersionIssues } from "../domain/records.js";
 import type { PackageVersionRecord } from "../domain/records.js";
-import { catalogEntryOf, isPublishedVersion, reviewPublication, submitForPublication } from "../domain/publication.js";
+import {
+  catalogEntryOf,
+  isPublishedVersion,
+  reviewPublication,
+  submitForPublication,
+} from "../domain/publication.js";
 import {
   installPublishedVersion,
   installationIssues,
@@ -216,13 +219,18 @@ export function handleInstallPackage(
   deps: GovernanceHandlers,
 ): Result<PackageInstallation, MarketplaceError> {
   const shapeIssues = [
-    ...installationIssues({ installationId: input.installationId, configuration: input.configuration }),
+    ...installationIssues({
+      installationId: input.installationId,
+      configuration: input.configuration,
+    }),
     ...marketplaceProvenanceIssues(input.provenance),
   ];
   if (shapeIssues.length > 0) return err(marketplaceValidationError(shapeIssues));
   const existing = deps.governance.getInstallation(scope, input.installationId);
   if (existing.ok) {
-    return err(marketplaceConflict(`installation ${input.installationId} already exists in tenant`));
+    return err(
+      marketplaceConflict(`installation ${input.installationId} already exists in tenant`),
+    );
   }
   const fetchedPackage = deps.catalog.getPackage(scope, input.packageId);
   if (!fetchedPackage.ok) return fetchedPackage;

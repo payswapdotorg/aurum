@@ -153,7 +153,10 @@ export function marketplaceProvenanceIssues(
     !Number.isFinite(provenance.recordedAt) ||
     provenance.recordedAt < 0
   ) {
-    issues.push({ field: `${field}.recordedAt`, problem: "must be finite epoch milliseconds >= 0" });
+    issues.push({
+      field: `${field}.recordedAt`,
+      problem: "must be finite epoch milliseconds >= 0",
+    });
   }
   if (provenance.note !== undefined && provenance.note.trim().length === 0) {
     issues.push({ field: `${field}.note`, problem: "must be non-empty when present" });
@@ -188,7 +191,10 @@ export function marketplaceAuditStampIssues(
   if (!stamp.actor || typeof stamp.actor.kind !== "string") {
     issues.push({ field: `${fieldPrefix}.actor`, problem: "is required" });
   } else if (stamp.actor.kind === "person" && !stamp.actor.personId) {
-    issues.push({ field: `${fieldPrefix}.actor.personId`, problem: "is required for person actors" });
+    issues.push({
+      field: `${fieldPrefix}.actor.personId`,
+      problem: "is required for person actors",
+    });
   }
   if (typeof stamp.at !== "number" || !Number.isFinite(stamp.at) || stamp.at < 0) {
     issues.push({ field: `${fieldPrefix}.at`, problem: "must be finite epoch milliseconds >= 0" });

@@ -1,6 +1,6 @@
 # CR-W011 — wire `@aurum/domain` + `@aurum/agent` into `@aurum/marketplace`
 
-- **Work item:** W011 (packages/aurum-marketplace/src/**)
+- **Work item:** W011 (packages/aurum-marketplace/src/\*\*)
 - **Requester:** W-B (W011 dispatch)
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency wiring; the
   marketplace `package.json` is worker-owned but the lockfile is TL-owned per the

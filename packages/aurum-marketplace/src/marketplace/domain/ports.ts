@@ -160,9 +160,7 @@ export interface WorkforceRegistrationPort {
     },
   ): Result<{ readonly registrationRef: string }, MarketplaceError>;
   /** By-reference read-back view (for eligibility proofs + consumers). */
-  listRegistrations(
-    scope: MarketplaceTenantScope,
-  ): readonly {
+  listRegistrations(scope: MarketplaceTenantScope): readonly {
     readonly registrationRef: string;
     readonly packageRef: string;
     readonly installationRef: string;

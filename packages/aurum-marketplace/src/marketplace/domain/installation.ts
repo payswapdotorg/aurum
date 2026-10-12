@@ -27,10 +27,7 @@ import type {
   MarketplaceTenantScopedRecord,
   MarketplaceTimestamp,
 } from "./primitives.js";
-import {
-  marketplaceUnpublished,
-  type MarketplaceError,
-} from "./errors.js";
+import { marketplaceUnpublished, type MarketplaceError } from "./errors.js";
 import { installationTransitionLegal } from "./vocabulary.js";
 import { marketplaceLifecycleIllegal } from "./errors.js";
 import type { PackageVersionRecord } from "./records.js";
@@ -100,9 +97,7 @@ export function installPublishedVersion(input: {
 }): Result<PackageInstallation, MarketplaceError> {
   const versionRecord = input.versionRecord;
   if (versionRecord.publication.state !== "published") {
-    return err(
-      marketplaceUnpublished(versionRecord.packageId, versionRecord.version),
-    );
+    return err(marketplaceUnpublished(versionRecord.packageId, versionRecord.version));
   }
   const installation: PackageInstallation = deepFreezeMarketplace({
     scope: input.scope,
@@ -145,9 +140,7 @@ export function reviseInstallationConfiguration(
   },
 ): Result<PackageInstallation, MarketplaceError> {
   if (installation.state !== "installed") {
-    return err(
-      marketplaceLifecycleIllegal("installation", installation.state, "installed"),
-    );
+    return err(marketplaceLifecycleIllegal("installation", installation.state, "installed"));
   }
   return ok(
     deepFreezeMarketplace({
@@ -163,9 +156,7 @@ export function uninstallInstallation(
   at: MarketplaceTimestamp,
 ): Result<PackageInstallation, MarketplaceError> {
   if (!installationTransitionLegal(installation.state, "uninstalled")) {
-    return err(
-      marketplaceLifecycleIllegal("installation", installation.state, "uninstalled"),
-    );
+    return err(marketplaceLifecycleIllegal("installation", installation.state, "uninstalled"));
   }
   return ok(
     deepFreezeMarketplace({

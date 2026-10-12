@@ -18,7 +18,11 @@ export interface TaughtCitation {
   readonly tenantId: string;
   readonly actionId?: string;
   readonly auditRef?: string;
-  readonly approvedBy: { readonly kind: string; readonly personId?: string; readonly name?: string };
+  readonly approvedBy: {
+    readonly kind: string;
+    readonly personId?: string;
+    readonly name?: string;
+  };
 }
 
 /** One assertion attempt, for the runtime separation proofs. */
@@ -60,9 +64,7 @@ export class InMemoryAuthorityDouble implements MarketplaceAuthorityPort {
     this.logged.push({ tenantId: scope.tenantId, citation, accepted });
     if (!accepted) {
       return err(
-        marketplaceUnauthorized(
-          "authority citation is not valid in this tenant (closed failure)",
-        ),
+        marketplaceUnauthorized("authority citation is not valid in this tenant (closed failure)"),
       );
     }
     return ok({
