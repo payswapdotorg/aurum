@@ -627,6 +627,12 @@ importers:
       '@aurum/domain':
         specifier: workspace:*
         version: link:../aurum-domain
+      '@aurum/execution':
+        specifier: workspace:*
+        version: link:../aurum-execution
+      '@zcode/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       typescript:
         specifier: ^5.9.3

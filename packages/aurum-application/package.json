@@ -18,7 +18,9 @@
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {
-    "@aurum/domain": "workspace:*"
+    "@aurum/domain": "workspace:*",
+    "@aurum/execution": "workspace:*",
+    "@zcode/shared": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

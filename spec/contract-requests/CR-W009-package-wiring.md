@@ -5,7 +5,7 @@
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency wiring; the
   application `package.json` itself is in-scope for the worker but the lockfile
   is TL-owned per W009 hard laws)
-- **Status:** open (2026-10-12, W-C dispatch 1)
+- **Status:** RESOLVED 2026-10-12 by TL (commit below: deps + lockfile links + hygiene assertion relaxed per CR; gates green — fmt, lint, scoped tsc, arch 0 viol, application 147/147; real-adapter landing remains W009-followup work — the drafted shape lives in the documented stub)
 
 ## Requested change
 
