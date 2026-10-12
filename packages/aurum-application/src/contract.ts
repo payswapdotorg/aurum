@@ -7,3 +7,4 @@
 // executes. Additional areas land with their assigned work items
 // (spec/WORK-ITEM-CATALOG.md).
 export * from "./lab/contract.lab.js";
+export * from "./plans/contract.plans.js";
