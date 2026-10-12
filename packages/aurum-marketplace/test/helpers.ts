@@ -23,7 +23,6 @@ import {
   marketplacePersonActor,
   marketplaceSystemActor,
   marketplaceTenantScope,
-  type DraftPackageInput,
   type InMemoryAuthorityDouble,
   type InMemoryMarketplaceAuditLedger,
   type InMemoryMarketplaceCatalogStore,

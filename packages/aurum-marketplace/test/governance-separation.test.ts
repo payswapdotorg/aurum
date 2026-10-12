@@ -13,7 +13,7 @@
  * valid W002 citation; nothing executes inside the marketplace ever.
  */
 import { describe, expect, it } from "vitest";
-import { err, ok, type MarketplaceError, type PackageVersionContents } from "../src/index.js";
+import { type PackageVersionContents } from "../src/index.js";
 import {
   LAB_SYSTEM,
   PUBLISHER,
@@ -441,11 +441,7 @@ describe("execution NEVER happens inside the marketplace (runtime proof)", () =>
     const fixture = marketplaceFixture();
     teachCitation(fixture.authority, TENANT.tenantId, "action-77");
     publishFixturePackage(fixture, TENANT, "pkg-agent-analyst");
-    const { installationId, activationId } = installAndActivate(
-      fixture,
-      TENANT,
-      "pkg-agent-analyst",
-    );
+    const { activationId } = installAndActivate(fixture, TENANT, "pkg-agent-analyst");
     // Every marketplace operation that exists for this fixture:
     okOf(
       fixture.service.requestExecutionUse(TENANT, {
