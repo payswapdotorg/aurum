@@ -253,3 +253,36 @@ W012 [W010], W013 [deps met: W007+W008+W009], W014 [W013], W015
 - GitHub PAT re-provision (the entire push queue; the banked token is
   invalid — 401 verified). Bank: git bundle of main refreshed at each
   promote under my-project/download/.
+
+---
+
+# 2026-10-13 (updated 20:36Z by the resident TL) — ROADMAP COMPLETE
+
+Integration SHA: **7088b9c** (W015 certification commit; certified tree 68f2797).
+Pushed to origin/main. All gates green at the certification commit: tsc 0,
+fmt clean, lint 70 warnings / 0 errors (exact baseline), architecture 0
+violations (full + changed), **1073 tests / 0 failures** (application 471
+incl. 5 golden-journey evidence runs, domain 111, infra 166 incl. 26 PGlite
+application-storage proofs, provider 57, agent 29, execution 90,
+marketplace 148 incl. 66 emergence proofs).
+
+## The frozen DAG — closed
+
+- W000–W014: **all merged** (W012 continuity, W014 emergent roles/packages
+  delivered 2026-10-13 evening — narrative-harvest recoveries after the
+  platform recycled the worker pods mid-delivery; provenance + TL repair
+  registers itemized in commits f52c2b8 / b8fc80d / 9821277).
+- P001 + P002 + P003: **all merged** (P003 lab/application PG storage
+  delivered same evening; CR-P003 executed by the TL).
+- W015: **certified** — tests/evidence/w015/CERTIFICATION.md (the seven
+  constitution golden journeys at the exact SHA, full fixture disclosure,
+  honest open deployment-evidence leg).
+
+## Open items (post-roadmap)
+
+- CR-W012-desktop, CR-W012-cli, CR-W014: lockfile/bridge follow-ups as
+  their filings describe (TL-owned lockfile edits when taken).
+- The banked zcode-cli cross-process resume evidence script (Layer C
+  runnable evidence) is recorded in the W012 WORK-NOTES limitations.
+- Deployment/revision evidence: none (library monorepo, no deployment
+  target) — disclosed in the W015 record.
