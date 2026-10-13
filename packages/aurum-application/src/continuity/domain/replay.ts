@@ -4,6 +4,7 @@
  * records through real stores); these derivations check the record sequence
  * contract and summarize a replay for callers.
  */
+import type { Result } from "@aurum/domain";
 import type { ContinuityError } from "./errors.js";
 import { continuityInvariant } from "./errors.js";
 import type { ContinuityRecord, ReplayReport } from "./records.js";
@@ -19,7 +20,10 @@ export function replayIssues(
   sessionId: string,
 ): Result<void, ContinuityError> {
   if (records.length === 0) {
-    return { ok: false, error: continuityInvariant(`session ${sessionId} has no records to replay`) };
+    return {
+      ok: false,
+      error: continuityInvariant(`session ${sessionId} has no records to replay`),
+    };
   }
   const seenIds = new Set<string>();
   let previousSeq = -1;
@@ -59,7 +63,10 @@ export function replayIssues(
 }
 
 /** Counts a replay's applied records by entry kind (read-only derivation). */
-export function replaySummaryOf(sessionId: string, records: readonly ContinuityRecord[]): ReplayReport {
+export function replaySummaryOf(
+  sessionId: string,
+  records: readonly ContinuityRecord[],
+): ReplayReport {
   const byKind: Record<string, number> = {};
   for (const record of records) {
     byKind[record.entry.kind] = (byKind[record.entry.kind] ?? 0) + 1;

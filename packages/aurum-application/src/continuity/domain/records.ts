@@ -58,12 +58,36 @@ export interface AttachmentDigest {
 
 /** A recorded kernel effect-write (re-applied verbatim on replay). */
 export type KernelWriteEntry =
-  | { readonly kind: "claim-registered"; readonly scope: TenantScope; readonly input: RegisterClaimInput }
-  | { readonly kind: "belief-revised"; readonly scope: TenantScope; readonly input: ReviseBeliefInput }
-  | { readonly kind: "unknown-raised"; readonly scope: TenantScope; readonly input: RaiseUnknownInput }
-  | { readonly kind: "memory-recorded"; readonly scope: TenantScope; readonly input: RecordMemoryInput }
-  | { readonly kind: "action-proposed"; readonly scope: TenantScope; readonly input: ProposeActionInput }
-  | { readonly kind: "action-recommended"; readonly scope: TenantScope; readonly input: ActionTransitionInput };
+  | {
+      readonly kind: "claim-registered";
+      readonly scope: TenantScope;
+      readonly input: RegisterClaimInput;
+    }
+  | {
+      readonly kind: "belief-revised";
+      readonly scope: TenantScope;
+      readonly input: ReviseBeliefInput;
+    }
+  | {
+      readonly kind: "unknown-raised";
+      readonly scope: TenantScope;
+      readonly input: RaiseUnknownInput;
+    }
+  | {
+      readonly kind: "memory-recorded";
+      readonly scope: TenantScope;
+      readonly input: RecordMemoryInput;
+    }
+  | {
+      readonly kind: "action-proposed";
+      readonly scope: TenantScope;
+      readonly input: ProposeActionInput;
+    }
+  | {
+      readonly kind: "action-recommended";
+      readonly scope: TenantScope;
+      readonly input: ActionTransitionInput;
+    };
 
 /**
  * The journal entry payloads. `session-opened` must be the FIRST record of a
@@ -80,10 +104,19 @@ export type ContinuityEntry =
       readonly composition: string;
       readonly openedAt: number;
     }
-  | { readonly kind: "session-resumed"; readonly resumedAt: number; readonly cause: string; readonly recordsReplayed: number }
+  | {
+      readonly kind: "session-resumed";
+      readonly resumedAt: number;
+      readonly cause: string;
+      readonly recordsReplayed: number;
+    }
   | { readonly kind: "mission-recorded"; readonly mission: MissionRecord }
   | { readonly kind: "plan-recorded"; readonly plan: ExecutionPlan }
-  | { readonly kind: "handoff-delivered"; readonly payload: HandoffPayload; readonly result: HandoffDeliveryResult }
+  | {
+      readonly kind: "handoff-delivered";
+      readonly payload: HandoffPayload;
+      readonly result: HandoffDeliveryResult;
+    }
   | { readonly kind: "completion-recorded"; readonly completion: TaskCompletionRecord }
   | { readonly kind: "escalation-appended"; readonly escalation: EscalationRecord }
   | { readonly kind: "evaluation-recorded"; readonly evaluation: LabEvaluationRecord }
@@ -100,7 +133,11 @@ export type ContinuityEntry =
       readonly materializedRef: string;
       readonly openedAt: number;
     }
-  | { readonly kind: "attachment-closed"; readonly attachmentId: string; readonly closedAt: number };
+  | {
+      readonly kind: "attachment-closed";
+      readonly attachmentId: string;
+      readonly closedAt: number;
+    };
 
 /** A journaled entry, stamped by the ledger with identity + order. */
 export interface ContinuityRecord {
@@ -122,7 +159,11 @@ export interface SessionInfo {
   readonly openedAt: number;
   /** Whether a live runtime is registered in THIS process. */
   readonly live: boolean;
-  readonly resumes: readonly { readonly resumedAt: number; readonly cause: string; readonly recordsReplayed: number }[];
+  readonly resumes: readonly {
+    readonly resumedAt: number;
+    readonly cause: string;
+    readonly recordsReplayed: number;
+  }[];
   readonly recordCount: number;
   readonly attachmentCount: number;
 }

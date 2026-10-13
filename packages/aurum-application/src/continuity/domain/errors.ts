@@ -51,11 +51,7 @@ export function isContinuityError(value: unknown): value is ContinuityError {
 }
 
 export function continuityValidationError(issues: readonly ValidationIssue[]): ContinuityError {
-  return new ContinuityError(
-    "continuity-validation",
-    "continuity input failed validation",
-    issues,
-  );
+  return new ContinuityError("continuity-validation", "continuity input failed validation", issues);
 }
 
 export function continuityConflict(message: string): ContinuityError {

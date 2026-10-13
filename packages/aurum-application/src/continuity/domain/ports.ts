@@ -118,7 +118,10 @@ export type TowerRuntimeComposer = (binding: TowerSessionBinding) => ComposedTow
 export type TowerReplayer = (
   records: readonly ContinuityRecord[],
   binding: TowerSessionBinding,
-) => Result<{ readonly composed: ComposedTowerSession; readonly report: ReplayReport }, ContinuityError>;
+) => Result<
+  { readonly composed: ComposedTowerSession; readonly report: ReplayReport },
+  ContinuityError
+>;
 
 /** A live (process-resident) session handle — the desktop-continuous shape. */
 export interface LiveTowerSession {
@@ -198,7 +201,10 @@ export interface ContinuityServiceDeps {
  * (reference-equal) — the desktop continuity law.
  */
 export interface ContinuityService {
-  openSession(scope: TenantScope, input: OpenSessionInput): Result<LiveTowerSession, ContinuityError>;
+  openSession(
+    scope: TenantScope,
+    input: OpenSessionInput,
+  ): Result<LiveTowerSession, ContinuityError>;
   attachSession(sessionId: string): Result<LiveTowerSession, ContinuityError>;
   resumeSession(
     sessionId: string,
