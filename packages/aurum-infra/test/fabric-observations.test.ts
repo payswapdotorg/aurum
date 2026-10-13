@@ -7,9 +7,12 @@
  * ruling). Database-level enforcement is asserted against the raw tables:
  * append-only trigger on all three logs, one-immutable-row-per-id primary
  * keys (a duplicate id is an infrastructure error, never a silent history
- * rewrite), and the availability position PK.
+ * rewrite), and the availability position PK. Credential material never
+ * enters storage: detail/reason surfaces arrive pre-sanitized and the raw
+ * logs are swept for credential shapes (test-locked).
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { containsCredentialMaterial } from "@aurum/provider";
 import { listJournal } from "../src/domain-storage/journal/write-journal.js";
 import { createPgProviderFabricStore } from "../src/fabric-storage/stores.js";
 import {
@@ -378,6 +381,83 @@ describe("fabric observations: journal", () => {
     // Evidence: one key per appended evidence id.
     for (const row of journal.filter((entry) => entry.area === "fabric-evidence")) {
       expect(row.journalKey).toBe(`fabric-evidence:append:${row.recordId}`);
+    }
+  });
+});
+
+describe("fabric observations: credential opacity (test-locked)", () => {
+  it("sanitizes credential-shaped detail/reason before the write; the raw logs stay clean", async () => {
+    // Fresh subjects so this proof cannot disturb any earlier assertion.
+    const healthSubject = { kind: "provider-definition", definitionId: "def-cred" } as const;
+    const availabilitySubject = { kind: "model", catalogEntryId: "cat-cred" } as const;
+    const evidenceSubject = { kind: "protocol", protocolId: "proto-cred" } as const;
+
+    // Health detail, availability reason and evidence detail all pass the
+    // provider package's unanchored sanitizer at BUILD time, before any
+    // store sees the record — the REAL service over PG stores exactly what
+    // the in-memory reference stores: redacted text (both fabrics driven
+    // symmetrically so the deterministic timestamps stay in lockstep).
+    const health = [];
+    for (const fabric of [pair.pg, pair.mem]) {
+      health.push(
+        await fabric.observations.recordHealth(TENANT_A, {
+          subject: healthSubject,
+          status: "degraded",
+          detail: "probe leaked sk-abc123def456ghi789jkl in an error body",
+        }),
+      );
+    }
+    expectSameRead(health[0], health[1]);
+    expect(health[0]?.detail).not.toContain("sk-abc123def456ghi789jkl");
+    expect(health[0]?.detail).toContain("[REDACTED]");
+
+    for (const fabric of [pair.pg, pair.mem]) {
+      await fabric.observations.markUnavailable(
+        TENANT_A,
+        availabilitySubject,
+        "password: SuperSecret99",
+      );
+    }
+    const unavailablePg = await pair.pg.observations.availabilityOf(TENANT_A, availabilitySubject);
+    const unavailableMem = await pair.mem.observations.availabilityOf(
+      TENANT_A,
+      availabilitySubject,
+    );
+    expectSameRead(unavailablePg, unavailableMem);
+    expect(unavailablePg).toMatchObject({ state: "unavailable" });
+    expect(unavailablePg.reason).not.toContain("SuperSecret99");
+    expect(unavailablePg.reason).toContain("[REDACTED]");
+
+    const evidence = [];
+    for (const fabric of [pair.pg, pair.mem]) {
+      evidence.push(
+        await fabric.observations.appendEvidence(TENANT_A, {
+          kind: "manual-note",
+          subject: evidenceSubject,
+          outcome: "inconclusive",
+          detail: "operator pasted Bearer abcdefghijklmnop by accident",
+        }),
+      );
+    }
+    expectSameRead(evidence[0], evidence[1]);
+    expect(evidence[0]?.detail).not.toContain("Bearer abcdefghijklmnop");
+    expect(evidence[0]?.detail).toContain("[REDACTED]");
+
+    // RAW TABLE sweep: no credential-shaped material in ANY row of ANY of
+    // the three observation logs (both tenants, every earlier journey
+    // included — the write-time sanitizer keeps the tables clean).
+    for (const table of [
+      "fabric_health_observations",
+      "fabric_availability_observations",
+      "fabric_evidence",
+    ]) {
+      const rows = await pair.harness.sql<{ readonly record_text: string }>`
+        select record::text as record_text from ${pair.harness.sql(table)}
+      `;
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(containsCredentialMaterial(row.record_text)).toBe(false);
+      }
     }
   });
 });

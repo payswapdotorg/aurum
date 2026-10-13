@@ -10,13 +10,17 @@
  * reference proof — JSON.stringify(body) byte-for-byte across swaps,
  * including updatedAt) and the RAW TABLE level (stronger than the W003
  * reference can reach): across attach/swap/swap/detach the body's row
- * count in fabric_agent_bodies NEVER moves and its current record stays
- * byte-identical — model attachment writes ONLY the binding ledger. The
- * ledgers are append-only at the DATABASE level: trigger-rejected
- * UPDATE/DELETE, PK-rejected version rewrites, superseded versions
- * retained verbatim at their own mutation_seq.
+ * count in fabric_agent_bodies NEVER moves, its current record stays
+ * byte-identical AND the role-assignment ledger rows are equally frozen —
+ * model attachment writes ONLY the binding ledger. The ledgers are
+ * append-only at the DATABASE level: trigger-rejected UPDATE/DELETE,
+ * PK-rejected version rewrites, superseded versions retained verbatim at
+ * their own mutation_seq. Credential material never enters storage:
+ * free-text facets arrive pre-sanitized (opaque refs only) and the raw
+ * tables are swept for credential shapes (test-locked).
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { containsCredentialMaterial } from "@aurum/provider";
 import {
   buildAgentBody,
   buildBodyModelBinding,
@@ -311,24 +315,53 @@ describe("fabric agent: THE IDENTITY LAW at the storage level", () => {
     pair.lookupActive("binding-2");
     pair.lookupActive("binding-3");
 
-    await pair.pg.modelBindings.attachModel(TENANT_A, bodyId, {
-      purpose: "cognition",
-      modelBindingRef: "binding-1",
-    });
+    // A role assignment precedes the swaps: the role ledger is frozen across
+    // every model swap too (a swap writes ONLY the binding ledger — all
+    // three agent tables are covered by this proof).
+    const assigned = [];
+    for (const fabric of [pair.pg, pair.mem]) {
+      assigned.push(
+        await fabric.bodies.assignRole(TENANT_A, bodyId, {
+          title: "Swap Witness",
+          description: "role rows must never move across model swaps",
+        }),
+      );
+    }
+    expectSameRead(assigned[0], assigned[1]);
+
+    // The attach/swap/detach journey below is driven SYMMETRICALLY on both
+    // fabrics (same calls, same order) so the deterministic clocks and id
+    // generators stay in lockstep for every later proof; every identity
+    // assertion targets the PG side's raw tables, and the service-level
+    // byte-for-byte check runs against BOTH fabrics' bodies.
+    for (const fabric of [pair.pg, pair.mem]) {
+      await fabric.modelBindings.attachModel(TENANT_A, bodyId, {
+        purpose: "cognition",
+        modelBindingRef: "binding-1",
+      });
+    }
 
     // The W003 reference proof, replayed against PG-backed storage: the
     // body record — facets AND updatedAt — is byte-for-byte unchanged
     // across every swap, and identical to the in-memory reference's body.
+    // updatedAt was last bumped by the assignRole; the swaps never touch it.
+    // Byte-for-byte baselines PER SIDE (jsonb normalizes key order, so a
+    // cross-fabric STRING comparison would be shape noise, not semantics:
+    // each side must stay byte-identical to ITSELF, and the two sides stay
+    // deep-equal through expectSameRead).
     const before = JSON.stringify(await pair.pg.bodies.getBody(TENANT_A, bodyId));
+    const memBefore = JSON.stringify(await pair.mem.bodies.getBody(TENANT_A, bodyId));
     const updatedAtBefore = (await pair.pg.bodies.getBody(TENANT_A, bodyId)).updatedAt;
-    expect(updatedAtBefore).toBe(bodies[0]?.updatedAt);
+    expect(updatedAtBefore).toBe(assigned[0]?.body.updatedAt);
+    expect(updatedAtBefore).not.toBe(bodies[0]?.updatedAt);
     expectSameRead(
       await pair.pg.bodies.getBody(TENANT_A, bodyId),
       await pair.mem.bodies.getBody(TENANT_A, bodyId),
     );
 
     // RAW TABLE level (stronger than the W003 reference can reach): the
-    // body's version rows are frozen from here on — count and content.
+    // body's version rows AND the role-assignment ledger rows are frozen
+    // from here on — count and content.
     const bodyRowsBefore = await readVersionRows<AgentBody>(
       pair.harness.sql,
       "fabric_agent_bodies",
@@ -336,31 +369,66 @@ describe("fabric agent: THE IDENTITY LAW at the storage level", () => {
       TENANT_A,
       bodyId,
     );
-    expect(bodyRowsBefore).toHaveLength(1);
+    expect(bodyRowsBefore).toHaveLength(2);
+    const roleRowsForBody = () =>
+      pair.harness.sql<{
+        readonly assignment_id: string;
+        readonly mutation_seq: number;
+        readonly record_text: string;
+      }>`
+        select assignment_id, mutation_seq, record::text as record_text
+        from fabric_role_assignments
+        where tenant_id = ${TENANT_A} and body_id = ${bodyId}
+        order by seq
+      `;
+    const roleRowsBefore = await roleRowsForBody();
+    // The initial assignment carries two versions (opened + superseded by
+    // the Swap Witness assignment) and the witness carries one: 3 rows.
+    expect(roleRowsBefore).toHaveLength(3);
 
-    // Swap 1: binding-1 -> binding-2.
-    await pair.pg.modelBindings.attachModel(TENANT_A, bodyId, {
-      purpose: "cognition",
-      modelBindingRef: "binding-2",
-    });
+    // Swap 1: binding-1 -> binding-2. Both fabrics' bodies stay
+    // byte-identical to `before` (and to each other).
+    for (const fabric of [pair.pg, pair.mem]) {
+      await fabric.modelBindings.attachModel(TENANT_A, bodyId, {
+        purpose: "cognition",
+        modelBindingRef: "binding-2",
+      });
+    }
     expect(JSON.stringify(await pair.pg.bodies.getBody(TENANT_A, bodyId))).toBe(before);
+    expect(JSON.stringify(await pair.mem.bodies.getBody(TENANT_A, bodyId))).toBe(memBefore);
+    expectSameRead(
+      await pair.pg.bodies.getBody(TENANT_A, bodyId),
+      await pair.mem.bodies.getBody(TENANT_A, bodyId),
+    );
 
     // Swap 2: binding-2 -> binding-3.
-    await pair.pg.modelBindings.attachModel(TENANT_A, bodyId, {
-      purpose: "cognition",
-      modelBindingRef: "binding-3",
-    });
+    for (const fabric of [pair.pg, pair.mem]) {
+      await fabric.modelBindings.attachModel(TENANT_A, bodyId, {
+        purpose: "cognition",
+        modelBindingRef: "binding-3",
+      });
+    }
     const after = await pair.pg.bodies.getBody(TENANT_A, bodyId);
     expect(JSON.stringify(after)).toBe(before);
     expect(after.updatedAt).toBe(updatedAtBefore);
+    expect(JSON.stringify(await pair.mem.bodies.getBody(TENANT_A, bodyId))).toBe(memBefore);
+    expectSameRead(
+      await pair.pg.bodies.getBody(TENANT_A, bodyId),
+      await pair.mem.bodies.getBody(TENANT_A, bodyId),
+    );
 
     // Detach: still frozen.
-    await pair.pg.modelBindings.detachModel(TENANT_A, bodyId, "cognition");
+    for (const fabric of [pair.pg, pair.mem]) {
+      await fabric.modelBindings.detachModel(TENANT_A, bodyId, "cognition");
+    }
     expect(JSON.stringify(await pair.pg.bodies.getBody(TENANT_A, bodyId))).toBe(before);
 
     // The attachment ledger, however, moved on (append-only audit):
-    // nothing attached for cognition after the detach.
+    // nothing attached for cognition after the detach — on BOTH fabrics.
     expect(await pair.pg.modelBindings.currentAttachment(TENANT_A, bodyId, "cognition")).toBeNull();
+    expect(
+      await pair.mem.modelBindings.currentAttachment(TENANT_A, bodyId, "cognition"),
+    ).toBeNull();
 
     // RAW TABLE: the body's rows NEVER moved across the three swaps and
     // the detach — same count, same mutation_seq, byte-identical records.
@@ -371,16 +439,22 @@ describe("fabric agent: THE IDENTITY LAW at the storage level", () => {
       TENANT_A,
       bodyId,
     );
-    expect(bodyRowsAfter).toHaveLength(1);
+    expect(bodyRowsAfter).toHaveLength(2);
     expect(JSON.stringify(bodyRowsAfter)).toBe(JSON.stringify(bodyRowsBefore));
+    // The role ledger is equally frozen: the swap wrote no role rows.
+    const roleRowsAfter = await roleRowsForBody();
+    expect(JSON.stringify(roleRowsAfter)).toBe(JSON.stringify(roleRowsBefore));
     // No body journal row was recorded for any swap either — the journal
     // saw ONLY fabric-body-model-bindings writes.
     const journal = await listJournal(pair.harness.sql, TENANT_A);
     const bodyWrites = journal.filter(
       (row) => row.area === "fabric-bodies" && row.recordId === bodyId,
     );
-    expect(bodyWrites).toHaveLength(1);
-    expect(bodyWrites[0]?.journalKey).toBe(`fabric-bodies:put:${bodyId}:1`);
+    expect(bodyWrites).toHaveLength(2);
+    expect(bodyWrites.map((row) => row.journalKey)).toEqual([
+      `fabric-bodies:put:${bodyId}:1`,
+      `fabric-bodies:put:${bodyId}:2`,
+    ]);
   });
 });
 
@@ -539,6 +613,75 @@ describe("fabric agent: journal", () => {
     for (const row of journal.filter((entry) => entry.area === "fabric-body-model-bindings")) {
       expect(row.operation).toBe("put");
       expect(row.recordId).toBeTruthy();
+    }
+  });
+});
+
+describe("fabric agent: credential opacity (test-locked)", () => {
+  it("keeps credential material out of storage: sanitized free text, opaque refs only", async () => {
+    // The agent-side surface of the credential law: bodies, assignments and
+    // bindings carry NO credential fields — modelBindingRef is an OPAQUE
+    // reference by type, and every free-text facet (displayName, role,
+    // communication style, relationship notes, attach notes) passes the
+    // provider package's unanchored sanitizer at BUILD time, before any
+    // store sees the record. The REAL service over PG therefore stores
+    // exactly what the in-memory reference stores: redacted text.
+    const created = [];
+    for (const fabric of [pair.pg, pair.mem]) {
+      created.push(
+        await fabric.bodies.createBody(TENANT_A, {
+          displayName: "Leaky Agent",
+          role: { title: "Ops", description: "uses key sk-abc123def456ghi789jkl for lookups" },
+          communication: { style: "password: SuperSecret99" },
+          relationships: [
+            {
+              kind: "reports-to",
+              targetBodyId: null,
+              targetRole: "Lead",
+              note: "endpoint https://agent:hunter2secret@api.example.com/v1",
+            },
+          ],
+        }),
+      );
+    }
+    expectSameRead(created[0], created[1]);
+    const serialized = JSON.stringify(created[0]);
+    expect(serialized).not.toContain("sk-abc123def456ghi789jkl");
+    expect(serialized).not.toContain("SuperSecret99");
+    expect(serialized).not.toContain("hunter2secret");
+    expect(serialized).toContain("[REDACTED]");
+
+    // The attach note is sanitized too, and the modelBindingRef stays an
+    // opaque id (never a credential shape) on both stores.
+    pair.lookupActive("binding-cred");
+    const attached = [];
+    for (const fabric of [pair.pg, pair.mem]) {
+      attached.push(
+        await fabric.modelBindings.attachModel(TENANT_A, created[0]?.id as string, {
+          purpose: "cognition",
+          modelBindingRef: "binding-cred",
+          note: "Bearer abcdefghijklmnop",
+        }),
+      );
+    }
+    expectSameRead(attached[0], attached[1]);
+    expect(JSON.stringify(attached[0])).not.toContain("Bearer abcdefghijklmnop");
+
+    // RAW TABLE sweep: no credential-shaped material in ANY row of ANY
+    // version of the three agent ledgers (both tenants) — the write-time
+    // sanitizer plus the opaque-ref shapes make the tables provably clean.
+    for (const table of [
+      "fabric_agent_bodies",
+      "fabric_role_assignments",
+      "fabric_body_model_bindings",
+    ]) {
+      const rows = await pair.harness.sql<{ readonly record_text: string }>`
+        select record::text as record_text from ${pair.harness.sql(table)}
+      `;
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(containsCredentialMaterial(row.record_text)).toBe(false);
+      }
     }
   });
 });
