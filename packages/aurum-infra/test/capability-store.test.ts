@@ -93,7 +93,11 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
 
       const capabilities: readonly RegisterCapabilityInput[] = [
         capabilityInput(),
-        capabilityInput({ capabilityId: "cap-2", name: "site reliability", description: undefined }),
+        capabilityInput({
+          capabilityId: "cap-2",
+          name: "site reliability",
+          description: undefined,
+        }),
         capabilityInput({ capabilityId: "cap-3", name: "data engineering" }),
       ];
       for (const command of capabilities) {
@@ -202,7 +206,9 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
         { capabilityId: "" },
         { capabilityId: "missing" },
       ] as const) {
-        expect(await pg.listSupplies(s, filter)).toEqual(memory.capabilities.listSupplies(s, filter));
+        expect(await pg.listSupplies(s, filter)).toEqual(
+          memory.capabilities.listSupplies(s, filter),
+        );
       }
       for (const filter of [
         undefined,
@@ -315,9 +321,13 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
       expect(await pg.listSupplies(s)).toEqual(memory.capabilities.listSupplies(s));
       expect(await pg.listRequirements(s)).toEqual(memory.capabilities.listRequirements(s));
       expect(await pg.listGaps(s)).toEqual(memory.capabilities.listGaps(s));
+      // The only journaled mutation is the successful capability register
+      // above — every failed command left the journal untouched.
       expect(
-        (await listJournal(local.sql, s.tenantId)).filter((row) => row.area === "capability"),
-      ).toEqual([]);
+        (await listJournal(local.sql, s.tenantId))
+          .filter((row) => row.area === "capability")
+          .map((row) => row.journalKey),
+      ).toEqual(["capability:register:cap-1"]);
     } finally {
       await local.close();
     }
@@ -375,13 +385,11 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
 
       // The gap counter is GLOBAL across tenants (the in-memory closure
       // variable spans tenants): tenant `other` continues the numbering.
+      okOf(await pg.registerCapability(other, capabilityInput({ capabilityId: "cap-o" })));
       okOf(
-        await pg.registerCapability(other, capabilityInput({ capabilityId: "cap-o" })),
+        memory.capabilities.registerCapability(other, capabilityInput({ capabilityId: "cap-o" })),
       );
-      okOf(memory.capabilities.registerCapability(other, capabilityInput({ capabilityId: "cap-o" })));
-      okOf(
-        await pg.registerRequirement(other, requirementInput({ capabilityId: "cap-o" })),
-      );
+      okOf(await pg.registerRequirement(other, requirementInput({ capabilityId: "cap-o" })));
       okOf(
         memory.capabilities.registerRequirement(other, requirementInput({ capabilityId: "cap-o" })),
       );
@@ -407,9 +415,7 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
       expect(await pg.listRequirements(foreign)).toEqual([]);
       expect(await pg.listGaps(foreign)).toEqual([]);
       // The same id may exist independently in another tenant.
-      okOf(
-        await pg.registerCapability(foreign, capabilityInput({ capabilityId: "cap-1" })),
-      );
+      okOf(await pg.registerCapability(foreign, capabilityInput({ capabilityId: "cap-1" })));
       expectSameResult(
         await pg.getCapability(s, "cap-1"),
         memory.capabilities.getCapability(s, "cap-1"),
@@ -433,9 +439,7 @@ describe("PG capability graph equivalence with the in-memory reference", () => {
       okOf(memory.capabilities.registerSupply(s, supplyInput()));
       okOf(await pg.registerRequirement(s, requirementInput()));
       okOf(memory.capabilities.registerRequirement(s, requirementInput()));
-      okOf(
-        await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }),
-      );
+      okOf(await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }));
       okOf(
         memory.capabilities.recomputeGaps(s, {
           provenance: provenance(systemActor("seed")),
@@ -463,10 +467,11 @@ describe("PG capability graph database enforcement", () => {
     const s = scope("capability-immutable");
     okOf(await pg.registerCapability(s, capabilityInput()));
     okOf(await pg.registerSupply(s, supplyInput()));
-    okOf(await pg.registerRequirement(s, requirementInput()));
-    okOf(
-      await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }),
-    );
+    // requiredLevel 5 over the level-4 supply leaves an uncovered level gap,
+    // so the gaps table holds a row for this tenant (a row-less UPDATE could
+    // never prove the trigger).
+    okOf(await pg.registerRequirement(s, requirementInput({ requiredLevel: 5 })));
+    okOf(await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }));
     for (const table of [
       "domain_capabilities",
       "domain_capability_supplies",
@@ -489,19 +494,28 @@ describe("PG capability graph database enforcement", () => {
   });
 
   it("journeys every mutation through the write journal with stable keys", async () => {
-    const pg = createPgCapabilityGraph(harness.sql);
-    const s = scope("capability-journal");
-    await pg.registerCapability(s, capabilityInput());
-    await pg.registerSupply(s, supplyInput());
-    await pg.registerRequirement(s, requirementInput({ requiredLevel: 5 }));
-    await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) });
-    const rows = await listJournal(harness.sql, s.tenantId);
-    expect(rows.filter((row) => row.area === "capability").map((row) => row.journalKey)).toEqual([
-      "capability:register:cap-1",
-      "capability:register-supply:sup-1",
-      "capability:register-requirement:req-1",
-      "capability:append-gap:gap-1",
-    ]);
+    // The gap counter is GLOBAL (it spans tenants exactly like the in-memory
+    // store instance's closure variable), so this proof boots a fresh
+    // database: the first gap ever appended is gap-1, mirroring a fresh
+    // in-memory kernel regardless of what earlier shared-harness tests did.
+    const local = await pgHarness();
+    try {
+      const pg = createPgCapabilityGraph(local.sql);
+      const s = scope("capability-journal");
+      await pg.registerCapability(s, capabilityInput());
+      await pg.registerSupply(s, supplyInput());
+      await pg.registerRequirement(s, requirementInput({ requiredLevel: 5 }));
+      await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) });
+      const rows = await listJournal(local.sql, s.tenantId);
+      expect(rows.filter((row) => row.area === "capability").map((row) => row.journalKey)).toEqual([
+        "capability:register:cap-1",
+        "capability:register-supply:sup-1",
+        "capability:register-requirement:req-1",
+        "capability:append-gap:gap-1",
+      ]);
+    } finally {
+      await local.close();
+    }
   });
 
   it("rejects history rewrites and gap-number reuse (database constraints)", async () => {
@@ -509,9 +523,7 @@ describe("PG capability graph database enforcement", () => {
     const s = scope("capability-constraint");
     okOf(await pg.registerCapability(s, capabilityInput()));
     okOf(await pg.registerRequirement(s, requirementInput({ requiredLevel: 5 })));
-    okOf(
-      await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }),
-    );
+    okOf(await pg.recomputeGaps(s, { provenance: provenance(systemActor("seed")), now: now(3) }));
     await expect(
       harness.sql`
         insert into domain_capabilities (tenant_id, capability_id, record)

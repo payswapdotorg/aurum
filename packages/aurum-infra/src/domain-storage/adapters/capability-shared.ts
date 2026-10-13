@@ -131,7 +131,10 @@ export async function registerSupplyCommand(
         where tenant_id = ${scope.tenantId} and supply_id = ${supplyId}
       `;
       if (existing.length > 0) {
-        return { ok: false, error: conflictError("capability supply already registered in tenant") };
+        return {
+          ok: false,
+          error: conflictError("capability supply already registered in tenant"),
+        };
       }
       const record: CapabilitySupplyRecord = {
         scope,

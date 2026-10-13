@@ -50,10 +50,7 @@ import { isUniqueViolation, jsonbParam } from "../pg/db.js";
 import type { Db } from "../pg/db.js";
 
 /** Loads every gap of the tenant in insertion order. */
-async function loadGaps(
-  sql: Db,
-  scope: TenantScope,
-): Promise<readonly CapabilityGapRecord[]> {
+async function loadGaps(sql: Db, scope: TenantScope): Promise<readonly CapabilityGapRecord[]> {
   const rows: readonly { record: CapabilityGapRecord }[] = await sql`
     select record from domain_capability_gaps
     where tenant_id = ${scope.tenantId}
