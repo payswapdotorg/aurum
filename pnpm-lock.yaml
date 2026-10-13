@@ -674,6 +674,9 @@ importers:
 
   packages/aurum-infra:
     dependencies:
+      '@aurum/domain':
+        specifier: workspace:*
+        version: link:../aurum-domain
       postgres:
         specifier: ^3.4.9
         version: 3.4.9

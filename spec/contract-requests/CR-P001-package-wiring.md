@@ -6,8 +6,17 @@
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency
   wiring; the infra `package.json` and the interim alias/paths below are
   worker-owned, the lockfile is TL-owned — the exact CR-W009/W011 situation)
-- **Status:** OPEN (filed 2026-10-13 at P001 delivery, branch
-  `work/p001-domain-storage`)
+- **Status:** RESOLVED (2026-10-13, TL — executed at integration, base 2a34139:
+  `@aurum/domain: workspace:*` added to packages/aurum-infra/package.json
+  dependencies; one `pnpm install` recorded the `link:../aurum-domain` entry
+  in the root lockfile importer (mirroring CR-W009/W011); BOTH interim
+  bridges removed — the infra tsconfig `paths` mapping and the vitest
+  resolve alias — and everything re-verified through the real link: root
+  tsc -b domain+infra 0 err, infra 95/95, fmt clean, lint 70w/0e, arch 0
+  viol. Note for the record: plain node ESM resolves the link to the
+  package entry — the src/index.ts default export is the workspace-wide
+  design (identical in aurum-application/marketplace); consumers compile
+  via tsc/vitest. Original filing preserved below.)
 
 ## Requested change
 
