@@ -42,11 +42,12 @@ and `packages/aurum-infra/src/module.ts` already declares the same
 only the package resolution is missing.
 
 The P001 delivery (every domain-storage adapter + every proof suite) imports
-`@aurum/domain` in 25 source/test files. Those imports resolve today through
-two worker-owned interim bridges, not through a real dependency link:
+`@aurum/domain` in 34 source/test files (22 under `src/`, 12 under `test/`).
+Those imports resolve today through two worker-owned interim bridges, not
+through a real dependency link:
 
 1. `packages/aurum-infra/tsconfig.json` — `"paths": { "@aurum/domain":
-   ["../aurum-domain/dist/index.d.ts"] }` (root-compiler typecheck);
+["../aurum-domain/dist/index.d.ts"] }` (root-compiler typecheck);
 2. `packages/aurum-infra/vitest.config.ts` — a resolve alias pointing
    `@aurum/domain` at `../aurum-domain/src/index.ts` (the proof suites).
 
