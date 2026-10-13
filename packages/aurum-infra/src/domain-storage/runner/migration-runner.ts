@@ -7,6 +7,12 @@
  * a prefix of the on-disk list. Every applied migration is recorded with the
  * SHA-256 of its content; content drift on an applied migration is a hard
  * error. Applying is idempotent — an already-current database is a no-op.
+ *
+ * P002 extension (the WORK-NOTES single-registry ruling): the registry table
+ * is parameterized per migration AREA so several areas (domain, fabric, …)
+ * can share one database without name collisions or prefix-check tripping.
+ * The default stays `schema_migrations` — the recorded domain history — so
+ * every existing caller and proof keeps its exact behavior.
  */
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
@@ -58,12 +64,26 @@ export async function loadDomainMigrations(
   return migrations;
 }
 
-async function ensureSchemaMigrationsTable(sql: MigrationsSql): Promise<void> {
-  await sql`create table if not exists schema_migrations (
+async function ensureSchemaMigrationsTable(
+  sql: MigrationsSql,
+  registryTable: string,
+): Promise<void> {
+  await sql`create table if not exists ${sql(registryTable)} (
     name text primary key,
     sha256 text not null,
     applied_at timestamptz not null default now()
   )`;
+}
+
+/** Per-area registry options (P002 extension; defaults preserve P001). */
+export interface MigrationRunnerOptions {
+  /**
+   * Registry table recording applied migrations. Default `schema_migrations`
+   * (the domain area). A second area sharing the database uses its own table
+   * (e.g. `fabric_schema_migrations`) — names never collide and each area's
+   * prefix discipline is checked independently.
+   */
+  readonly registryTable?: string;
 }
 
 /**
@@ -79,10 +99,13 @@ async function ensureSchemaMigrationsTable(sql: MigrationsSql): Promise<void> {
 export async function runDomainMigrations(
   sql: postgres.Sql,
   migrationsInput?: readonly DomainMigration[],
+  options: MigrationRunnerOptions = {},
 ): Promise<MigrationRunOutcome> {
   const migrations = migrationsInput ?? (await loadDomainMigrations());
-  await ensureSchemaMigrationsTable(sql);
-  const applied = await sql`select name, sha256 from schema_migrations order by name`;
+  const registryTable = options.registryTable ?? "schema_migrations";
+  const registry = sql(registryTable);
+  await ensureSchemaMigrationsTable(sql, registryTable);
+  const applied = await sql`select name, sha256 from ${registry} order by name`;
   const appliedNames: readonly string[] = applied.map((row) => row.name as string);
   const diskNames = migrations.map((migration) => migration.name);
 
@@ -114,7 +137,7 @@ export async function runDomainMigrations(
   for (const migration of pending) {
     await sql.begin(async (tx) => {
       await tx.unsafe(migration.content);
-      await tx`insert into schema_migrations (name, sha256) values (${migration.name}, ${migration.sha256})`;
+      await tx`insert into ${registry} (name, sha256) values (${migration.name}, ${migration.sha256})`;
     });
   }
   return {
