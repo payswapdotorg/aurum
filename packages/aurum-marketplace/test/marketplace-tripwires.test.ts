@@ -121,7 +121,9 @@ describe("the marketplace NEVER executes (surface + import tripwires)", () => {
   });
 
   it("no source file imports @aurum/execution, an execution seam, or @aurum/application", () => {
-    for (const file of walkSources(marketplaceRoot)) {
+    // Module-wide law (W011 + W014 areas): walks the WHOLE src root so the
+    // emergence area is covered by the same import discipline.
+    for (const file of walkSources(srcRoot)) {
       const source = readFileSync(file, "utf8");
       const offenders = source
         .split("\n")

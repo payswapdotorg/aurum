@@ -1,7 +1,8 @@
 # aurum-marketplace
 
 Owner: W-B
-Package governance and recruitment (W011).
+Package governance and recruitment (W011) + emergent roles and packages
+(W014).
 
 ## What lives here
 
@@ -31,6 +32,14 @@ criteria + weights) → sequenced installation + activation of the chosen
 one → registration into the W005 candidate/workforce seams BY REFERENCE →
 eligible for plan allocation.
 
+Plus the **emergence area (W014)**: recurring-gap detection over W013
+outcome-learning evidence (structural intake port — no application-package
+dependency; CR-W014-emergence-evidence-wiring) and governed role/package
+proposals carrying MANDATORY evidence, demand and alternatives. Emergence
+PROPOSES and never publishes: the only catalog bridge is the pure
+`catalogDraftOfProposal` projection over ACCEPTED (person-reviewed)
+proposals, and the publication governance above runs unchanged afterwards.
+
 ## Layout (house layering)
 
 ```
@@ -41,6 +50,14 @@ src/marketplace/
                 deterministic catalog double, domain-kernel registration
                 adapter (documented stub — post CR-W011)
   contract.marketplace.ts   the area public surface (re-exported by
+                            src/contract.ts → src/index.ts)
+src/emergence/             the W014 sibling area (same layering):
+  domain/       W013 evidence mirror + pure gap detection + mechanical
+                alternatives + governed proposals + the pure catalog-draft
+                projection + local error namespace + read-pick ports
+  app/          the 5-method emergence service facade
+  adapters/     in-memory proposal store + the W013-shaped evidence double
+  contract.emergence.ts    the area public surface (re-exported by
                             src/contract.ts → src/index.ts)
 ```
 
@@ -56,6 +73,12 @@ src/marketplace/
   changes; the local structural mirrors + doubles are the interim state.
 - The real domain-kernel registration/authority adapters are documented
   stubs until that CR resolves (W009 precedent).
+- **CR-W014-emergence-evidence-wiring** (spec/contract-requests/): the
+  production `EmergenceEvidencePort` adapter (real W013 outcome records →
+  the structural intake) is composition-owned; the in-memory double is
+  the interim state. No lockfile or policy change is requested — the
+  intake shapes are structural picks a real `OutcomeJoinRecord` satisfies
+  directly.
 
 ## Gates
 
