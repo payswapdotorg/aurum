@@ -37,6 +37,7 @@ export type {
   ClaimSupportStatus,
   CompanyAnswer,
   CompanyQueryLogRecord,
+  ContradictionEntry,
   CoverageEntry,
   CoverageReport,
   CoverageStatus,

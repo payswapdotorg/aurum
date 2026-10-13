@@ -51,6 +51,11 @@ export default defineConfig(({ mode }) => {
         // hoisted node_modules 可能把 d3-shape 旁边的旧 d3-path@1.x 暴露给 Vite 预构建，
         // 导致桌面/Web dev 都在依赖优化阶段失败；显式指向根部 3.x 入口以固定解析边界。
         "d3-path": resolve(__dirname, "../../node_modules/d3-path/src/index.js"),
+        // W010 (CR-W010-web-application-wiring): Aurum 控制塔消费 @aurum/application
+        // 的公共入口；浏览器端直接指向应用包源码入口，其内部的 @aurum/domain、
+        // @aurum/execution 导入经 aurum-application/node_modules 的 workspace 链接解析。
+        // CR 落地（web package.json 增加 workspace 依赖）后由 TL 移除本别名。
+        "@aurum/application": resolve(__dirname, "../aurum-application/src/index.ts"),
       },
     },
     server: {
