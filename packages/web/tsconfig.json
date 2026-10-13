@@ -2,10 +2,16 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../..",
     "lib": ["es2025", "dom", "dom.iterable"],
     "jsx": "react-jsx",
-    "noEmit": true
+    "noEmit": true,
+    "composite": false,
+    "paths": {
+      "@aurum/application": ["../aurum-application/src/index.ts"],
+      "@aurum/domain": ["../aurum-domain/src/index.ts"],
+      "@aurum/execution": ["../aurum-execution/src/index.ts"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "../ui" }, { "path": "../client" }]

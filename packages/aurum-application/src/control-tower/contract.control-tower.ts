@@ -16,6 +16,15 @@
 export { isControlTowerError, towerValidationError } from "./domain/errors.js";
 export type { ControlTowerError, TowerValidationIssue } from "./domain/errors.js";
 
+// --- tenant scope + input vocabulary (from the domain package entrypoint) ---
+// The tower's consumers (web/desktop variants mounting the canonical local
+// composition) construct a session scope, an operator reference and
+// timestamps before any call; re-exporting the domain's VALIDATING
+// factories keeps their import list to THIS contract only (the composition
+// ruling in APPROACH.md R3) and avoids raw brand casts at the surface.
+export { domainTime, personId, tenantScope } from "@aurum/domain";
+export type { DomainTimestamp, PersonId, TenantScope } from "@aurum/domain";
+
 // --- view-model record types (domain) ---
 export type {
   ControlTowerOverview,

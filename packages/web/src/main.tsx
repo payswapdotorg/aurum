@@ -28,6 +28,9 @@ import {
   isConversationSharePath,
   resolveConversationShareCodeFromPath,
 } from "./share/conversationShareRoute.js";
+import { TowerApp } from "./tower/TowerApp.js";
+import { createTowerSession } from "./tower/towerRuntime.js";
+import { isTowerPath } from "./tower/towerRoute.js";
 import type { IPlatformService, RemoteTarget, ServerRemoteInfo } from "@zcode/shared";
 import { WEB_DEFAULT_THEME, resolveWebInitialTheme } from "./webThemeSeed.js";
 
@@ -422,6 +425,14 @@ function renderWebBootstrapError(error: unknown): void {
   );
 }
 
+function renderTowerPage(): void {
+  // Aurum 管理控制塔（W010）：公司/目标/组织优先的独立体验面，与 ZCode
+  // 工作台互不共享状态；本地组合挂载，语义全部来自 @aurum/application。
+  document.title = "Aurum — Control Tower";
+  const session = createTowerSession();
+  root.render(<TowerApp session={session} />);
+}
+
 async function bootstrapWebApp() {
   const params = new URLSearchParams(window.location.search);
   if (isWebOAuthCallback(params)) {
@@ -431,6 +442,13 @@ async function bootstrapWebApp() {
 
   if (isConversationSharePath(window.location.pathname)) {
     await renderConversationSharePage();
+    return;
+  }
+
+  // The Aurum control tower mounts INSTEAD of the ZCode workspace shell —
+  // pathname dispatch before any server bootstrap (APPROACH.md R2).
+  if (isTowerPath(window.location.pathname)) {
+    renderTowerPage();
     return;
   }
 
