@@ -82,16 +82,31 @@ interface EvidenceAccumulator {
   lastRecord: OutcomeJoinRecord | undefined;
 }
 
-/** The bounded adjustment of one evidence group (documented formula). */
+/**
+ * The bounded adjustment of one evidence group (documented formula):
+ *
+ *   adjustment = clamp(-penaltyCap, +boostCap,
+ *                      (2 * achievedRate - 1) * sampleWeight) * freshnessDecay
+ *
+ * The clamp runs BEFORE the freshness decay (ruling): applying the decay
+ * first would make it a no-op whenever the raw adjustment already sits at
+ * (or beyond) a cap — aging evidence would bite exactly as hard as current
+ * evidence whenever a shape's record is uniformly good or bad, which is the
+ * common case at the sample floor. Clamping first guarantees the decay
+ * ALWAYS shrinks the directional weight as evidence ages.
+ */
 function adjustmentOf(
   achievedRate: number,
   sampleCount: number,
   evidenceFreshness: FreshnessClass,
 ): number {
   const sampleWeight = Math.min(1, sampleCount / CALIBRATION_LIMITS.minSamplesForFullWeight);
-  const decay = CALIBRATION_LIMITS.freshnessDecay[evidenceFreshness];
-  const raw = (2 * achievedRate - 1) * sampleWeight * decay;
-  return round4(clamp(raw, -CALIBRATION_LIMITS.penaltyCap, CALIBRATION_LIMITS.boostCap));
+  const capped = clamp(
+    (2 * achievedRate - 1) * sampleWeight,
+    -CALIBRATION_LIMITS.penaltyCap,
+    CALIBRATION_LIMITS.boostCap,
+  );
+  return round4(capped * CALIBRATION_LIMITS.freshnessDecay[evidenceFreshness]);
 }
 
 /**

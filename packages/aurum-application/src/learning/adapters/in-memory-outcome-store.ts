@@ -10,7 +10,7 @@
 import { err, ok, TenantIndex } from "@aurum/domain";
 import { learningConflict, learningNotFound } from "../domain/errors.js";
 import type { OutcomeStore } from "../domain/ports.js";
-import type { OutcomeFilter, OutcomeJoinRecord } from "../domain/records.js";
+import type { OutcomeJoinRecord } from "../domain/records.js";
 
 export function createInMemoryOutcomeStore(): OutcomeStore {
   const records = new TenantIndex<OutcomeJoinRecord>();

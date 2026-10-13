@@ -198,12 +198,17 @@ function informationStrategyJoinOf(candidate: OrganizationCandidate): Informatio
   };
 }
 
-function costJoinOf(candidate: OrganizationCandidate, urgencyPremium: number): CostJoin {
+function costJoinOf(
+  candidate: OrganizationCandidate,
+  urgencyPremium: number,
+  actualCost?: number,
+): CostJoin {
   return {
     costProxy: round4(costProxyOf(candidate, urgencyPremium)),
     ...(candidate.budget?.maxTotalCost !== undefined
       ? { budgetCeiling: candidate.budget.maxTotalCost }
       : {}),
+    ...(actualCost !== undefined ? { actualCost } : {}),
   };
 }
 
@@ -303,7 +308,7 @@ export function assembleOutcomeJoin(
     environments: Object.freeze(
       [...new Set(candidate.environment.map((entry) => entry.environmentRef))].sort(),
     ),
-    cost: costJoinOf(candidate, evaluation.modifiers.urgencyPremium),
+    cost: costJoinOf(candidate, evaluation.modifiers.urgencyPremium, input.observation.actualCost),
     evidenceRefs: Object.freeze([...evidenceRefs]),
     provenance: input.provenance,
     recordedAt: input.now,

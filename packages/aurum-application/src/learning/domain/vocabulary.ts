@@ -47,13 +47,14 @@ export function isFailedOutcomeStatus(status: OutcomeStatus): boolean {
  * to a ranked organization's weighted score is
  *
  *   adjustment = clamp(-penaltyCap, +boostCap,
- *                      (2 * achievedRate - 1) * sampleWeight * freshnessDecay)
+ *                      (2 * achievedRate - 1) * sampleWeight) * freshnessDecay
  *
  * - sampleWeight ramps linearly to 1 at `minSamplesForFullWeight` samples
  *   (thin evidence moves rankings less than thick evidence);
  * - freshnessDecay shrinks the influence of aging/stale/unknown evidence
- *   (stale evidence is still VISIBLE — catalog clause 3 — it just carries
- *   less directional weight; it is never dropped);
+ *   AFTER the caps are applied (so the decay always shrinks — stale
+ *   evidence is still VISIBLE, catalog clause 3, it just carries less
+ *   directional weight; it is never dropped);
  * - failures bite harder than successes help (asymmetric caps: a proven
  *   failure under a context class demotes up to -0.5, a proven success
  *   boosts at most +0.25) — conservative by design.
