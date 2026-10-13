@@ -11,9 +11,12 @@
  * - in-memory kernel (PostgreSQL authority lands with the P-series; the
  *   in-browser kernel is a session-scoped projection variant, never a
  *   second persistent truth);
- * - the default reasoning port REFUSES (no model is wired in-process; the
- *   mission completes with `knowledge-gap-remains` rather than fabricating
- *   content) — inject a real `ReasoningPort` adapter when one exists;
+ * - the default reasoning port REFUSES (no model is wired in-process):
+ *   advancing through the reason stage returns the typed
+ *   `mission-model-refused` and the mission stays resumable at that
+ *   boundary — nothing is fabricated. A wired reasoner returning no
+ *   admissible content is what completes with `knowledge-gap-remains`;
+ *   inject a real `ReasoningPort` adapter when one exists;
  * - the execution substrate is the W009 reference in-process double (the
  *   W006 Agent Gateway pass-through lands with the transport wiring);
  * - the plan audit port is application-owned local state.

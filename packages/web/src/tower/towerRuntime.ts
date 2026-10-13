@@ -9,9 +9,11 @@
  * - in-memory, session-scoped: reloading the page starts a fresh kernel
  *   (the browser composition is a projection variant, never a second
  *   persistent company truth; server transport + persistence are W012/P3);
- * - the default reasoning port REFUSES: missions driven from this surface
- *   complete with `knowledge-gap-remains` rather than fabricating content
- *   (a provider-plane reasoning adapter is follow-up wiring);
+ * - the default reasoning port REFUSES: advancing through the reason stage
+ *   returns the typed `mission-model-refused` and the mission stays
+ *   resumable at that boundary — nothing is ever fabricated (a wired
+ *   reasoner returning no admissible content is what completes with
+ *   `knowledge-gap-remains`);
  * - no authenticated identity: the operator id is a local label, and the
  *   kernel authority still decides every consequential transition (the
  *   approve citation law cannot be bypassed from the UI).
