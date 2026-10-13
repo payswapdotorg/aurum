@@ -164,3 +164,92 @@ Integration lineage extended: ... a345707 (W005) -> efddf942 (docs) -> c639eff
    gates complete; CR-W003 to C after W006.
 3. P002 (fabric storage) after P001 lands; P003 after W013.
 4. Waves 4-6 per WORK-ITEM-DAG; P-series parallel per its own rule.
+
+## 2026-10-13 session (resident TL, continuous watch — replay fixed)
+
+Integration lineage extended: ... bf2ac8a (CR-W011) -> 32cf743 (TL repair) ->
+1740f64 (W007) -> 5440775 (P001). All verification local (PAT dead — see
+Blocked); CI verification resumes with push capability.
+
+- REPLAY FIX (the standing order): the replayed session state carried the
+  pre-rebuild lineage (W135/W136 era, banked bundle) as if current. GitHub
+  authority check: no common ancestor, no such branches remotely. All
+  pre-rebuild records marked as such; the GitHub repo is the sole roadmap
+  guide. The banked pre-rebuild lineage is preserved locally as
+  pre-rebuild-bank-256d5bb.
+- TL REPAIR 32cf743: aurum-application at bf2ac8a had 1 failed test — the
+  W004-redo/CR-W009 merge seam (company contract-hygiene asserted the 1-dep
+  surface after CR-W009 had wired the 3-dep surface). CI never saw it (the
+  workflow runs fmt/lint/typecheck/arch only — no test suites). Fixed by
+  mirroring the CR-W009 precedent; 236/236 restored. CI blind spot recorded
+  as an operational lesson: merges must re-run the target package suites ON
+  THE MERGE COMMIT, not only on the branch tip.
+- W007 Cognition + learning missions — DELIVERED + MERGED (main 1740f64).
+  Worker delivery fcdc3e1 (base 32cf743) via a deadline-killed D1 (banked
+  9e84fb7) + finisher chain. 26 files +4885/-5, all within
+  aurum-application. 69 proofs across 7 files: application-owned six-stage
+  machine, bounded-content whitelist + anti-fabrication citation gate,
+  authority gate propose/recommend-only, evidence-chain reconstruction,
+  resumability at every boundary, structural tripwires. TL independently
+  verified all gates + regression net (application 305/305, domain 111,
+  provider 57, agent 29, execution 90, marketplace 82). Honest limitations:
+  in-memory MissionStore (P-series debt), process-local in-flight guard,
+  scripted reasoner only, no scheduler, no UI (W010 consumes).
+- P001 Domain kernel PostgreSQL persistence — DELIVERED + MERGED (main
+  5440775). Worker delivery a63d74a via a NINE-dispatch chain (D1-D9) under
+  repeated deadline kills — the commit-early law held throughout; the TL
+  banked each kill's uncommitted state and re-dispatched continuations.
+  59 files +14564/-3: the P-series machinery (WriteJournal, content-hashed
+  migration runner, PGlite harness, aurum_reject_mutation DB trigger) +
+  twelve migrations (34 domain tables + journal + registry) covering every
+  kernel store + adapters mirroring in-memory semantics issue-for-issue +
+  95 proofs across 13 files (round-trip equivalence, tenant isolation
+  identical-to-missing, raw UPDATE/DELETE rejected, history rewrite
+  rejected, journal keys stable, audit equivalence). Domain suite 111/111
+  UNCHANGED — the type-level-only port extraction law held. CR-P001 RESOLVED
+  by the TL at integration (@aurum/domain workspace link + lockfile entry +
+  both interim bridges removed). Honest limitations in WORK-NOTES: the
+  single-connection PGlite harness cannot prove concurrent FOR UPDATE races
+  (structural); real-PostgreSQL integration remains the only close.
+- OPERATIONAL LESSONS (2026-10-13, binding):
+  1. The Bash shell CWD silently resets between calls — every command must
+     be wrapped bash -c 'cd <repo> && ...'. A CWD-reset once pointed
+     the wrong repo's remote at aurum; caught and repaired before damage.
+  2. Per-package npx tsc resolves NESTED typescript 5.9 for aurum-\* packages
+     and produces phantom errors against TS-6 substrate sources — always
+     typecheck via the root compiler (./node_modules/.bin/tsc -b <pkgs>).
+  3. Full root pnpm typecheck OOMs on the 3.9GB TL box — scoped batches
+     only; CI remains the full gate.
+  4. After merging a lockfile-touching CR, the main checkout needs its own
+     pnpm install to materialize the new workspace links.
+  5. Dispatch timeouts ("context deadline exceeded") are wait-timeouts, not
+     spawn failures — the sandbox keeps executing. NEVER re-dispatch while
+     processes live; poll, bank the kill's uncommitted state, then
+     continue.
+
+## Roadmap state after this session
+
+Merged: W000-W006, W008, W009, W011, W007, P001 (+ CR-W001/W003/W009/W011,
+CR-P001, the 32cf743 repair). Remaining: W010 [deps met: W001+W004+W007],
+W012 [W010], W013 [deps met: W007+W008+W009], W014 [W013], W015
+[W012+W013+W014], P002 [deps met: W003+P001], P003 [W013+P001+P002].
+
+## In flight (as of 2026-10-13 ~03:30Z)
+
+- None — the TL is dispatching the next wave now: W010 (control tower,
+  paths overlap with W013 inside aurum-application — sequenced: W010 first),
+  P002 (fabric storage on the P001 machinery).
+
+## Next actions
+
+1. Dispatch W010 + P002; harvest/verify/merge per protocol.
+2. W013 after W010 lands (application-path overlap); W012 after W010;
+   W014 after W013; P003 after W013+P002.
+3. W015 certification last; pushes resume when the operator re-provisions
+   the PAT (push queue: origin/main bf2ac8a -> 5440775).
+
+## Blocked on operator
+
+- GitHub PAT re-provision (the entire push queue; the banked token is
+  invalid — 401 verified). Bank: git bundle of main refreshed at each
+  promote under my-project/download/.
