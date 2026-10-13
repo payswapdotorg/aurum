@@ -114,7 +114,7 @@ modules:
   - id: aurum-infra
     roots: [packages/aurum-infra/src]
     managed: true
-    requires: [shared, aurum-domain]
+    requires: [shared, aurum-domain, aurum-provider, aurum-agent]
     publicEntrypoints: [packages/aurum-infra/src/index.ts]
     layers: { domain: domain, app: app, adapters: adapters }
     layerOrder: [domain, app, adapters]

@@ -16,11 +16,7 @@
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "types": ["node"],
-    "paths": {
-      "@aurum/provider": ["../aurum-provider/dist/index.d.ts"],
-      "@aurum/agent": ["../aurum-agent/dist/index.d.ts"]
-    }
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"]
 }

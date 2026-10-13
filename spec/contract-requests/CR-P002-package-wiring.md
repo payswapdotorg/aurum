@@ -7,8 +7,16 @@
   `architecture-policy.yaml` requires list; the infra `package.json`
   dependency block, `src/module.ts` and the interim alias/paths below are
   worker-owned — the exact CR-P001/W009/W011 situation)
-- **Status:** OPEN (delivery complete on `work/p002-fabric-storage`; awaiting
-  TL wiring — see Delivery status below)
+- **Status:** RESOLVED (2026-10-13, TL — executed at integration on main 2a8c6ab:
+  @aurum/provider + @aurum/agent workspace:\* added to packages/aurum-infra
+  package.json; one pnpm install recorded both link entries; the TL-owned
+  architecture-policy.yaml requires list extended to [shared, aurum-domain,
+  aurum-provider, aurum-agent] (matching the worker-owned module.ts
+  declaration); ALL interim bridges removed — the infra tsconfig paths and
+  every vitest alias (incl. the re-added domain alias); re-verified through
+  the real links: root tsc -b domain+provider+agent+infra 0 err, infra
+  140/140, fmt clean 3398 files, lint 70w/0e, arch 0 viol full+changed.
+  Original filing preserved below.)
 
 ## Delivery status (D4, updated at the branch tip)
 

@@ -18,7 +18,9 @@
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
   "dependencies": {
+    "@aurum/agent": "workspace:*",
     "@aurum/domain": "workspace:*",
+    "@aurum/provider": "workspace:*",
     "postgres": "^3.4.9"
   },
   "devDependencies": {
