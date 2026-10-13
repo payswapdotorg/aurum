@@ -17,6 +17,7 @@
 export {
   type DomainMigration,
   type MigrationRunOutcome,
+  type MigrationRunnerOptions,
   type MigrationsSql,
   loadDomainMigrations,
   migrationSha256,
