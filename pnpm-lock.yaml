@@ -1368,6 +1368,9 @@ importers:
 
   packages/web:
     dependencies:
+      '@aurum/application':
+        specifier: workspace:*
+        version: link:../aurum-application
       '@zcode/client':
         specifier: workspace:*
         version: link:../client

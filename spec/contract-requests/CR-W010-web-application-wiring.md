@@ -7,7 +7,15 @@
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency
   wiring; the interim bridges below are worker-owned, the lockfile is
   TL-owned — the exact CR-W009/W011/P001 situation)
-- **Status:** OPEN (filed 2026-10-13 at the W010 D4 finisher pass)
+- **Status:** RESOLVED (2026-10-13, TL — executed at integration on main 97b34e1:
+  @aurum/application: workspace:\* added to packages/web/package.json; one
+  pnpm install recorded the link entry (CR-W009/W011/P001 precedent); BOTH
+  interim bridges removed — the web tsconfig paths block (all three aurum
+  specifiers) AND the vite resolve alias; ordering proven both ways via a
+  new tsconfig project reference ../aurum-application (tsc -b web-first now
+  builds the referenced application dist first — the client->rpc references
+  pattern, CR-W001 precedent); gates: root tsc 0 err both orders, fmt clean,
+  lint 70w/0e, arch 0 viol. Original filing preserved below.)
 
 ## Requested change
 
