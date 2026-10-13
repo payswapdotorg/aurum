@@ -88,9 +88,12 @@ export interface LocalControlTowerRuntimeOptions {
 /**
  * The unwired reasoning port: the DEFAULT model boundary for compositions
  * without a provider-plane adapter. It refuses every request with a typed
- * `missionModelRefused` — the honest answer (a mission driven to completion
- * through it ends `knowledge-gap-remains`). It never returns content, so
- * no composition can accidentally fabricate reasoning.
+ * `missionModelRefused` — the honest answer: advancing through the reason
+ * stage fails typed and the mission stays resumable at that boundary; no
+ * mission ever completes through this port (a wired reasoner returning no
+ * admissible content is what completes with `knowledge-gap-remains`). It
+ * never returns content, so no composition can accidentally fabricate
+ * reasoning.
  */
 export function createUnwiredReasoner(): ReasoningPort {
   return {
