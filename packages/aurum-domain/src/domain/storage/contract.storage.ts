@@ -21,6 +21,7 @@ export type {
   ProcessStorage,
   StorageKernelMemberTwin,
   StorageResult,
+  StorageEvidenceLookup,
   StorageRoleResolver,
   WorkforceInsightsStorage,
   WorkforceRecommendationStorage,

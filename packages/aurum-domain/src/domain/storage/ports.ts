@@ -23,7 +23,7 @@ import type { AuditSink, AuditTrail } from "../audit/ports.js";
 import type { IdentityDirectory } from "../identity/ports.js";
 import type { OrganizationDirectory } from "../organization/ports.js";
 import type { EventLog, EvidenceLedger } from "../evidence/ports.js";
-import type { EpistemicsLedger, InquiryLedger } from "../epistemics/ports.js";
+import type { EpistemicsLedger, EvidenceLookup, InquiryLedger } from "../epistemics/ports.js";
 import type { GoalLedger } from "../goals/ports.js";
 import type { OrganizationalMemory } from "../memory/ports.js";
 import type { ActionAuthority, RoleResolver } from "../action/ports.js";
@@ -77,6 +77,21 @@ export type StorageRoleResolver = (
   actor: Parameters<RoleResolver>[1],
   at: Parameters<RoleResolver>[2],
 ) => Promise<ReturnType<RoleResolver>>;
+
+/**
+ * Async evidence lookup wired by a composed storage kernel: the same minimal
+ * in-tenant verification capability the kernel injects into the in-memory
+ * epistemics ledger (observations must exist; beliefs must rest on active
+ * claims), lifted to the async storage boundary.
+ */
+export type StorageEvidenceLookup = {
+  [K in keyof EvidenceLookup]: EvidenceLookup[K] extends (
+    scope: TenantScope,
+    ...args: infer A
+  ) => infer R
+    ? (scope: TenantScope, ...args: A) => Promise<R>
+    : never;
+};
 
 /**
  * The composed storage boundary: every kernel store, async. A PostgreSQL
