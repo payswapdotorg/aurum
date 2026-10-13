@@ -7,7 +7,21 @@
   `architecture-policy.yaml` requires list; the infra `package.json`
   dependency block, `src/module.ts` and the interim alias/paths below are
   worker-owned — the exact CR-P001/W009/W011 situation)
-- **Status:** OPEN
+- **Status:** OPEN (delivery complete on `work/p002-fabric-storage`; awaiting
+  TL wiring — see Delivery status below)
+
+## Delivery status (D4, updated at the branch tip)
+
+The P002 delivery this CR unblocks is COMPLETE on
+`work/p002-fabric-storage` (see
+`packages/aurum-infra/src/fabric-storage/WORK-NOTES.md`): 4 fabric
+migrations + 8 PG adapters + 45 area proofs (infra 140/140 at the tip),
+all gates green. Both interim bridges are in place and verified
+(tsconfig `paths` → built dists; vitest aliases → public entry sources);
+the imports they carry are exactly the two specifiers this CR wires.
+After the TL runs the `pnpm install` + `architecture-policy.yaml` update,
+the worker-owned cleanup (dropping both bridges) is a two-file diff
+re-verified by the standard gate battery.
 
 ## Requested change
 
