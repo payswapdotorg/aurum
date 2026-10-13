@@ -15,8 +15,11 @@
 // universal best organization. None of them authorizes, installs, activates
 // or executes beyond the human-gated paths — that boundary is
 // tripwire-test-locked per area. Additional areas land with their assigned
-// work items.
+// work items. P003 adds the lab/learning application STORAGE PORTS (the
+// async persistence boundary + the async in-memory doubles; the PostgreSQL
+// adapters live in aurum-infra — adapters never enter this package).
 export * from "./lab/contract.lab.js";
+export * from "./lab/storage/contract.storage.js";
 export * from "./plans/contract.plans.js";
 export * from "./company/contract.company.js";
 export * from "./cognition/contract.cognition.js";
