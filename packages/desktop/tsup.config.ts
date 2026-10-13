@@ -169,12 +169,17 @@ export default defineConfig([
     ],
     // OTLP 端点与鉴权只在运行时读取；构建环境中的凭据不能写进公开安装包。
     define: createSharedDefines(),
-    // main/host 同时 watch 且共享 out 根目录时，默认 chunk 命名会互相覆盖，
-    // 可能让 main 的 import 指向被 host 刚重写的 chunk，触发“缺少命名导出”的偶发启动报错。
-    // 这里按目标分目录输出 chunk，确保并发构建下产物隔离。
     esbuildOptions(options) {
       applyDesktopTsupEsbuildSecurityOptions(options);
       options.chunkNames = "main/chunk-[hash]";
+      // W012 interim bridge (CR-W012-desktop): @aurum/application is not a
+      // declared dependency of packages/desktop yet (lockfile is TL-owned),
+      // so the Aurum tower session host resolves it from the workspace
+      // source at bundle time. The alias is removed when the CR lands.
+      options.alias = {
+        ...options.alias,
+        "@aurum/application": resolve(import.meta.dirname, "../aurum-application/src/index.ts"),
+      };
     },
     onSuccess: createDevReadyMarkerHook("main"),
     ...desktopTsupBundleSecurityOptions,
@@ -188,6 +193,8 @@ export default defineConfig([
       "preload/index": "src/preload/index.ts",
       "preload/resourceManager": "src/preload/resourceManager.ts",
       "preload/cuaPermissionPanel": "src/preload/cuaPermissionPanel.ts",
+      // W012: the Aurum tower preload bridge (one contextBridge surface).
+      "preload/aurumTower": "src/preload/aurumTower.ts",
     },
     outDir: "out",
     format: "cjs",

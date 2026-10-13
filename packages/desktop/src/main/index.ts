@@ -199,6 +199,9 @@ import {
 } from "./resourceManagerWindow.js";
 import { createDesktopHelpConfigReader } from "./desktopHelpConfig.js";
 import { registerPlatformIpcHandlers } from "./desktopMainIpcPlatform.js";
+// W012 surgical mount: the Aurum tower continuous session host (one IPC
+// channel; the tower window + menu command live in src/main/aurum/).
+import { registerAurumTowerIpc } from "./aurum/towerSessionHost.js";
 import {
   loadCliMcpFromUserDirectory,
   migrateLegacyCommonMcp,
@@ -2163,6 +2166,13 @@ app.whenReady().then(async () => {
     broker: rendererActionTraceBroker,
     env: process.env,
     logger,
+  });
+
+  // W012: the desktop-continuous Aurum tower session — the live recording
+  // runtime in the main process + the single tower envelope IPC channel.
+  await registerAurumTowerIpc({
+    logger,
+    userDataPath: app.getPath("userData"),
   });
 
   registerRemoteIpcHandlers({

@@ -20,6 +20,10 @@ import {
   HELP_TOGGLE_ZCODE_STDIO_TAP_MENU_ID,
   HELP_TOGGLE_DEV_TOOLS_MENU_ID,
 } from "./desktopCommandHandlers.js";
+// W012 surgical mount: the ONE desktop command that opens the Aurum tower
+// window (continuous session; the command id lives in src/main/aurum/).
+import { AURUM_TOWER_OPEN_COMMAND_ID } from "./aurum/towerIpc.js";
+import { openAurumTowerWindow } from "./aurum/towerWindow.js";
 
 const HELP_ZCODE_ENDPOINT_PRODUCTION_MENU_ID = "help.zcode-endpoint.production";
 
@@ -331,6 +335,11 @@ function buildApplicationMenuTemplate(options: {
         {
           label: getLabel(desktopMenuMessageIds.helpResourceManager),
           click: () => void options.executeDesktopCommand(DesktopCommandIds.OpenResourceManager),
+        },
+        {
+          id: AURUM_TOWER_OPEN_COMMAND_ID,
+          label: "Aurum Control Tower",
+          click: () => openAurumTowerWindow(),
         },
         { type: "separator" as const },
         {

@@ -65,13 +65,15 @@ export function TowerApp({ session }: { session: TowerSession }) {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const refreshBoard = useCallback(() => {
+  const refreshBoard = useCallback(async () => {
     const now = nowOf();
     if (now === null) {
       setLoadError("System clock is not a valid domain time");
       return;
     }
-    const result = tower.overview(scope, {
+    // W012 widening: `overview` may arrive as a promise (RPC session); the
+    // local tower resolves synchronously — awaiting covers both.
+    const result = await tower.overview(scope, {
       now,
       askedBy: { kind: "system", name: "tower-web" },
       reason: "control tower board refresh",
@@ -85,8 +87,9 @@ export function TowerApp({ session }: { session: TowerSession }) {
   }, [scope, tower]);
 
   const refreshThread = useCallback(
-    (activeTopic: ConversationTopic) => {
-      const result = tower.conversation(scope, activeTopic);
+    async (activeTopic: ConversationTopic) => {
+      // Same widening as the board read: the thread read may be a promise.
+      const result = await tower.conversation(scope, activeTopic);
       if (result.ok) {
         setThread(result.value);
         setLoadError(null);

@@ -27,9 +27,9 @@ import {
   createCompanyIntelligenceService,
   createInMemoryQueryLog,
 } from "../../company/contract.company.js";
-import type { CompanyIntelligence } from "../../company/contract.company.js";
+import type { CompanyIntelligence, CompanyQueryLog } from "../../company/contract.company.js";
 import { createInMemoryEvaluationStore, createOrganizationalLab } from "../../lab/contract.lab.js";
-import type { OrganizationalLab } from "../../lab/contract.lab.js";
+import type { LabEvaluationStore, OrganizationalLab } from "../../lab/contract.lab.js";
 import {
   createInMemoryEscalationStore,
   createInMemoryHandoffRelayStore,
@@ -39,9 +39,14 @@ import {
   createPlanService,
 } from "../../plans/contract.plans.js";
 import type {
+  EscalationStore,
   ExecutionSubstratePort,
+  HandoffRelayStore,
+  PlanAuditPort,
   PlanService,
   PlanServiceDeps,
+  PlanStore,
+  TaskCompletionStore,
 } from "../../plans/contract.plans.js";
 import {
   createCognitionService,
@@ -51,8 +56,10 @@ import {
 } from "../../cognition/contract.cognition.js";
 import type {
   CognitionService,
+  KernelCognitionSeams,
   MissionError,
   MissionProposalPolicy,
+  MissionStore,
   ReasonedContent,
   ReasoningPort,
 } from "../../cognition/contract.cognition.js";
@@ -75,6 +82,32 @@ export interface LocalControlTowerRuntime {
   readonly tower: ControlTowerService;
 }
 
+/**
+ * Store injection points for composition variants (W012 continuity): the
+ * recording composition wraps each reference store with a journaling
+ * wrapper and injects it here, so every service keeps consuming the SAME
+ * ports while the continuity ledger journals the writes. Every slot is
+ * optional; the defaults are the same reference in-memory stores as before.
+ */
+export interface LocalTowerStoreInjection {
+  /** The mission store (cognition area, W007). */
+  readonly missions?: MissionStore;
+  /** The plan store (plans area, W009). */
+  readonly plans?: PlanStore;
+  /** The handoff relay store (plans area, W009). */
+  readonly handoffs?: HandoffRelayStore;
+  /** The task completion store (plans area, W009). */
+  readonly completions?: TaskCompletionStore;
+  /** The escalation store (plans area, W009). */
+  readonly escalations?: EscalationStore;
+  /** The lab evaluation store (lab area, W008). */
+  readonly evaluations?: LabEvaluationStore;
+  /** The company query log (company area, W004). */
+  readonly queryLog?: CompanyQueryLog;
+  /** The plan audit port (application-owned local state, W009/W010). */
+  readonly planAudit?: PlanAuditPort;
+}
+
 /** Options for the local composition (all defaults are honest refusals). */
 export interface LocalControlTowerRuntimeOptions {
   /** The bounded reasoning port; defaults to the unwired refuser. */
@@ -83,6 +116,20 @@ export interface LocalControlTowerRuntimeOptions {
   readonly substrate?: ExecutionSubstratePort;
   /** Mission proposal policy (authority roles for gated actions). */
   readonly proposalPolicy?: MissionProposalPolicy;
+  /**
+   * Compose over an EXISTING kernel instead of a fresh one (W012: the
+   * recording/replay compositions own the kernel so their seam wrappers and
+   * the runtime share one kernel instance). Defaults to a fresh kernel.
+   */
+  readonly kernel?: AurumDomainKernel;
+  /**
+   * Injected cognition seams (W012: journaling wrappers over the kernel
+   * seams — every kernel effect-write the cognition loop performs gets
+   * journaled). Defaults to `createKernelCognitionSeams(kernel)`.
+   */
+  readonly cognitionSeams?: KernelCognitionSeams;
+  /** Injected stores (W012: journaling wrappers; see the interface above). */
+  readonly stores?: LocalTowerStoreInjection;
 }
 
 /**
@@ -112,7 +159,7 @@ const DEFAULT_PROPOSAL_POLICY: MissionProposalPolicy = {
 export function createLocalControlTowerRuntime(
   options: LocalControlTowerRuntimeOptions = {},
 ): LocalControlTowerRuntime {
-  const kernel = createDomainKernel();
+  const kernel = options.kernel ?? createDomainKernel();
 
   const company = createCompanyIntelligenceService({
     views: {
@@ -124,7 +171,7 @@ export function createLocalControlTowerRuntime(
       identity: kernel.identity,
       audit: kernel.audit,
     },
-    queryLog: createInMemoryQueryLog(),
+    queryLog: options.stores?.queryLog ?? createInMemoryQueryLog(),
   });
 
   const lab = createOrganizationalLab({
@@ -134,29 +181,29 @@ export function createLocalControlTowerRuntime(
       workforce: kernel.workforce,
       inquiry: kernel.inquiry,
     },
-    evaluations: createInMemoryEvaluationStore(),
+    evaluations: options.stores?.evaluations ?? createInMemoryEvaluationStore(),
   });
 
   const planDeps: PlanServiceDeps = {
     goals: kernelGoalViews(kernel),
     candidates: kernelCandidateViews(kernel),
     approval: kernelApprovalAuthority(kernel),
-    audit: createLocalPlanAuditPort(),
+    audit: options.stores?.planAudit ?? createLocalPlanAuditPort(),
     substrate: options.substrate ?? createInProcessExecutionSubstrate(),
-    plans: createInMemoryPlanStore(),
-    handoffs: createInMemoryHandoffRelayStore(),
-    completions: createInMemoryTaskCompletionStore(),
-    escalations: createInMemoryEscalationStore(),
+    plans: options.stores?.plans ?? createInMemoryPlanStore(),
+    handoffs: options.stores?.handoffs ?? createInMemoryHandoffRelayStore(),
+    completions: options.stores?.completions ?? createInMemoryTaskCompletionStore(),
+    escalations: options.stores?.escalations ?? createInMemoryEscalationStore(),
   };
   const plans = createPlanService(planDeps);
 
-  const seams = createKernelCognitionSeams(kernel);
+  const seams = options.cognitionSeams ?? createKernelCognitionSeams(kernel);
   const cognition = createCognitionService({
     reads: seams.reads,
     knowledge: seams.knowledge,
     gate: seams.gate,
     model: options.reasoning ?? createUnwiredReasoner(),
-    missions: createInMemoryMissionStore(),
+    missions: options.stores?.missions ?? createInMemoryMissionStore(),
     proposalPolicy: options.proposalPolicy ?? DEFAULT_PROPOSAL_POLICY,
   });
 

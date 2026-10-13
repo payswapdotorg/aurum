@@ -15,7 +15,8 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"]
 }

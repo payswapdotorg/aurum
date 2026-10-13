@@ -18,7 +18,6 @@
  * identically on every platform (no second Agent Body; tripwire-locked in
  * test/continuity-contract-hygiene.test.ts).
  */
-
 // --- typed errors (domain) ---
 export {
   continuityConflict,
@@ -48,6 +47,9 @@ export type {
 // --- replay validation + summary (domain, pure) ---
 export { replayIssues, replaySummaryOf } from "./domain/replay.js";
 
+// --- attachment digests (domain, pure default) ---
+export { attachmentDigestOf, fnv1a64Of } from "./domain/digests.js";
+
 // --- ports (domain) ---
 export type {
   CloseAttachmentInput,
@@ -58,6 +60,7 @@ export type {
   EnsureSessionInput,
   EnsuredSession,
   LiveTowerSession,
+  MaybePromise,
   OpenAttachmentInput,
   OpenSessionInput,
   ResumeSessionInput,
@@ -65,5 +68,31 @@ export type {
   TowerReplayTargets,
   TowerReplayer,
   TowerRuntimeComposer,
+  TowerServiceAccess,
   TowerSessionBinding,
 } from "./domain/ports.js";
+
+// --- service (app) ---
+export { createContinuityService } from "./app/continuityService.js";
+
+// --- reference adapters (adapters) ---
+export { createInMemoryContinuityLedger } from "./adapters/in-memory-ledger.js";
+export { createJsonFileContinuityLedger } from "./adapters/json-file-ledger.js";
+export { createContinuousTowerSession, createTowerReplayer } from "./adapters/session-kernel.js";
+export type { TowerSessionKernelOptions } from "./adapters/session-kernel.js";
+export {
+  createFileSystemAttachmentSurface,
+  createInMemoryAttachmentSurface,
+  createRefusingAttachmentSurface,
+} from "./adapters/attachment-surfaces.js";
+export {
+  createTowerRpcClient,
+  createTowerRpcHandler,
+  TOWER_RPC_METHODS,
+} from "./adapters/tower-rpc.js";
+export type {
+  TowerRpcEnvelope,
+  TowerRpcHandler,
+  TowerRpcSettled,
+  TowerRpcTransport,
+} from "./adapters/tower-rpc.js";

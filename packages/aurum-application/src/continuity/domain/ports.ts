@@ -21,16 +21,28 @@ import type {
   TenantScope,
 } from "@aurum/domain";
 import type { MissionStore } from "../../cognition/contract.cognition.js";
+import type { MissionRecord } from "../../cognition/contract.cognition.js";
+import type { MissionError } from "../../cognition/contract.cognition.js";
 import type {
   EscalationStore,
   HandoffRelayStore,
   PlanAuditPort,
+  PlanError,
   PlanStore,
   TaskCompletionStore,
 } from "../../plans/contract.plans.js";
+import type { ExecutionPlan, TaskCompletionRecord } from "../../plans/contract.plans.js";
 import type { LabEvaluationStore } from "../../lab/contract.lab.js";
 import type { CompanyQueryLog } from "../../company/contract.company.js";
 import type { LocalControlTowerRuntime } from "../../control-tower/contract.control-tower.js";
+import type {
+  ControlTowerError,
+  ControlTowerOverview,
+  ControlTowerService,
+  ConversationTopic,
+  ConversationViewModel,
+  TowerReadInput,
+} from "../../control-tower/contract.control-tower.js";
 import type { ContinuityError } from "./errors.js";
 import type {
   AttachmentDigest,
@@ -180,6 +192,61 @@ export interface CloseAttachmentInput {
   readonly sessionId: string;
   readonly attachmentId: string;
   readonly now: DomainTimestamp;
+}
+
+/** A value that is either resolved (in-process) or arrives later (RPC). */
+export type MaybePromise<T> = T | Promise<T>;
+
+/**
+ * The transport-target widening of the tower service (APPROACH R6): the
+ * SAME 11-method surface with reads/results permitted to arrive as
+ * promises. The canonical local tower satisfies it synchronously
+ * (`ControlTowerService` is structurally assignable — proven in the hygiene
+ * suite); an RPC client satisfies it asynchronously. This is the type a
+ * platform variant's session composition hands its UI — the UI code is
+ * therefore composition-independent (W010's "one composition swapped per
+ * variant" ruling, made transport-ready).
+ */
+export interface TowerServiceAccess {
+  readonly overview: (
+    scope: TenantScope,
+    input: TowerReadInput,
+  ) => MaybePromise<Result<ControlTowerOverview, ControlTowerError>>;
+  readonly conversation: (
+    scope: TenantScope,
+    topic: ConversationTopic,
+  ) => MaybePromise<Result<ConversationViewModel, ControlTowerError>>;
+
+  // --- cognition delegation (the service's own signatures, maybe-async) ---
+  readonly createMission: (
+    ...args: Parameters<ControlTowerService["createMission"]>
+  ) => MaybePromise<Result<MissionRecord, MissionError>>;
+  readonly advanceMission: (
+    ...args: Parameters<ControlTowerService["advanceMission"]>
+  ) => MaybePromise<Result<MissionRecord, MissionError>>;
+  readonly runMissionToCompletion: (
+    ...args: Parameters<ControlTowerService["runMissionToCompletion"]>
+  ) => MaybePromise<Result<MissionRecord, MissionError>>;
+  readonly cancelMission: (
+    ...args: Parameters<ControlTowerService["cancelMission"]>
+  ) => MaybePromise<Result<MissionRecord, MissionError>>;
+
+  // --- plans delegation (the service's own signatures, maybe-async) ---
+  readonly submitPlanForApproval: (
+    ...args: Parameters<ControlTowerService["submitPlanForApproval"]>
+  ) => MaybePromise<Result<ExecutionPlan, PlanError>>;
+  readonly approvePlan: (
+    ...args: Parameters<ControlTowerService["approvePlan"]>
+  ) => MaybePromise<Result<ExecutionPlan, PlanError>>;
+  readonly rejectPlan: (
+    ...args: Parameters<ControlTowerService["rejectPlan"]>
+  ) => MaybePromise<Result<ExecutionPlan, PlanError>>;
+  readonly activatePlan: (
+    ...args: Parameters<ControlTowerService["activatePlan"]>
+  ) => MaybePromise<Result<ExecutionPlan, PlanError>>;
+  readonly dispatchTask: (
+    ...args: Parameters<ControlTowerService["dispatchTask"]>
+  ) => MaybePromise<Result<TaskCompletionRecord, PlanError>>;
 }
 
 /** Dependencies of the continuity service factory. */

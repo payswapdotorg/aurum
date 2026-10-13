@@ -72,6 +72,7 @@ export { createLocalControlTowerRuntime, createUnwiredReasoner } from "./adapter
 export type {
   LocalControlTowerRuntime,
   LocalControlTowerRuntimeOptions,
+  LocalTowerStoreInjection,
 } from "./adapters/local-runtime.js";
 export {
   createLocalPlanAuditPort,
