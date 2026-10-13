@@ -42,10 +42,10 @@ composed through the application contract ONLY (structural picks of the
 existing service interfaces — the same seam discipline the company/cognition
 ports apply to the kernel). The projection adds ZERO new semantic authority:
 its ACTION methods are 1:1 delegations to the existing public service methods
-(`createMission`/`advance`/`cancelMission` on cognition; `submitForApproval`/
-`approvePlan`/`rejectPlan`/`activatePlan`/`dispatchTask` on plans; company
+(`createMission`/`advance`/`cancelMission`on cognition;`submitForApproval`/
+`approvePlan`/`rejectPlan`/`activatePlan`/`dispatchTask`on plans; company
 queries). No new command path is invented; no second error authority (action
-results are the underlying services' `Result` types, unchanged).
+results are the underlying services'`Result` types, unchanged).
 
 **R2 — the web mounts a NEW top-level route `/tower`** following the existing
 share-route pattern (pathname dispatch in `main.tsx` BEFORE the ZCode `Root`
