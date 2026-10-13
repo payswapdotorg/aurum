@@ -32,6 +32,8 @@ describe("control tower overview: derived from real kernel records", () => {
     seedObservation(runtime, s, "obs-1");
     seedObservation(runtime, s, "obs-2");
     seedTowerCandidate(runtime, s);
+    // The plan's tasks cite a REAL approved kernel action (executor authority).
+    seedApprovedAction(runtime, s);
 
     const mission = okOf(
       tower.createMission(s, {
@@ -47,7 +49,10 @@ describe("control tower overview: derived from real kernel records", () => {
     expect(mission.status).toBe("pending");
     okOf(await tower.runMissionToCompletion(s, "mission-1", { now: 1_700_000_000_002 }));
 
-    okOf(tower.plans.createPlan(s, towerPlanInput("cand-1")));
+    // Plan CREATION is the plans area's own surface (the tower delegates
+    // only the human semantic actions) — driven through the runtime's plans
+    // service, i.e. the same public contract the tower consumes.
+    okOf(runtime.plans.createPlan(s, towerPlanInput("cand-1")));
     okOf(
       tower.submitPlanForApproval(s, {
         planId: "plan-1",
@@ -123,7 +128,8 @@ describe("control tower overview: derived from real kernel records", () => {
     seedTowerCandidate(runtime, s);
     const actionId = seedApprovedAction(runtime, s);
 
-    okOf(tower.plans.createPlan(s, towerPlanInput("cand-1")));
+    // Plan creation is the plans area's own surface — not a tower action.
+    okOf(runtime.plans.createPlan(s, towerPlanInput("cand-1")));
     okOf(
       tower.submitPlanForApproval(s, {
         planId: "plan-1",
@@ -133,13 +139,16 @@ describe("control tower overview: derived from real kernel records", () => {
       }),
     );
 
-    const draftBoard = okOf(tower.overview(s, towerRead(20)));
-    const draftCard = draftBoard.plans[0];
-    expect(draftCard?.approvalState).toBe("submitted");
-    expect(draftCard?.lifecycleState).toBe("inactive");
-    expect(draftCard?.taskCount).toBe(2);
-    expect(draftCard?.readyTaskCount).toBeUndefined();
-    expect(draftCard?.escalationCount).toBeUndefined();
+    // W009 law: plans are BORN lifecycle-active (approval starts at draft) —
+    // so a submitted plan already carries readiness (both tasks ready, none
+    // escalated).
+    const submittedBoard = okOf(tower.overview(s, towerRead(20)));
+    const submittedCard = submittedBoard.plans[0];
+    expect(submittedCard?.approvalState).toBe("submitted");
+    expect(submittedCard?.lifecycleState).toBe("active");
+    expect(submittedCard?.taskCount).toBe(2);
+    expect(submittedCard?.readyTaskCount).toBe(2);
+    expect(submittedCard?.escalationCount).toBe(0);
 
     okOf(
       tower.approvePlan(s, {
@@ -163,9 +172,29 @@ describe("control tower overview: derived from real kernel records", () => {
 
     const activeBoard = okOf(tower.overview(s, towerRead(30)));
     const activeCard = activeBoard.plans[0];
+    expect(activeCard?.approvalState).toBe("approved");
     expect(activeCard?.lifecycleState).toBe("active");
     expect(activeCard?.readyTaskCount).toBe(2);
     expect(activeCard?.escalationCount).toBe(0);
+
+    // Lifecycle moves are the plans area's own surface beyond the tower's
+    // delegated actions — cancellation retires the plan, and the card then
+    // STOPS carrying readiness (readiness is an active-plan concern).
+    okOf(
+      runtime.plans.cancelPlan(s, {
+        planId: "plan-1",
+        actor: personActor("p-1"),
+        reason: "retired",
+        now: 1_700_000_000_025,
+        auditRef: "plan-audit-3",
+      }),
+    );
+    const retiredBoard = okOf(tower.overview(s, towerRead(40)));
+    const retiredCard = retiredBoard.plans[0];
+    expect(retiredCard?.lifecycleState).toBe("cancelled");
+    expect(retiredCard?.taskCount).toBe(2);
+    expect(retiredCard?.readyTaskCount).toBeUndefined();
+    expect(retiredCard?.escalationCount).toBeUndefined();
   });
 
   it("the lab panel summarizes real evaluation records (top candidate + score)", () => {
@@ -181,12 +210,17 @@ describe("control tower overview: derived from real kernel records", () => {
         goalId: "goal-1",
         fingerprint,
         proposedBy: personActor("boss"),
-        provenance: { actor: personActor("boss"), source: "human-entered", recordedAt: 1_700_000_000_000 },
+        provenance: {
+          actor: personActor("boss"),
+          source: "human-entered",
+          recordedAt: 1_700_000_000_000,
+        },
         now: 1_700_000_000_020,
       }),
     );
     const evaluation = okOf(
       runtime.lab.evaluateOrganizations(s, {
+        goalId: "goal-1",
         fingerprint,
         candidates: search.ranked.map((entry) => entry.candidate),
         now: 1_700_000_000_025,
@@ -194,13 +228,20 @@ describe("control tower overview: derived from real kernel records", () => {
     );
 
     const overview = okOf(tower.overview(s, towerRead(40)));
-    expect(overview.lab.evaluations).toHaveLength(1);
+    // Both lab records are REAL and both are shown: the W008 search records
+    // its own evaluation and the explicit evaluate call records the second.
+    // The panel renders, it does not judge.
+    expect(overview.lab.evaluations).toHaveLength(2);
     const summary = overview.lab.evaluations[0];
+    const searchRecord = overview.lab.evaluations[1];
     expect(summary?.evaluationId).toBe(evaluation.evaluationId);
     expect(summary?.goalId).toBe("goal-1");
     expect(summary?.rankedCount).toBe(search.ranked.length);
     expect(summary?.topCandidateId).toBe(search.ranked[0]?.candidate.candidateId);
     expect(summary?.topScore).toBe(search.ranked[0]?.score.weightedScore);
+    // Newest first: the explicit evaluation (t=25) precedes the search record (t=20).
+    expect(searchRecord?.createdAt).toBe(1_700_000_000_020);
+    expect(searchRecord?.rankedCount).toBe(search.ranked.length);
   });
 
   it("pending approvals: mission gate recommendations + submitted plans (and nothing else)", async () => {
@@ -210,6 +251,8 @@ describe("control tower overview: derived from real kernel records", () => {
     seedObservation(runtime, s, "obs-1");
     seedObservation(runtime, s, "obs-2");
     seedTowerCandidate(runtime, s);
+    // The plan's tasks cite a REAL approved kernel action (executor authority).
+    seedApprovedAction(runtime, s);
 
     okOf(
       tower.createMission(s, {
@@ -223,7 +266,8 @@ describe("control tower overview: derived from real kernel records", () => {
     );
     okOf(await tower.runMissionToCompletion(s, "mission-1", { now: 1_700_000_000_006 }));
 
-    okOf(tower.plans.createPlan(s, towerPlanInput("cand-1")));
+    // Plan creation is the plans area's own surface — not a tower action.
+    okOf(runtime.plans.createPlan(s, towerPlanInput("cand-1")));
     okOf(
       tower.submitPlanForApproval(s, {
         planId: "plan-1",
@@ -234,13 +278,16 @@ describe("control tower overview: derived from real kernel records", () => {
     );
 
     const overview = okOf(tower.overview(s, towerRead(30)));
-    const missionActions = overview.pendingApprovals.filter((item) => item.kind === "mission-action");
+    const missionActions = overview.pendingApprovals.filter(
+      (item) => item.kind === "mission-action",
+    );
     const planItems = overview.pendingApprovals.filter((item) => item.kind === "plan");
-    // Two model proposals crossed the gate and stopped at `recommended`.
+    // Two model proposals crossed the gate and stopped at `recommended`
+    // (deterministic mission-scoped action ids).
     expect(missionActions).toHaveLength(2);
     for (const item of missionActions) {
       expect(item.sourceId).toBe("mission-1");
-      expect(item.actionId).toMatch(/^action-/);
+      expect(item.actionId).toMatch(/^mission-1:action-/);
       expect(item.title).toContain("Automate ACME invoice intake");
     }
     expect(planItems).toHaveLength(1);
@@ -302,7 +349,10 @@ describe("control tower overview: derived from real kernel records", () => {
     const read = towerRead(45);
     const situation = okOf(runtime.company.situation(s, read));
     const overview = okOf(tower.overview(s, read));
-    expect(overview.situation).toBe(situation);
+    // Two independent derivations over the same kernel records yield the
+    // identical report — the tower passes the company report through
+    // verbatim (no re-shaping, no omission, no addition).
+    expect(overview.situation).toStrictEqual(situation);
     expect(overview.asOf).toBe(read.now);
   });
 });

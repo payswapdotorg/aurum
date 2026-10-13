@@ -20,18 +20,13 @@ import {
 } from "@aurum/domain";
 import type {
   ControlTowerError,
-  ControlTowerOverview,
-  ConversationViewModel,
   LocalControlTowerRuntime,
   MissionError,
   PlanError,
   ReasonerScriptEntry,
   ScriptedReasoner,
 } from "../src/index.js";
-import {
-  createLocalControlTowerRuntime,
-  createScriptedReasoner,
-} from "../src/index.js";
+import { createLocalControlTowerRuntime, createScriptedReasoner } from "../src/index.js";
 import { standardContent } from "./cognition-helpers.js";
 import { planTask, seedCandidate } from "./plans-helpers.js";
 
@@ -225,14 +220,15 @@ export function seedTowerCandidate(
 }
 
 /** Standard two-task plan input over the seeded candidate. */
-export function towerPlanInput(candidateId: string): Parameters<
-  LocalControlTowerRuntime["plans"]["createPlan"]
->[1] {
+export function towerPlanInput(
+  candidateId: string,
+  authorityActionId = "action-approve-1",
+): Parameters<LocalControlTowerRuntime["plans"]["createPlan"]>[1] {
   return {
     planId: "plan-1",
     goalId: "goal-1",
     candidateId,
-    tasks: [planTask("task-a"), planTask("task-b")],
+    tasks: [planTask("task-a", { authorityActionId }), planTask("task-b", { authorityActionId })],
     createdBy: personActor("p-1"),
     provenance: provenance(systemActor("seed"), 0),
     evidenceRefs: [{ kind: "goal", id: "goal-1" }],
@@ -241,9 +237,9 @@ export function towerPlanInput(candidateId: string): Parameters<
 }
 
 /** Standard tower read input (a logged company query). */
-export function towerRead(atSeconds = 30): Parameters<
-  LocalControlTowerRuntime["tower"]["overview"]
->[1] {
+export function towerRead(
+  atSeconds = 30,
+): Parameters<LocalControlTowerRuntime["tower"]["overview"]>[1] {
   return {
     now: now(atSeconds),
     askedBy: personActor("boss"),
