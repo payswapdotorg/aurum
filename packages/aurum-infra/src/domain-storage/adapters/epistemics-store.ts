@@ -38,7 +38,6 @@ import type {
   ReviseBeliefInput,
   StorageEvidenceLookup,
   SubjectReference,
-  TenantScope,
 } from "@aurum/domain";
 import { appendAuditEntry } from "./audit-store.js";
 import {
@@ -50,10 +49,10 @@ import {
   validateFreshnessStamp,
   validateSubjectRef,
 } from "./epistemics-shared.js";
-import type { BeliefRow, ClaimRow } from "./epistemics-shared.js";
+import type { ClaimRow } from "./epistemics-shared.js";
 import { recordWrite } from "../journal/write-journal.js";
 import { isUniqueViolation, jsonbParam } from "../pg/db.js";
-import type { Db, Tx } from "../pg/db.js";
+import type { Db } from "../pg/db.js";
 
 /** Creates the PostgreSQL claims + beliefs ledger bound to a database handle. */
 export function createPgEpistemicsLedger(

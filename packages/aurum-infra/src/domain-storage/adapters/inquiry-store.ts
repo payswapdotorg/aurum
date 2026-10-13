@@ -32,7 +32,6 @@ import type {
   ResolveContradictionInput,
   ResolveUnknownInput,
   SubjectReference,
-  TenantScope,
   UnknownRecord,
 } from "@aurum/domain";
 import { appendAuditEntry } from "./audit-store.js";
