@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@aurum/agent": "workspace:*",
+    "@aurum/application": "workspace:*",
     "@aurum/domain": "workspace:*",
     "@aurum/provider": "workspace:*",
     "postgres": "^3.4.9"

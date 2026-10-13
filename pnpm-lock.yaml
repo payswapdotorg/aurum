@@ -677,6 +677,9 @@ importers:
       '@aurum/agent':
         specifier: workspace:*
         version: link:../aurum-agent
+      '@aurum/application':
+        specifier: workspace:*
+        version: link:../aurum-application
       '@aurum/domain':
         specifier: workspace:*
         version: link:../aurum-domain
