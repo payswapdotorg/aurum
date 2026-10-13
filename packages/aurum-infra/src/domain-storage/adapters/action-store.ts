@@ -94,7 +94,10 @@ async function loadCurrentAction(
  * (first-seen mutation 0 row), exactly like the in-memory TenantIndex list —
  * NOT the order of the latest mutations.
  */
-async function loadAllCurrentActions(sql: Db, scope: TenantScope): Promise<readonly ActionRecord[]> {
+async function loadAllCurrentActions(
+  sql: Db,
+  scope: TenantScope,
+): Promise<readonly ActionRecord[]> {
   const rows: readonly ActionRow[] = await sql`
     select record from domain_actions
     where tenant_id = ${scope.tenantId}
@@ -140,9 +143,8 @@ export function createPgActionAuthority(
     // logical point (a concurrent membership change between resolution and
     // the transition is a race the reference cannot represent either).
     const needsRoles = target === "approved" || target === "authorized";
-    const actorRoles = needsRoles && requirePersonActor(actor)
-      ? await resolveRoles(scope, actor, input.now)
-      : [];
+    const actorRoles =
+      needsRoles && requirePersonActor(actor) ? await resolveRoles(scope, actor, input.now) : [];
 
     try {
       return await sql.begin(async (tx) => {

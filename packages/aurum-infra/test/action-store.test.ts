@@ -8,11 +8,7 @@
  * — and the lifecycle table is append-only by database trigger.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type {
-  ActionTransitionInput,
-  ProposeActionInput,
-  RegisterPersonInput,
-} from "@aurum/domain";
+import type { ActionTransitionInput, ProposeActionInput, RegisterPersonInput } from "@aurum/domain";
 import { createPgActionAuthority } from "../src/domain-storage/adapters/action-store.js";
 import { createPgIdentityDirectory } from "../src/domain-storage/adapters/identity-store.js";
 import { createPgAuditTrail } from "../src/domain-storage/adapters/audit-store.js";
@@ -268,9 +264,27 @@ describe("PG action authority equivalence with the in-memory reference", () => {
         { title: "x".repeat(301) },
         { description: "   " },
         { subject: { kind: "warp", id: "x" } },
-        { policy: { approvalRoles: [], authorizationRoles: ["authorizer"], employmentImpacting: false } },
-        { policy: { approvalRoles: ["approver"], authorizationRoles: [], employmentImpacting: false } },
-        { policy: { approvalRoles: ["wizard"], authorizationRoles: ["authorizer"], employmentImpacting: false } },
+        {
+          policy: {
+            approvalRoles: [],
+            authorizationRoles: ["authorizer"],
+            employmentImpacting: false,
+          },
+        },
+        {
+          policy: {
+            approvalRoles: ["approver"],
+            authorizationRoles: [],
+            employmentImpacting: false,
+          },
+        },
+        {
+          policy: {
+            approvalRoles: ["wizard"],
+            authorizationRoles: ["authorizer"],
+            employmentImpacting: false,
+          },
+        },
         { policy: { approvalRoles: ["approver"], authorizationRoles: ["authorizer"] } },
         { createdBy: undefined },
         { createdBy: { kind: "person" } },
@@ -401,13 +415,19 @@ describe("PG action authority equivalence with the in-memory reference", () => {
       okOf(
         await pgActions.recommendAction(
           s,
-          transitionInput({ actionId: "a-2", audit: auditInput(systemActor("lab"), "analysis", 3) }),
+          transitionInput({
+            actionId: "a-2",
+            audit: auditInput(systemActor("lab"), "analysis", 3),
+          }),
         ),
       );
       okOf(
         memory.actions.recommendAction(
           s,
-          transitionInput({ actionId: "a-2", audit: auditInput(systemActor("lab"), "analysis", 3) }),
+          transitionInput({
+            actionId: "a-2",
+            audit: auditInput(systemActor("lab"), "analysis", 3),
+          }),
         ),
       );
       const missingDecision = transitionInput({
@@ -504,9 +524,9 @@ describe("PG action authority equivalence with the in-memory reference", () => {
       // No audit entry for the proposal itself: both trails still contain
       // only the seeded membership.granted entry.
       expect(await pgAudit.queryAudit(s, {})).toEqual(memory.audit.queryAudit(s, {}));
-      expect(
-        (await pgAudit.queryAudit(s, { subject: { kind: "action", id: "a-1" } })).length,
-      ).toBe(0);
+      expect((await pgAudit.queryAudit(s, { subject: { kind: "action", id: "a-1" } })).length).toBe(
+        0,
+      );
 
       okOf(
         await pgActions.recommendAction(
@@ -523,13 +543,21 @@ describe("PG action authority equivalence with the in-memory reference", () => {
       okOf(
         await pgActions.approveAction(
           s,
-          transitionInput({ expectedState: "recommended", now: now(2), audit: auditInput(personActor("p-1"), "approve", 2) }),
+          transitionInput({
+            expectedState: "recommended",
+            now: now(2),
+            audit: auditInput(personActor("p-1"), "approve", 2),
+          }),
         ),
       );
       okOf(
         memory.actions.approveAction(
           s,
-          transitionInput({ expectedState: "recommended", now: now(2), audit: auditInput(personActor("p-1"), "approve", 2) }),
+          transitionInput({
+            expectedState: "recommended",
+            now: now(2),
+            audit: auditInput(personActor("p-1"), "approve", 2),
+          }),
         ),
       );
       // action.recommended (audit-1), action.approved (audit-2) — identical.
@@ -597,7 +625,11 @@ describe("PG action authority database enforcement", () => {
     okOf(
       await pgActions.approveAction(
         s,
-        transitionInput({ expectedState: "recommended", now: now(2), audit: auditInput(personActor("p-1"), "approve", 2) }),
+        transitionInput({
+          expectedState: "recommended",
+          now: now(2),
+          audit: auditInput(personActor("p-1"), "approve", 2),
+        }),
       ),
     );
     const rows = await listJournal(harness.sql, s.tenantId);
