@@ -1,13 +1,19 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "out/renderer",
-    "rootDir": "src/renderer",
     "lib": ["es2025", "dom", "dom.iterable"],
     "jsx": "react-jsx",
     "noEmit": true
   },
-  "include": ["src/renderer"],
-  // renderer 直接 import 了 shared；把它补进 references，避免 renderer 单独检查时再走源码回退路径。
+  // CR-W012-desktop (TL): the first entry is the renderer program itself;
+  // the Aurum tower renderer page reuses the WEB tower components by source
+  // (the W010 mount-agnostic ruling) — the web tower sources typecheck
+  // inside the renderer program via the second include. The (noEmit-moot)
+  // outDir/rootDir pair was dropped so outside-source imports don't trip
+  // TS6059. The web-tower include is permanent until a shared
+  // @aurum/tower-ui package exists (the W012 WORK-NOTES successor).
+  // references: renderer 直接 import 了 shared/ui/client，补进 references
+  // 避免单独检查时再走源码回退路径。
+  "include": ["src/renderer", "../web/src/tower"],
   "references": [{ "path": "../shared" }, { "path": "../ui" }, { "path": "../client" }]
 }

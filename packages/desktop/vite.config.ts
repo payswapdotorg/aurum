@@ -229,6 +229,9 @@ export default defineConfig(({ mode }) => {
           index: resolve(__dirname, "src/renderer/index.html"),
           "resource-manager": resolve(__dirname, "src/renderer/resource-manager.html"),
           "cua-permission-panel": resolve(__dirname, "src/renderer/cua-permission-panel.html"),
+          // CR-W012-desktop (TL): the Aurum Control Tower window (the W012
+          // cross-platform mount; the page itself is permanent W012 surface).
+          "aurum-tower": resolve(__dirname, "src/renderer/aurum-tower.html"),
         },
       },
     },

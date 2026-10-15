@@ -753,6 +753,9 @@ importers:
       '@arms/rum-electron':
         specifier: ^0.0.3
         version: 0.0.3(patch_hash=36855354851ea495bc47a03340b0484ff62836b739cad56904b8a69f18e2ae97)(@babel/runtime@7.29.7)(electron@41.0.3)
+      '@aurum/application':
+        specifier: workspace:*
+        version: link:../aurum-application
       '@babel/runtime':
         specifier: ^7.24.5
         version: 7.29.7

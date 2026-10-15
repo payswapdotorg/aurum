@@ -8,7 +8,30 @@
 - **Owner of requested change:** TL (root `pnpm-lock.yaml` + dependency
   wiring; the interim bridges below are worker-owned and are REMOVED by the
   TL when this CR resolves — the exact CR-W009/W010/W011/P001/P002 pattern)
-- **Status:** OPEN
+- **Status:** RESOLVED 2026-10-15 (TL) — `@aurum/application: workspace:*` wired into
+  `packages/desktop/package.json`; root lockfile records the `link:../aurum-application`
+  importer entry. Post-CR cleanup executed: tsup esbuild alias dropped (the package
+  moves to the main config's `noExternal` list — inlined like `@zcode/shared`); the
+  renderer program drops the (noEmit-moot) `outDir`/`rootDir` pair and keeps the
+  `../web/src/tower` include (permanent until a shared `@aurum/tower-ui` package);
+  `tsconfig.preload.json` includes `src/main/aurum/towerIpc.ts` (the permanent
+  dependency-free constants shape). Mount-completion repairs beyond the filing's
+  snapshot (the narrative-harvest delivery had not landed them): the vite
+  multi-page input gains `aurum-tower`; the renderer page's transport errors now
+  use `continuityInvariant()` (contract-true `ContinuityError` shape — the
+  delivered `{name,message}` literal drifted from `TowerRpcTransport`).
+  TL gates at the resolution tree: root typecheck 19/19 projects 0 errors;
+  fmt clean; lint 70 warnings / 0 errors (exact baseline); architecture
+  baseline 0 / new 0; desktop scoped projects carry ZERO errors in the aurum
+  mount files (main 87 / preload 3 / renderer 125 — all pre-existing legacy,
+  renderer exactly the documented baseline); tsup bundle: channel constant +
+  session host present in `out/main/index.js` with ZERO bare
+  `@aurum/application` imports (fully inlined); `out/preload/aurumTower.cjs`
+  carries the bridge; the aurum-tower renderer page builds through the real
+  link (scoped vite build verified — the full 4-page vite build is
+  environment-blocked on this 4GB station with the replay browser resident,
+  same class as the certification environment-blocked register); tests:
+  domain 111 / application 471 / infra 166 / marketplace 148 — all green.
 
 ## Requested change
 

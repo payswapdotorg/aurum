@@ -166,20 +166,16 @@ export default defineConfig([
       // electron-builder 又会排除 node_modules/@zcode，导致安装包启动即 ERR_MODULE_NOT_FOUND。
       // producer 的 JS broker 必须跟随 services 一起内联，原生 addon 仍只存在于独立 Helper。
       "@zcode/zcode-cua",
+      // CR-W012-desktop (TL): @aurum/application 与上面的 workspace 包同类——
+      // exports.default 指向 src/index.ts，Electron 生产运行时无 TS loader，
+      // 必须随 main bundle 内联（取代此前的 esbuild alias 过渡桥）。
+      "@aurum/application",
     ],
     // OTLP 端点与鉴权只在运行时读取；构建环境中的凭据不能写进公开安装包。
     define: createSharedDefines(),
     esbuildOptions(options) {
       applyDesktopTsupEsbuildSecurityOptions(options);
       options.chunkNames = "main/chunk-[hash]";
-      // W012 interim bridge (CR-W012-desktop): @aurum/application is not a
-      // declared dependency of packages/desktop yet (lockfile is TL-owned),
-      // so the Aurum tower session host resolves it from the workspace
-      // source at bundle time. The alias is removed when the CR lands.
-      options.alias = {
-        ...options.alias,
-        "@aurum/application": resolve(import.meta.dirname, "../aurum-application/src/index.ts"),
-      };
     },
     onSuccess: createDevReadyMarkerHook("main"),
     ...desktopTsupBundleSecurityOptions,

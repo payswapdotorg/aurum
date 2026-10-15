@@ -10,8 +10,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  continuityInvariant,
   createTowerRpcClient,
   tenantScope,
+  type ContinuityError,
   type TowerRpcEnvelope,
   type TowerServiceAccess,
 } from "@aurum/application";
@@ -30,7 +32,7 @@ declare global {
 /** The serialized transport payload (the tower Result or an edge refusal). */
 type TowerTransportPayload =
   | { readonly ok: true; readonly value: unknown }
-  | { readonly ok: false; readonly error: { readonly name: string; readonly message: string } };
+  | { readonly ok: false; readonly error: ContinuityError };
 
 const TOWER_TENANT = "studio";
 
@@ -39,11 +41,8 @@ function towerTransport(envelope: TowerRpcEnvelope): Promise<TowerTransportPaylo
   const bridge = window.aurumTower;
   if (bridge === undefined) {
     return Promise.resolve({
-      ok: false,
-      error: {
-        name: "ContinuityError",
-        message: "the aurum tower preload bridge is not available in this window",
-      },
+      ok: false as const,
+      error: continuityInvariant("the aurum tower preload bridge is not available in this window"),
     });
   }
   return bridge
@@ -51,10 +50,7 @@ function towerTransport(envelope: TowerRpcEnvelope): Promise<TowerTransportPaylo
     .then((payload) => payload as TowerTransportPayload)
     .catch((error: unknown) => ({
       ok: false as const,
-      error: {
-        name: "ContinuityError",
-        message: `tower transport failed: ${String(error)}`,
-      },
+      error: continuityInvariant(`tower transport failed: ${String(error)}`),
     }));
 }
 
