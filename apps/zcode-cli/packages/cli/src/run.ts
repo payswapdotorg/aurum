@@ -21,6 +21,7 @@ import { runLoginCommand, runLogoutCommand } from "./login-command.js";
 import { CLI_COMMAND_NAME, CLI_PROCESS_NAME } from "./process-name.js";
 import { isPluginHostInvocation, runPluginHostCommand } from "./plugin-host-command.js";
 import { isDwfChildInvocation, runDwfChildCommand } from "./dwf-child-command.js";
+import { runAurumCommand } from "./aurum-command.js";
 import { runPrompt } from "./prompt-command.js";
 import { runPluginsCommand, type PluginsCommandFlags } from "./plugins-command.js";
 import { runSkillsCommand } from "./skills-command.js";
@@ -545,6 +546,10 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
       );
     case "doctor":
       return runDoctor(ctx, options, workingDirectory);
+    case "aurum":
+      // CR-W012-cli (TL): the Aurum cross-platform continuity mount —
+      // `zcode aurum status|charter|resume` over the JSON-file ledger.
+      return await runAurumCommand(ctx, options, parsed.positionals.slice(1));
     case "login":
       return await runLoginCommand(
         ctx,

@@ -18,7 +18,6 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const cliRoot = import.meta.dirname;
@@ -33,7 +32,7 @@ let failures = 0;
 
 /** Runs one CLI subcommand in a SEPARATE process through the real command. */
 function runPhase(label, args) {
-  const result = spawnSync(process.execPath, [tsxBin, runnerUrl, ...args, "--ledger", ledgerPath], {
+  const result = spawnSync(process.execPath, [tsxBin, runnerPath, ...args, "--ledger", ledgerPath], {
     encoding: "utf8",
     env: process.env,
   });

@@ -16,6 +16,7 @@ With no command, zcode opens the full-screen TUI.
 
 Commands:
   app-server Run the ZCode Protocol stdio app server
+  aurum      Aurum cross-platform continuity (\`aurum status|charter|resume\`)
   commands   List custom slash commands (\`commands list\`)
   doctor     Inspect runtime and packaging assumptions
   login [zai|bigmodel]  Sign in through browser authorization

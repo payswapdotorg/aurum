@@ -16,6 +16,7 @@ export const zhCN: ZCodeCopy = {
 
 命令:
   app-server 运行 ZCode Protocol stdio app server
+  aurum      Aurum 跨平台连续性（\`aurum status|charter|resume\`）
   commands   列出自定义 slash commands（\`commands list\`）
   doctor     检查运行时和打包假设
   login [zai|bigmodel]  通过浏览器授权登录

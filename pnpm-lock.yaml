@@ -304,6 +304,9 @@ importers:
 
   apps/zcode-cli/packages/cli:
     dependencies:
+      '@aurum/application':
+        specifier: workspace:*
+        version: link:../../../../packages/aurum-application
       '@zcode/adapters':
         specifier: workspace:*
         version: link:../adapters
@@ -471,6 +474,12 @@ importers:
       '@zcode/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  apps/zcode-cli/packages/model-option-map:
+    devDependencies:
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.2
 
   apps/zcode-cli/packages/node-repl-host:
     dependencies:

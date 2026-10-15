@@ -8,7 +8,33 @@
 - **Owner of requested change:** TL (the `apps/zcode-cli/pnpm-lock.yaml` is
   a SEPARATE workspace lockfile; wiring a cross-workspace source dependency
   needs a TL decision — see the options below)
-- **Status:** OPEN
+- **Status:** RESOLVED 2026-10-15 (TL) — option chosen: `workspace:*` under the ROOT
+  workspace (the filing's option-2 shape, empirically forced): the root
+  `pnpm-workspace.yaml` already globs `apps/zcode-cli/packages/*`, so the CLI
+  package resolves `@aurum/application` as a root workspace member
+  (`link:../../../../packages/aurum-application` recorded in the ROOT lockfile —
+  the `file:` option-1 link was tried first and REJECTED live: pnpm materializes
+  a directory copy whose internal `@aurum/domain` imports cannot resolve — the
+  workspace symlink resolves them all). The zcode-cli subtree's OWN
+  `pnpm-workspace.yaml` (the upstream standalone context) remains
+  pre-existing-broken — its cross-workspace deps (@zcode/shared, @zcode/provider,
+  @zcode/provider-node, @zcode/zcode-cua, @zcode/model-option-map) all live at
+  the aurum root; out of CR scope, recorded here. Mount completion (never landed
+  by the W012 narrative-harvest delivery): the `aurum` dispatch case in
+  `src/run.ts` + bilingual help lines in `packages/i18n`. Evidence-script
+  repairs (harvest artifacts): `runnerUrl` was undefined (the spawn now passes
+  the path to the tsx CLI). Contract-drift repairs in `aurum-command.ts`:
+  `domainNow()` now returns `DomainTimestamp` (the branded type — the delivered
+  `number` return lost the brand and failed every `now:` parameter); the
+  overview failure renders `JSON.stringify(error)` (ControlTowerError is a
+  tagged union with no `message`). Verification: the banked Layer C runnable
+  evidence EXECUTED GREEN through the real `runAurumCommand` — process 1
+  charters (JSON-file ledger persists), process 2 resumes by REPLAY (7 records
+  reconstructed, mission state stable), second resume idempotent — ALL CHECKS
+  PASSED. CLI scoped tsc: only the pre-existing `@zcode/shared-types` TS2307
+  class (shared by every CLI source; type-only, runtime-proven by the
+  evidence run). Root gates: fmt clean, lint 70/0 exact baseline,
+  architecture baseline 0 / new 0.
 
 ## Requested change
 

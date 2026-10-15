@@ -30,6 +30,7 @@ import {
   domainTime,
   tenantScope,
   type ContinuityService,
+  type DomainTimestamp,
 } from "@aurum/application";
 
 const AURUM_COMMAND_USAGE = `Usage: zcode aurum <status|charter|resume> [sessionId] [--ledger <path>] [--tenant <name>]
@@ -101,7 +102,7 @@ export function composeAurumCliService(ledgerPath: string): ContinuityService {
   });
 }
 
-function domainNow(): number {
+function domainNow(): DomainTimestamp {
   const now = domainTime(Date.now());
   if (!now.ok) throw new Error("system clock is not a valid domain time");
   return now.value;
@@ -273,7 +274,7 @@ const runAurumResume = async (
     reason: "cli resume reconstruction read",
   });
   if (!overview.ok) {
-    writeLine(ctx, `aurum resume failed: ${overview.error.message}`);
+    writeLine(ctx, `aurum resume failed: ${JSON.stringify(overview.error)}`);
     return 1;
   }
   if (options.json) {
