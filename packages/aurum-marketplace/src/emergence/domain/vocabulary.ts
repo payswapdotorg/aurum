@@ -84,7 +84,19 @@ export const EMERGENCE_THRESHOLDS = {
   effortStrain: 0.9,
 } as const;
 
-export type EmergenceThresholds = typeof EMERGENCE_THRESHOLDS;
+/**
+ * Caller-overridable thresholds: number-typed by design — the defaults are
+ * the frozen literals above, but a detection query may lower/raise them
+ * (the gap suite's sub-threshold admission precedent). The literal-derived
+ * type (pre-test-tsconfig) rejected every override at compile time while
+ * the runtime accepted them.
+ */
+export interface EmergenceThresholds {
+  minRecurrence: number;
+  minShapeSamples: number;
+  shapeFailureRate: number;
+  effortStrain: number;
+}
 
 // --- derivation rule ids (recorded on every gap + proposal) ---
 

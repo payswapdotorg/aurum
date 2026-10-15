@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
+    "test:types": "tsc -p tsconfig.test.json",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix --fix-suggestions"
   },
@@ -22,6 +23,7 @@
     "@aurum/domain": "workspace:*"
   },
   "devDependencies": {
+    "@aurum/application": "workspace:*",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

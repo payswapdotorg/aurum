@@ -45,6 +45,8 @@ export const REQUESTER = marketplacePersonActor("person-requester-1");
 export const RESOLVER = marketplacePersonActor("person-resolver-1");
 export const LAB_SYSTEM = marketplaceSystemActor("aurum-lab");
 
+export type { MarketplaceTenantScope };
+
 export function scopeOf(name: string): MarketplaceTenantScope {
   const result = marketplaceTenantScope(name);
   if (!result.ok) throw new Error(`test setup: invalid tenant name ${name}`);
